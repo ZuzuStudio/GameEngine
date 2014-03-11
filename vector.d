@@ -16,13 +16,6 @@ public:
         array[i] = v.array[i];
     }
 
-/*
-    this (T...)(T components)
-    {
-        foreach(i; 0..size)
-            array[i] = components[i];
-    }
-*/
     void opAssign(int size)(Vector!(T, size) v)
     {
         foreach(i; 0..size)
@@ -259,20 +252,6 @@ public:
         array[index] = n;
     }
 
-    /*
-     * T[] = Vector!(T,size)[index1..index2]
-     */
-    auto opSlice (this X)(size_t index1, size_t index2)
-    in
-    {
-        assert ((0 <= index1) || (index1 < 3) || (0 <= index2) || (index2 < 3) || (index1 < index2),
-        "Vector!(T,size).opSlice(int index1, int index2): array index out of bounds");
-    }
-    body
-    {
-        return array[index1..index2];
-    }
-
 
     /*
      * T = Vector!(T,size)[]
@@ -377,37 +356,6 @@ public:
         {
             return (array[] == [0]);
         }
-
-        /*
-         * Transform 3D vector by a matrix
-         */
-        /*
-        static if (size == 3 && isFloatingPoint!T)
-        {
-            deprecated("Vector!(T,size).transform is deprecated, use vector to matrix multiplication instead")
-            {
-                void transform(Matrix!(T,4) m)
-                {
-                    this = this * m;
-                }
-            }
-
-            deprecated("Vector!(T,size).transformed is deprecated, use vector to matrix multiplication instead")
-            {
-                @property auto transformed(Matrix!(T,4) m)
-                {
-                    return this * m;
-                }
-            }
-        }
-        */
-        /*
-        void clamp(T minv, T maxv)
-        {
-            foreach (ref component; arrayof)
-            component.clamp(minv, maxv);
-        }
-        */
     }
 
 private:
