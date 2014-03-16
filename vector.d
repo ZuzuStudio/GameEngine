@@ -5,7 +5,7 @@ private
     import std.math;
     import std.format;
     import std.range;
-    import std.traits;
+    import std.traits, std.stdio;
 }
 
 struct Vector(T, int size)
@@ -18,9 +18,11 @@ public:
     this(T[] values...)
     {
         if(values.length == size){
+
             foreach(i; 0..size)
                 coordinates[i] = values[i];
         }
+
     }
 
 
@@ -33,13 +35,15 @@ public:
     /*
      *  Operation assign
      */
-    void opAssign(Vector!(T, size) v)
+    ref Vector!(T, size) opAssign(Vector!(T, size) v)
     {
-        if (v.coordinates.length == size)
+        if(v.coordinates.length == size)
             foreach(i; 0..size)
-                coordinates[i] = v.coordinates[i];
+                coordinates = v.coordinates.dup;
         // TO DO
         // behavior in case of different lengths of vectors
+
+        return this;
     }
 
     /*
@@ -51,8 +55,8 @@ public:
         Vector!(T, size) result;
 
         foreach(i; 0..size)
-        mixin("result.coordinates[i] = " ~ op ~ "coordinates[i];");
-        return res;
+            mixin("result.coordinates[i] = " ~ op ~ "coordinates[i];");
+        return result;
     }
 
     /*
@@ -65,20 +69,20 @@ public:
 
         foreach(i; 0..size)
         mixin("result.coordinates[i] = coordinates[i] " ~ op ~ " right.coordinates[i];");
-        return res;
+        return result;
     }
 
     /*
      *  Binary operations *, /, *=, /= for vector and scalar
      */
-    Vector!(T, size) opBinary(string op)(S scalar) const
-    if( (op == "*" || op == "/" || op == "*=" || op == "/=") && isNumeric!S )
+    Vector!(T, size) opBinary(string op)(T scalar) const
+    if(op == "*" || op == "/" || op == "*=" || op == "/=")
     {
         Vector!(T, size) result;
 
         foreach(i; 0..size)
         mixin("result.coordinates[i] = cast(T)(coordinates[i] " ~ op ~ " scalar);");
-        return res;
+        return result;
     }
 
     /*
@@ -154,7 +158,11 @@ public:
      */
     @property bool isZero()
     {
-        return (coordinates[] == [0]);
+        foreach(i; 0..size)
+            if(coordinates[i] != 0)
+                return false;
+
+        return true;
     }
 
     @property string toString()
@@ -162,6 +170,20 @@ public:
         auto writer = appender!string();
         formattedWrite(writer, "%s", coordinates);
         return writer.data;
+    }
+
+    /*
+     *  Swizzling
+     */
+    template opDispatch(string s)
+        if (s == "x" || s == "y" || s == "z")
+    {
+        enum i = ["x":0, "y":1, "z":2][s];
+
+        @property auto ref opDispatch(this X)()
+        {
+                return coordinates[i];
+        }
     }
 
 private:
