@@ -22,24 +22,23 @@ public:
             foreach(i; 0..size)
                 coordinates[i] = values[i];
         }
-
     }
-
 
     /*
      *  Copy сonstructor
      */
-    this(this){
-        coordinates = coordinates.dup;
-    }
+    //this(this){
+    //    coordinates = coordinates.dup;
+    //}
+
     /*
      *  Operation assign
      */
-    ref Vector!(T, size) opAssign(Vector!(T, size) v)
+    ref Vector!(T, size) opAssign(ref const Vector!(T, size) v)
     {
         if(v.coordinates.length == size)
             foreach(i; 0..size)
-                coordinates = v.coordinates.dup;
+                coordinates[i] = v.coordinates[i];
         // TO DO
         // behavior in case of different lengths of vectors
 
@@ -53,7 +52,6 @@ public:
     if(op == "+" || op == "-")
     {
         Vector!(T, size) result;
-
         foreach(i; 0..size)
             mixin("result.coordinates[i] = " ~ op ~ "coordinates[i];");
         return result;
@@ -187,19 +185,19 @@ public:
     }
 
 private:
-    T[] coordinates = new T [size];
+    T[size] coordinates; // = new T [size];
 }
 
 /*
  * Dot product
  */
 T dot(T, int size) (Vector!(T, size) a, Vector!(T, size) b)
-{
+ {
     T result = 0;
-    foreach (i; 0..size)
-        result += a[i] * b[i];
+    foreach(i; 0..size)
+        result += a.coordinates[i] * b.coordinates[i];
     return result;
-}
+ }
 
 /*
  * Cross product for 3D vectors
@@ -245,14 +243,14 @@ alias Vector!(float, 3) Vector3f;
 
 unittest
 {
-    const Vector3f a = Vector3f(1.0f, 2.0f, 3.0f);
-    const Vector3f b = -a;
-    const Vector3f c = +a - b;
-    const Vector3f d = dot(a, b);
-    const Vector3f f = cross(a, b);
+    Vector3f a = Vector3f(1.0f, 2.0f, 3.0f);
+    Vector3f b = -a;
+    Vector3f c = a + b;
+    float d =  dot(a, b);
+    Vector3f f = cross(a, b);
 
     assert(c.isZero);
-    assert(d == Vectro3f(1.0, 4.0, 9.0));
+    assert(d == -14.0);
     assert(f.isZero);
     assert(a.lengthsqr == 14.0f);
 }
