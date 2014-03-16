@@ -2,7 +2,6 @@ module lib.math.vector;
 
 private
 {
-    import std.conv;
     import std.math;
     import std.format;
     import std.range;
