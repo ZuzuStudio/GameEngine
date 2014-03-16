@@ -2,7 +2,10 @@ module lib.math.vector;
 
 private
 {
+    import std.conv;
     import std.math;
+    import std.format;
+    import std.range;
     import std.traits;
 }
 
@@ -10,357 +13,225 @@ struct Vector(T, int size)
 {
 public:
 
-    this (Vector!(T, size) v)
+    /*
+     *  Constructor
+     */
+    this(T[] values...)
     {
-        foreach(i; 0..size)
-        array[i] = v.array[i];
+        if(values.length == size){
+            foreach(i; 0..size)
+                coordinates[i] = values[i];
+        }
     }
 
-    void opAssign(int size)(Vector!(T, size) v)
+
+    /*
+     *  Copy сonstructor
+     */
+    this(this){
+        coordinates = coordinates.dup;
+    }
+    /*
+     *  Operation assign
+     */
+    void opAssign(Vector!(T, size) v)
     {
-        foreach(i; 0..size)
-        array[i] = v.array[i];
+        if (v.coordinates.length == size)
+            foreach(i; 0..size)
+                coordinates[i] = v.coordinates[i];
+        // TO DO
+        // behavior in case of different lengths of vectors
     }
 
     /*
-     * -Vector!(T,size)
+     *  Unary operations + and -
      */
-    Vector!(T,size) opUnary(string s) () const if (s == "-")
-        body
+    Vector!(T, size) opUnary(string op)() const
+    if(op == "+" || op == "-")
     {
-        Vector!(T,size) res;
+        Vector!(T, size) result;
 
         foreach(i; 0..size)
-        res.array[i] = -array[i];
+        mixin("result.coordinates[i] = " ~ op ~ "coordinates[i];");
         return res;
     }
 
     /*
-     * +Vector!(T,size)
+     *  Binary operations +, -, +=, -= for two vectors
      */
-    Vector!(T,size) opUnary(string s) () const if (s == "+")
-        body
+    Vector!(T, size) opBinary(string op)(Vector!(T, size) right) const
+    if(op == "+" || op == "-" || op == "+=" || op == "-=" )
     {
-        return Vector!(T,size)(this);
-    }
+        Vector!(T, size) result;
 
-    /*
-     * Vector!(T,size) + Vector!(T,size)
-     */
-    Vector!(T,size) opAdd (Vector!(T,size) v) const
-    body
-    {
-        Vector!(T,size) res;
         foreach(i; 0..size)
-        res.array[i] = cast(T)(array[i] + v.array[i]);
+        mixin("result.coordinates[i] = coordinates[i] " ~ op ~ " right.coordinates[i];");
         return res;
     }
 
     /*
-     * Vector!(T,size) - Vector!(T,size)
+     *  Binary operations *, /, *=, /= for vector and scalar
      */
-    Vector!(T,size) opSub (Vector!(T,size) v) const
-    body
+    Vector!(T, size) opBinary(string op)(S scalar) const
+    if( (op == "*" || op == "/" || op == "*=" || op == "/=") && isNumeric!S )
     {
-        Vector!(T,size) res;
+        Vector!(T, size) result;
 
         foreach(i; 0..size)
-        res.array[i] = cast(T)(array[i] - v.array[i]);
+        mixin("result.coordinates[i] = cast(T)(coordinates[i] " ~ op ~ " scalar);");
         return res;
     }
 
     /*
-     * Vector!(T,size) * Vector!(T,size)
+     *  Idex operation
      */
-    Vector!(T,size) opBinary(string op) (Vector!(T,size) v) const if (op == "*")
-        body
-    {
-        Vector!(T,size) res;
-        foreach(i; 0..size)
-        res.array[i] = cast(T)(array[i] * v.array[i]);
-        return res;
-    }
-
-
-    /*
-     * Vector!(T,size) + T
-     */
-    Vector!(T,size) opAdd (T t) const
-    body
-    {
-        Vector!(T,size) res;
-
-        foreach(i; 0..size)
-        res.array[i] = cast(T)(array[i] + t);
-        return res;
-    }
-
-    /*
-     * Vector!(T,size) - T
-     */
-    Vector!(T,size) opSub (T t) const
-    body
-    {
-        Vector!(T,size) res;
-
-        foreach(i; 0..size)
-        res.array[i] = cast(T)(array[i] - t);
-        return res;
-    }
-
-    /*
-     * Vector!(T,size) * T
-     */
-    Vector!(T,size) opBinary(string op) (T t) const if (op == "*")
-        body
-    {
-        Vector!(T,size) res;
-
-        foreach(i; 0..size)
-        res.array[i] = cast(T)(array[i] * t);
-        return res;
-    }
-
-    /*
-     * T * Vector!(T,size)
-     */
-    Vector!(T,size) opBinaryRight(string op) (T t) const if (op == "*" && isNumeric!T)
-        body
-    {
-        Vector!(T,size) res;
-
-        foreach(i; 0..size)
-        res.array[i] = cast(T)(array[i] * t);
-        return res;
-    }
-
-    /*
-     * Vector!(T,size) / T
-     */
-    Vector!(T,size) opDiv (T t) const
-    body
-    {
-        Vector!(T,size) res;
-
-        foreach(i; 0..size)
-        res.array[i] = cast(T)(array[i] / t);
-        return res;
-    }
-
-    /*
-     * Vector!(T,size) += Vector!(T,size)
-     */
-    Vector!(T,size) opAddAssign (Vector!(T,size) v)
-    body
-    {
-        foreach(i; 0..size)
-        array[i] += v.array[i];
-        return this;
-    }
-
-    /*
-     * Vector!(T,size) -= Vector!(T,size)
-     */
-    Vector!(T,size) opSubAssign (Vector!(T,size) v)
-    body
-    {
-        foreach(i; 0..size)
-        array[i] -= v.array[i];
-        return this;
-    }
-
-    /*
-     * Vector!(T,size) *= Vector!(T,size)
-     */
-    Vector!(T,size) opMulAssign (Vector!(T,size) v)
-    body
-    {
-        foreach(i; 0..size)
-        array[i] *= v.array[i];
-        return this;
-    }
-
-    /*
-     * Vector!(T,size) += T
-     */
-    Vector!(T,size) opAddAssign (T t)
-    body
-    {
-        foreach(i; 0..size)
-        array[i] += t;
-        return this;
-    }
-
-    /*
-     * Vector!(T,size) -= T
-     */
-    Vector!(T,size) opSubAssign (T t)
-    body
-    {
-        foreach(i; 0..size)
-        array[i] -= t;
-        return this;
-    }
-
-    /*
-     * Vector!(T,size) *= T
-     */
-    Vector!(T,size) opMulAssign (T t)
-    body
-    {
-        foreach(i; 0..size)
-        array[i] *= t;
-        return this;
-    }
-
-    /*
-     * Vector!(T,size) /= T
-     */
-    Vector!(T,size) opDivAssign (T t)
-    body
-    {
-        foreach(i; 0..size)
-        array[i] /= t;
-        return this;
-    }
-
-    /*
-     * T = Vector!(T,size)[index]
-     */
-    auto ref T opIndex (this X)(size_t index)
+    ref T opIndex (this vector)(size_t index)
     in
     {
         assert ((0 <= index) && (index < size),
-        "Vector!(T,size).opIndex(int index): array index out of bounds");
+        "Vector!(T,size).opIndex(size_t index): array index out of bounds");
     }
     body
     {
-        return array[index];
+        return coordinates[index];
     }
 
     /*
-     * Vector!(T,size)[index] = T
+     *  Get Vector length squared
      */
-    void opIndexAssign (T n, size_t index)
-    in
+    @property T lengthsqr()
     {
-        assert ((0 <= index) && (index < size),
-        "Vector!(T,size).opIndexAssign(int index): array index out of bounds");
-    }
-    body
-    {
-        array[index] = n;
-    }
-
-
-    /*
-     * T = Vector!(T,size)[]
-     */
-    auto opSlice (this X)()
-    body
-    {
-        return array[];
+        T lensqr = 0;
+        foreach (component; coordinates)
+        lensqr += component * component;
+        return lensqr;
     }
 
     /*
-     * Vector!(T,size)[] = T
+     *  Get vector length
      */
-    T opSliceAssign (T t)
-    body
+    @property T length()
     {
-        foreach(i; 0..size)
-        array[i] = t;
-        return t;
+        static if (isFloatingPoint!T)
+        {
+            T lensqr = lengthsqr();
+            return sqrt(lensqr);
+        }
+        // TO DO
+        // behavior in case of integer vectors
     }
 
-    static if (isNumeric!(T))
+    /*
+     *  Set vector length to 1
+     */
+    void normalize()
     {
-        /*
-         * Get vector length squared
-         */
-        @property T lengthsqr() const
-        body
+        static if (isFloatingPoint!T)
         {
-            T res = 0;
-            foreach (e; array)
-            res += e * e;
-            return res;
-        }
-
-        /*
-         * Get vector length
-         */
-        @property T length() const
-        body
-        {
-            static if (isFloatingPoint!T)
+            T lensqr = lengthsqr();
+            if (lensqr > 0)
             {
-                T t = 0;
-                foreach (e; array)
-                t += e * e;
-                return sqrt(t);
-            }
-            else
-            {
-                T t = 0;
-                foreach (e; array)
-                t += e * E;
-                return cast(T)sqrt(cast(float)t);
+                T coef = 1.0 / sqrt(lensqr);
+                foreach (ref component; coordinates)
+                component *= coef;
             }
         }
+        // TO DO
+        // behavior in case of integer vectors
+    }
 
-        /*
-         * Set vector length to 1
-         */
-        void normalize()
-        body
-        {
-            static if (isFloatingPoint!T)
-            {
-                T lensqr = lengthsqr();
-                if (lensqr > 0)
-                {
-                    T coef = 1.0 / sqrt(lensqr);
-                    foreach (ref e; array)
-                    e *= coef;
-                }
-            }
-            else
-            {
-                T lensqr = lengthsqr();
-                if (lensqr > 0)
-                {
-                    float coef = 1.0 / sqrt(cast(float)lensqr);
-                    foreach (ref e; array)
-                    e *= coef;
-                }
-            }
-        }
+    /*
+     *  Return normalized copy
+     */
+    @property Vector!(T, size) normalized()
+    {
+        Vector!(T, size) result = this;
+        result.normalize();
+        return result;
+    }
 
-        /*
-         * Return normalized copy
-         */
-        @property Vector!(T,size) normalized() const
-        body
-        {
-            Vector!(T,size) res = this;
-            res.normalize();
-            return res;
-        }
+    /*
+     *  Return true if all components are zero
+     */
+    @property bool isZero()
+    {
+        return (coordinates[] == [0]);
+    }
 
-        /*
-         * Return true if all components are zero
-         */
-        @property bool isZero() const
-        body
-        {
-            return (array[] == [0]);
-        }
+    @property string toString()
+    {
+        auto writer = appender!string();
+        formattedWrite(writer, "%s", coordinates);
+        return writer.data;
     }
 
 private:
-    T [size]array;
+    T[] coordinates = new T [size];
 }
 
+/*
+ * Dot product
+ */
+T dot(T, int size) (Vector!(T, size) a, Vector!(T, size) b)
+{
+    T result = 0;
+    foreach (i; 0..size)
+        result += a[i] * b[i];
+    return result;
+}
 
+/*
+ * Cross product for 3D vectors
+ */
+Vector!(T, size) cross(T, int size) (Vector!(T, size) a, Vector!(T, size) b)
+    if(size == 3)
+{
+    /*
+     *     | i   j   k   |
+     * det | a.x a.y a.z | = i((a.y * b.z) - (a.z * b.y)) + j((a.z * b.x) - (a.x * b.z)) +k((a.x * b.y) - (a.y * b.x));
+     *     | b.x b.y b.z |
+     */
+    return Vector!(T, size)
+    (
+        (a.y * b.z) - (a.z * b.y),
+        (a.z * b.x) - (a.x * b.z),
+        (a.x * b.y) - (a.y * b.x)
+    );
+}
+
+/*
+ *  Compute distance between two points
+ */
+T distance(T) (Vector!(T, size) a, Vector!(T, size) b)
+{
+    Vector!(T, size) difference =  a - b;
+    return difference.length;
+}
+
+/*
+ *  Compute distance squared between two points
+ */
+T distancesqr(T) (Vector!(T,3) a, Vector!(T,3) b)
+{
+    Vector!(T, size) difference =  a - b;
+    return difference.lengthsqr;
+}
+
+/*
+ * Predefined vector types
+ */
 alias Vector!(float, 3) Vector3f;
+
+unittest
+{
+    const Vector3f a = Vector3f(1.0f, 2.0f, 3.0f);
+    const Vector3f b = -a;
+    const Vector3f c = +a - b;
+    const Vector3f d = dot(a, b);
+    const Vector3f f = cross(a, b);
+
+    assert(c.isZero);
+    assert(d == Vectro3f(1.0, 4.0, 9.0));
+    assert(f.isZero);
+    assert(a.lengthsqr == 14.0f);
+}
