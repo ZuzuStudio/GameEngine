@@ -44,18 +44,44 @@ public:
     /**
      *  Operation assign
      */
-    // в принципе можно и не проверять соответствие размеров, так как всё равно соответсвие шаблонов прверяется на этапе компиляции
     ref Vector!(T, size) opAssign(ref const Vector!(T, size) v)
     {
-        //static if(v.coordinates.length == size)
-            foreach(i; 0..size)
-                coordinates[i] = v.coordinates[i];
-       // else 
-       //     static assert(false, "Vectors' dimension is mismatch");
-        // TODO
-        // behavior in case of different lengths of vectors, iff it has whatever sence.
-
+        foreach(i; 0..size)
+            coordinates[i] = v.coordinates[i];
         return this;
+    }
+    
+    /**
+     *  Operators *= and /= for vector and scalar
+     */
+    ref Vector!(T, size) opOpAssign(string op)(ref const T scalar)
+        if(op == "*" || op == "/")
+    {
+        foreach(i; 0..size)
+            mixin("coordinates[i] " ~ op ~ "= scalar;");
+        return this;
+    }
+     
+    /**
+     *  Operators += and -= for two vectors
+     */
+    ref Vector!(T, size) opOpAssign(string op)(ref const Vector!(T, size) right)
+        if(op == "+" || op == "-")
+    {
+        foreach(i; 0..size)
+            mixin("coordinates[i] " ~ op ~ "= right.coordinates[i];");
+        return this;
+    }
+     
+    /**
+     *  Binary operator +, -, * and / for possible combination of vector and scalar
+     */
+    Vector!(T, size) opBinary(string op, U)(ref const U right) const
+        if((is(U == Vector!(T,size)) && (op == "+" || op == "-")) || (is(U == T) && (op == "*" || op == "/")))
+    {
+        Vector!(T, size) result = this;
+        mixin("result " ~ op ~ "= right;");
+        return result;
     }
 
     /**
@@ -67,32 +93,6 @@ public:
         Vector!(T, size) result;
         foreach(i; 0..size)
             mixin("result.coordinates[i] = " ~ op ~ "coordinates[i];");
-        return result;
-    }
-
-    /**
-     *  Binary operations +, -, +=, -= for two vectors
-     */
-    Vector!(T, size) opBinary(string op)(Vector!(T, size) right) const
-        if(op == "+" || op == "-" || op == "+=" || op == "-=" )
-    {
-        Vector!(T, size) result;
-
-        foreach(i; 0..size)
-        mixin("result.coordinates[i] = coordinates[i] " ~ op ~ " right.coordinates[i];");
-        return result;
-    }
-
-    /**
-     *  Binary operations *, /, *=, /= for vector and scalar
-     */
-    Vector!(T, size) opBinary(string op)(T scalar) const
-        if(op == "*" || op == "/" || op == "*=" || op == "/=")
-    {
-        Vector!(T, size) result;
-
-        foreach(i; 0..size)
-        mixin("result.coordinates[i] = cast(T)(coordinates[i] " ~ op ~ " scalar);");
         return result;
     }
 
@@ -304,6 +304,23 @@ unittest
     assert(c.coordinates == d.coordinates);
     // TODO
     // test postblit
+}
+
+unittest
+{
+    bool floatingEqual(Vector3f a, Vector3f b)
+    {
+        float sum = 0.0;
+        foreach(i; 0..3)
+            sum += (a.coordinates[i] - b.coordinates[i]) ^^ 2;
+        return sqrt(sum) < sqrt(float.epsilon);
+    }
+    Vector3f a = Vector3f(1.0f, 2.0f, 3.0f);
+    Vector3f b = Vector3f(1.0f, -2.5f, 2.0f);
+    Vector3f result = Vector3f(2.0f, -0.5f, 5.0f);
+    assert(floatingEqual(a+b,result));
+    // TODO
+    // more tests
 }
 
 unittest
