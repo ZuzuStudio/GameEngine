@@ -55,31 +55,41 @@ public:
     {
         static if(size <= 4)
         {
-            coordinates = v.coordinates;
+            coordinates[] = v.coordinates[];
         }
         else
             coordinates = coordinates.dup;
     }
 
-    /**
-     *  Postblit сonstructor
-     */
     static if(size>4)
     {
+        /**
+        *  Postblit сonstructor
+        */
         this(this)
         {
             coordinates = coordinates.dup;
         }
-    }
 
-    /**
-     *  Operation assign
-     */
-    ref Vector!(T, size) opAssign(ref const Vector!(T, size) v)
-    {
-        foreach(i; 0..size)
-        coordinates[i] = v.coordinates[i];
-        return this;
+        /**
+        *  Operation assign with ref syntaxis
+        */
+        ref Vector!(T, size) opAssign( const ref Vector!(T, size) v)
+        {
+            foreach(i; 0..size)
+            coordinates[i] = v.coordinates[i];
+            return this;
+        }
+
+        /**
+        *  Operation assign without ref syntaxis
+        */
+        ref Vector!(T, size) opAssign( const  Vector!(T, size) v)
+        {
+            foreach(i; 0..size)
+            coordinates[i] = v.coordinates[i];
+            return this;
+        }
     }
 
     /**
@@ -178,7 +188,7 @@ public:
         static if (isFloatingPoint!T)
         {
             T lensqr = lengthsqr();
-            if (lensqr > float.epsilon)
+            if (lensqr > T.epsilon)
             {
                 T coef = 1.0 / sqrt(lensqr);
                 foreach (ref component; coordinates)

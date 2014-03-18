@@ -16,17 +16,17 @@ public:
 
 struct Quaternion(T)
 {
-    public:
+public:
 
     /**
      *  Constructor
      */
     this (T x, T y, T z, T w)
     {
-        x = x;
-        y = y;
-        z = z;
-        w = w;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.w = w;
     }
 
     /**
@@ -34,8 +34,21 @@ struct Quaternion(T)
      */
     this (Vector!(T, 3) v, T w)
     {
-        vector = v;
-        angle = w;
+        this.x = v.x;
+        this.y = v.y;
+        this.z = v.z;
+        this.w = w;
+    }
+
+    /**
+     *  Constructor that uses quaternion
+     */
+    this (Quaternion!(T) q)
+    {
+        x = q.x;
+        y = q.y;
+        z = q.z;
+        w = q.w;
     }
 
     /**
@@ -43,13 +56,41 @@ struct Quaternion(T)
      */
     this(this)
     {
-        vector = vector;
-        angle = angle;
+        x = x;
+        y = y;
+        z = z;
+        w = w;
     }
 
-    private:
-        Vector!(T, 3) vector;
-        T angle;
+     /**
+     *  Unary operations + and -
+     */
+    Quaternion!(T) opUnary(string op)() const
+    if(op == "+" || op == "-")
+    {
+          Quaternion!(T) result;
+        foreach(i; 0..4)
+        mixin("result.components[i] = " ~ op ~ "components[i];");
+        return result;
+        //  А очень хочеться вот так : return mixin("Quaternion!(T)(" ~ op ~ "x, " ~ op ~ "y, " ~ op ~ "z, " ~ op ~ "w);");
+    }
+
+    @property string toString()
+    {
+        auto writer = appender!string();
+        formattedWrite(writer, "%s", components);
+        return writer.data;
+    }
+
+private:
+    union
+    {
+        struct
+        {
+            T x, y, z, w;
+        }
+        T[4] components;
+    }
 }
 
 /**
@@ -57,9 +98,19 @@ struct Quaternion(T)
  */
 alias Quaternion!(float) Quaternionf;
 
-unittest {
+unittest
+{
     // Constructors testing
-    Vector3f v = Vector3f(1.0, 2.0, 3.0);
-    Quaternionf q = Quaternionf(v, 4.5);
-    assert(q.vector == v && (q.angle - 4.5) < float.epsilon);
+    Quaternionf q = Quaternionf(1.0, 2.0, 3.0, 3.14);
+    assert((q.x - 1.0 < float.epsilon) && (q.y - 2.0 < float.epsilon) && (q.z - 3.0 < float.epsilon) && (q.w - 3.14 < float.epsilon));
+    Vector3f v = Vector3f(1.9, 2.7, 3.1);
+    Quaternionf q1 = Quaternionf(v, 6.2);
+    assert((q1.x - v.x < float.epsilon) && (q1.y - v.y < float.epsilon) && (q1.z - v.z < float.epsilon) && (q1.w - 6.2 < float.epsilon));
+}
+
+unittest
+{
+    Quaternionf q = Quaternionf(1.0, 2.0, 3.0, 3.14);
+    Quaternionf q1 = -q;
+    assert(q == -q1);
 }
