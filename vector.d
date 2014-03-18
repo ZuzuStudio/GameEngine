@@ -5,16 +5,16 @@ private
     import std.math;
     import std.format;
     import std.range;
-    import std.traits, std.stdio;
+    import std.traits;
 }
 
 struct Vector(T, size_t size)
-    if(isNumeric!T && size > 0)
+if(isNumeric!T && size > 0)
 {
 public:
 
     /**
-     *  Constructor
+     *  Constructor with variable number of arguments
      */
     this(T[] values...)
     {
@@ -22,12 +22,43 @@ public:
         {
 
             foreach(i; 0..size)
-                coordinates[i] = values[i];
+            coordinates[i] = values[i];
         }
         else
         {
-            assert(false, "Number of constructor parameters don't match vector dimension.");
+            assert(false, "The number of constructor parameters does not match vector dimension.");
         }
+    }
+
+    /**
+     *  Constructor that uses array of values
+     *  It is not used at any situations at the moment
+     */
+    this(T[] values)
+    {
+        if(values.length == size)
+        {
+
+            foreach(i; 0..size)
+            coordinates[i] = values[i];
+        }
+        else
+        {
+            assert(false, "The length of array that transmitted to constructor does not match vector dimension.");
+        }
+    }
+
+    /**
+     *  Constructor that uses vector
+     */
+    this(Vector!(T, size) v)
+    {
+        static if(size <= 4)
+        {
+            coordinates = v.coordinates;
+        }
+        else
+            coordinates = coordinates.dup;
     }
 
     /**
@@ -47,37 +78,37 @@ public:
     ref Vector!(T, size) opAssign(ref const Vector!(T, size) v)
     {
         foreach(i; 0..size)
-            coordinates[i] = v.coordinates[i];
+        coordinates[i] = v.coordinates[i];
         return this;
     }
-    
+
     /**
      *  Operators *= and /= for vector and scalar
      */
     ref Vector!(T, size) opOpAssign(string op)(ref const T scalar)
-        if(op == "*" || op == "/")
+    if(op == "*" || op == "/")
     {
         foreach(i; 0..size)
-            mixin("coordinates[i] " ~ op ~ "= scalar;");
+        mixin("coordinates[i] " ~ op ~ "= scalar;");
         return this;
     }
-     
+
     /**
      *  Operators += and -= for two vectors
      */
     ref Vector!(T, size) opOpAssign(string op)(ref const Vector!(T, size) right)
-        if(op == "+" || op == "-")
+    if(op == "+" || op == "-")
     {
         foreach(i; 0..size)
-            mixin("coordinates[i] " ~ op ~ "= right.coordinates[i];");
+        mixin("coordinates[i] " ~ op ~ "= right.coordinates[i];");
         return this;
     }
-     
+
     /**
      *  Binary operator +, -, * and / for possible combination of vector and scalar
      */
     Vector!(T, size) opBinary(string op, U)(ref const U right) const
-        if((is(U == Vector!(T,size)) && (op == "+" || op == "-")) || (is(U == T) && (op == "*" || op == "/")))
+    if((is(U == Vector!(T,size)) && (op == "+" || op == "-")) || (is(U == T) && (op == "*" || op == "/")))
     {
         Vector!(T, size) result = this;
         mixin("result " ~ op ~ "= right;");
@@ -88,11 +119,11 @@ public:
      *  Unary operations + and -
      */
     Vector!(T, size) opUnary(string op)() const
-        if(op == "+" || op == "-")
+    if(op == "+" || op == "-")
     {
         Vector!(T, size) result;
         foreach(i; 0..size)
-            mixin("result.coordinates[i] = " ~ op ~ "coordinates[i];");
+        mixin("result.coordinates[i] = " ~ op ~ "coordinates[i];");
         return result;
     }
 
@@ -103,7 +134,7 @@ public:
     in
     {
         assert ((0 <= index) && (index < size),
-            "Vector!(T,size).opIndex(size_t index): array index out of bounds");
+        "Vector!(T,size).opIndex(size_t index): array index out of bounds");
     }
     body
     {
@@ -147,7 +178,7 @@ public:
         static if (isFloatingPoint!T)
         {
             T lensqr = lengthsqr();
-            if (lensqr > 0)
+            if (lensqr > float.epsilon)
             {
                 T coef = 1.0 / sqrt(lensqr);
                 foreach (ref component; coordinates)
@@ -177,8 +208,8 @@ public:
     @property bool isZero()
     {
         foreach(i; 0..size)
-            if(coordinates[i] != 0)
-                return false;
+        if(coordinates[i] != 0)
+            return false;
 
         return true;
     }
@@ -194,13 +225,13 @@ public:
      *  Swizzling
      */
     template opDispatch(string s)
-        if (s == "x" || s == "y" || s == "z")
+    if (s == "x" || s == "y" || s == "z")
     {
         enum i = ["x":0, "y":1, "z":2][s];
 
         @property auto ref opDispatch(this X)()
         {
-                return coordinates[i];
+            return coordinates[i];
         }
     }
 
@@ -219,12 +250,12 @@ private:
  * Dot product
  */
 T dot(T, int size) (Vector!(T, size) a, Vector!(T, size) b)
- {
+{
     T result = 0;
     foreach(i; 0..size)
-        result += a.coordinates[i] * b.coordinates[i];
+    result += a.coordinates[i] * b.coordinates[i];
     return result;
- }
+}
 
 /**
  * Cross product for 3D vectors
@@ -234,9 +265,9 @@ T dot(T, int size) (Vector!(T, size) a, Vector!(T, size) b)
  *     | b.x b.y b.z |
  */
 Vector!(T, size) cross(T, int size) (Vector!(T, size) a, Vector!(T, size) b)
-    if(size == 3)
+if(size == 3)
 {
-    
+
     return Vector!(T, size)
     (
         (a.y * b.z) - (a.z * b.y),
@@ -270,7 +301,7 @@ alias Vector!(float, 3) Vector3f;
 
 unittest
 {
-    // It tests template instantinating and choise between static and dynamic array
+    // Testing of template instantinating and choise between static and dynamic array
     Vector!(float, 1) a;
     assert(a.coordinates.sizeof == (float[1]).sizeof);
     Vector!(float, 2) b;
@@ -293,7 +324,7 @@ unittest
 
 unittest
 {
-    // It tests assign operator and postbli constructor
+    // Testing of assign operator and postbli constructor
     Vector3f a=Vector3f(1.0f, 2.0f, 3.0f);
     auto b = a;
     assert(a.coordinates !is b.coordinates);
@@ -308,11 +339,12 @@ unittest
 
 unittest
 {
+    // Testing of maath operations
     bool floatingEqual(Vector3f a, Vector3f b)
     {
         float sum = 0.0;
         foreach(i; 0..3)
-            sum += (a.coordinates[i] - b.coordinates[i]) ^^ 2;
+        sum += (a.coordinates[i] - b.coordinates[i]) ^^ 2;
         return sqrt(sum) < sqrt(float.epsilon);
     }
     Vector3f a = Vector3f(1.0f, 2.0f, 3.0f);
@@ -325,14 +357,15 @@ unittest
 
 unittest
 {
+    // Testing of functions length,isZero, dot & cross product
     Vector3f a = Vector3f(1.0f, 2.0f, 3.0f);
-    Vector3f b = -a;
-    Vector3f c = a + b;
-    float d =  dot(a, b);
-    Vector3f f = cross(a, b);
-
-    assert(c.isZero);
-    assert(d == -14.0);
-    assert(f.isZero);
     assert(a.lengthsqr == 14.0f);
+    Vector3f b = -a;
+    assert(b == -a);
+    Vector3f c = a + b;
+    assert(c.isZero);
+    float d =  dot(a, b);
+    assert(d == -14.0);
+    Vector3f f = cross(a, b);
+    assert(f.isZero);
 }
