@@ -1,4 +1,4 @@
-module engine.rigidbody
+module physics.rigidbody;
 
 import lib.math.vector;
 import lib.math.quaternion;
@@ -17,13 +17,13 @@ class RigidBody
     Vector3f linearVelocity;
     Vector3f linearAcceleration;
 
-    Matrix3x3f inertia;
-    Matrix3x3f invInertia;
+    //Matrix3x3f inertia;
+    //Matrix3x3f invInertia;
     Vector3f angularVelocity;
     Vector3f angularAcceleration;
 
     Vector3f forceAccumulator;
     Vector3f torqueAccumulator;
 
-    Geometry geometry;
+    //Geometry geometry;
 }

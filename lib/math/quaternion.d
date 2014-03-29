@@ -52,15 +52,21 @@ public:
     }
 
     /**
-     *  Postblit сonstructor
+     *  Default postblit сonstructor
      */
-    this(this)
-    {
-        x = x;
-        y = y;
-        z = z;
-        w = w;
-    }
+
+    /**
+     *  Default assign operator
+     */
+
+    /**
+     *  Operators *= and /= for quaternion and scalar
+     */
+     Quaternion!(T) opOpAssign(string op)(ref const T)
+        if(op == "*" || op == "/")
+     {
+
+     }
 
      /**
      *  Unary operations + and -
@@ -68,11 +74,8 @@ public:
     Quaternion!(T) opUnary(string op)() const
     if(op == "+" || op == "-")
     {
-          Quaternion!(T) result;
-        foreach(i; 0..4)
-        mixin("result.components[i] = " ~ op ~ "components[i];");
-        return result;
-        //  А очень хочеться вот так : return mixin("Quaternion!(T)(" ~ op ~ "x, " ~ op ~ "y, " ~ op ~ "z, " ~ op ~ "w);");
+        // Fell the power of Dlang!
+        mixin("return Quaternion!(T)(" ~ op ~ "x, " ~ op ~ "y, " ~ op ~ "z, " ~ op ~ "w);");
     }
 
     @property string toString()
@@ -97,6 +100,7 @@ private:
  * Predefined quaternion types
  */
 alias Quaternion!(float) Quaternionf;
+alias Quaternion!(double) Quaterniond;
 
 unittest
 {

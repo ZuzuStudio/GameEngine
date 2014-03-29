@@ -9,7 +9,7 @@ private
 }
 
 struct Vector(T, size_t size)
-if(isNumeric!T && size > 0)
+if(isNumeric!T && size > 0 && size <= 4)
 {
 public:
 
@@ -53,44 +53,16 @@ public:
      */
     this(Vector!(T, size) v)
     {
-        static if(size <= 4)
-        {
-            coordinates[] = v.coordinates[];
-        }
-        else
-            coordinates = coordinates.dup;
+        coordinates[] = v.coordinates[];
     }
 
-    static if(size>4)
-    {
-        /**
-        *  Postblit сonstructor
-        */
-        this(this)
-        {
-            coordinates = coordinates.dup;
-        }
+    /**
+    *  Default postblit constructor
+    */
 
-        /**
-        *  Operation assign with ref syntaxis
-        */
-        ref Vector!(T, size) opAssign( const ref Vector!(T, size) v)
-        {
-            foreach(i; 0..size)
-            coordinates[i] = v.coordinates[i];
-            return this;
-        }
-
-        /**
-        *  Operation assign without ref syntaxis
-        */
-        ref Vector!(T, size) opAssign( const  Vector!(T, size) v)
-        {
-            foreach(i; 0..size)
-            coordinates[i] = v.coordinates[i];
-            return this;
-        }
-    }
+    /**
+     *  Default assign operator
+    */
 
     /**
      *  Operators *= and /= for vector and scalar
@@ -246,14 +218,7 @@ public:
     }
 
 private:
-    static if(size<=4)
-    {
-        T[size] coordinates;
-    }
-    else
-    {
-        T[] coordinates = new T[size];
-    }
+    T[size] coordinates;
 }
 
 /**
@@ -307,7 +272,13 @@ T distancesqr(T) (Vector!(T,3) a, Vector!(T,3) b)
 /**
  * Predefined vector types
  */
+alias Vector!(float, 2) Vector2f;
 alias Vector!(float, 3) Vector3f;
+alias Vector!(float, 4) Vector4f;
+alias Vector!(double, 2) Vector2d;
+alias Vector!(double, 3) Vector3d;
+alias Vector!(double, 4) Vector4d;
+
 
 unittest
 {
@@ -320,16 +291,10 @@ unittest
     assert(c.coordinates.sizeof == (float[3]).sizeof);
     Vector!(float, 4) d;
     assert(d.coordinates.sizeof == (float[4]).sizeof);
-    Vector!(float, 5) e;
-    assert(e.coordinates.sizeof == (float[]).sizeof);
-    Vector!(float, 20) f;
-    assert(f.coordinates.sizeof == (float[]).sizeof);
     Vector!(double, 1) g;
     assert(g.coordinates.sizeof == (double[1]).sizeof);
     Vector!(byte, 2) h;
     assert(h.coordinates.sizeof == (byte[2]).sizeof);
-    Vector!(ushort, 107) i;
-    assert(i.coordinates.sizeof == (ushort[]).sizeof);
 }
 
 unittest
@@ -339,7 +304,7 @@ unittest
     auto b = a;
     assert(a.coordinates !is b.coordinates);
     assert(a.coordinates == b.coordinates);
-    Vector!(float, 7) c = Vector!(float, 7)(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f);
+    Vector!(float, 4) c = Vector!(float, 4)(1.0f, 2.0f, 3.0f, 4.0f);
     auto d = c;
     assert(c.coordinates !is d.coordinates);
     assert(c.coordinates == d.coordinates);
