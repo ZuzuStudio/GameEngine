@@ -1,0 +1,5 @@
+*
+!*.d
+!Makefile
+!.gitignore
+!README.md
