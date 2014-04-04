@@ -16,6 +16,7 @@ private
  *
  */
 struct SquareMatrix(T, size_t size)
+if(isNumeric!T && size > 0 && size <= 4)
 {
     /**
      *  Constructor with variable number of arguments
@@ -56,7 +57,7 @@ struct SquareMatrix(T, size_t size)
     /**
      *  Operators *= and /= for square matrix and scalar
      */
-    ref SquareMatrix!(T, size) opOpAssign(string op)(ref const T scalar)
+    ref SquareMatrix!(T, size) opOpAssign(string op)(T scalar)
     if(op == "*" || op == "/")
     {
         foreach(i; 0..size * size)
@@ -76,10 +77,21 @@ struct SquareMatrix(T, size_t size)
     }
 
     /**
-     *  Binary operator +, -, * and / for possible combination of square matrix and scalar
+     *  Binary operator + and - for square matrices
      */
-    SquareMatrix!(T, size) opBinary(string op, U)(ref const U right) const
-    if((is(U ==  SquareMatrix!(T, size)) && (op == "+" || op == "-")) || (is(U == T) && (op == "*" || op == "/")))
+    SquareMatrix!(T, size) opBinary(string op)(ref const SquareMatrix!(T, size) right) const
+    if(op == "+" || op == "-")
+    {
+        SquareMatrix!(T, size) result = this;
+        mixin("result " ~ op ~ "= right;");
+        return result;
+    }
+    
+    /**
+     *  Binary operator * and / for square matrix and scalar
+     */
+    SquareMatrix!(T, size) opBinary(string op, U)(U right) const
+    if(is(U : T) && (op == "*" || op == "/"))
     {
         SquareMatrix!(T, size) result = this;
         mixin("result " ~ op ~ "= right;");
