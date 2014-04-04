@@ -16,7 +16,7 @@ public:
     /**
      *  Constructor with variable number of arguments
      */
-    this(T[] values...)
+    this(T[] values...) pure nothrow @safe
     {
         if(values.length == size)
         {
@@ -34,7 +34,7 @@ public:
      *  Constructor that uses array of values
      *  It is not used at any situations at the moment
      */
-    this(T[] values)
+    this(T[] values) pure nothrow @safe
     {
         if(values.length == size)
         {
@@ -51,7 +51,7 @@ public:
     /**
      *  Constructor that uses vector
      */
-    this(Vector!(T, size) v)
+    this(Vector!(T, size) v) pure nothrow @safe
     {
         coordinates[] = v.coordinates[];
     }
@@ -67,7 +67,7 @@ public:
     /**
      *  Operators *= and /= for vector and scalar
      */
-    ref Vector!(T, size) opOpAssign(string op)(ref const T scalar)
+    ref Vector!(T, size) opOpAssign(string op)(ref const T scalar) pure nothrow @safe
     if(op == "*" || op == "/")
     {
         foreach(i; 0..size)
@@ -78,7 +78,7 @@ public:
     /**
      *  Operators += and -= for two vectors
      */
-    ref Vector!(T, size) opOpAssign(string op)(ref const Vector!(T, size) right)
+    ref Vector!(T, size) opOpAssign(string op)(ref const Vector!(T, size) right) pure nothrow @safe
     if(op == "+" || op == "-")
     {
         foreach(i; 0..size)
@@ -89,7 +89,7 @@ public:
     /**
      *  Binary operator +, -, * and / for possible combination of vector and scalar
      */
-    Vector!(T, size) opBinary(string op, U)(ref const U right) const
+    Vector!(T, size) opBinary(string op, U)(ref const U right) const pure nothrow @safe
     if((is(U == Vector!(T, size)) && (op == "+" || op == "-")) || (is(U == T) && (op == "*" || op == "/")))
     {
         Vector!(T, size) result = this;
@@ -100,7 +100,7 @@ public:
     /**
      *  Unary operators + and -
      */
-    Vector!(T, size) opUnary(string op)() const
+    Vector!(T, size) opUnary(string op)() const pure nothrow @safe
     if(op == "+" || op == "-")
     {
         Vector!(T, size) result;
@@ -112,7 +112,7 @@ public:
     /**
      *  Index operator
      */
-    ref T opIndex (this vector)(size_t index)
+    ref T opIndex (this vector)(size_t index) pure nothrow @safe
     in
     {
         assert ((0 <= index) && (index < size),
@@ -126,7 +126,7 @@ public:
     /**
      *  Get Vector length squared
      */
-    @property T lengthsqr()
+    @property T lengthsqr() const pure nothrow @safe
     {
         T lensqr = 0;
         foreach (component; coordinates)
@@ -137,7 +137,7 @@ public:
     /**
      *  Get vector length
      */
-    @property T length()
+    @property T length() const pure nothrow @safe
     {
         static if (isFloatingPoint!T)
         {
@@ -155,7 +155,7 @@ public:
     /**
      *  Set vector length to 1
      */
-    void normalize()
+    void normalize() pure nothrow @safe
     {
         static if (isFloatingPoint!T)
         {
@@ -177,7 +177,7 @@ public:
     /**
      *  Return normalized copy
      */
-    @property Vector!(T, size) normalized()
+    @property Vector!(T, size) normalized() const pure nothrow @safe
     {
         Vector!(T, size) result = this;
         result.normalize();
@@ -187,7 +187,7 @@ public:
     /**
      *  Return true if all components are zero
      */
-    @property bool isZero()
+    @property bool isZero() const pure nothrow @safe
     {
         foreach(i; 0..size)
         if(coordinates[i] != 0)
@@ -196,7 +196,7 @@ public:
         return true;
     }
 
-    @property string toString()
+    @property string toString() const
     {
         auto writer = appender!string();
         formattedWrite(writer, "%s", coordinates);
@@ -224,7 +224,7 @@ private:
 /**
  * Dot product
  */
-T dot(T, int size) (Vector!(T, size) a, Vector!(T, size) b)
+T dot(T, int size) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
 {
     T result = 0;
     foreach(i; 0..size)
@@ -239,7 +239,7 @@ T dot(T, int size) (Vector!(T, size) a, Vector!(T, size) b)
  * det | a.x a.y a.z | = i((a.y * b.z) - (a.z * b.y)) + j((a.z * b.x) - (a.x * b.z)) +k((a.x * b.y) - (a.y * b.x));
  *     | b.x b.y b.z |
  */
-Vector!(T, size) cross(T, int size) (Vector!(T, size) a, Vector!(T, size) b)
+Vector!(T, size) cross(T, int size) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
 if(size == 3)
 {
 
@@ -254,7 +254,7 @@ if(size == 3)
 /**
  *  Compute distance between two points
  */
-T distance(T) (Vector!(T, size) a, Vector!(T, size) b)
+T distance(T) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
 {
     Vector!(T, size) difference =  a - b;
     return difference.length;
@@ -263,7 +263,7 @@ T distance(T) (Vector!(T, size) a, Vector!(T, size) b)
 /**
  *  Compute distance squared between two points
  */
-T distancesqr(T) (Vector!(T,3) a, Vector!(T,3) b)
+T distancesqr(T) (Vector!(T,3) a, Vector!(T,3) b) pure nothrow @safe
 {
     Vector!(T, size) difference =  a - b;
     return difference.lengthsqr;
