@@ -2,8 +2,8 @@ module lib.math.vector;
 
 private
 {
-    import std.math;
     import std.format;
+    import std.math;
     import std.range;
     import std.traits;
 }
@@ -90,7 +90,7 @@ public:
      *  Binary operator +, -, * and / for possible combination of vector and scalar
      */
     Vector!(T, size) opBinary(string op, U)(ref const U right) const
-    if((is(U == Vector!(T,size)) && (op == "+" || op == "-")) || (is(U == T) && (op == "*" || op == "/")))
+    if((is(U == Vector!(T, size)) && (op == "+" || op == "-")) || (is(U == T) && (op == "*" || op == "/")))
     {
         Vector!(T, size) result = this;
         mixin("result " ~ op ~ "= right;");
@@ -98,7 +98,7 @@ public:
     }
 
     /**
-     *  Unary operations + and -
+     *  Unary operators + and -
      */
     Vector!(T, size) opUnary(string op)() const
     if(op == "+" || op == "-")
@@ -110,7 +110,7 @@ public:
     }
 
     /**
-     *  Index operation
+     *  Index operator
      */
     ref T opIndex (this vector)(size_t index)
     in

@@ -2,11 +2,9 @@ module lib.math.quaternion;
 
 private
 {
-    import std.stdio;
-    import std.conv;
-    import std.range;
     import std.format;
     import std.math;
+    import std.range;
     import std.traits;
 
     import lib.math.vector;
@@ -62,14 +60,14 @@ public:
     /**
      *  Operators *= and /= for quaternion and scalar
      */
-     Quaternion!(T) opOpAssign(string op)(ref const T)
-        if(op == "*" || op == "/")
-     {
+    Quaternion!(T) opOpAssign(string op)(ref const T)
+    if(op == "*" || op == "/")
+    {
 
-     }
+    }
 
-     /**
-     *  Unary operations + and -
+    /**
+     *  Unary operators + and -
      */
     Quaternion!(T) opUnary(string op)() const
     if(op == "+" || op == "-")
@@ -92,6 +90,7 @@ private:
         {
             T x, y, z, w;
         }
+
         T[4] components;
     }
 }
