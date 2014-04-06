@@ -18,13 +18,14 @@ private
 struct SquareMatrix(T, size_t size)
 if(isNumeric!T && size > 0 && size <= 4)
 {
+public:
     /**
      *  Constructor with variable number of arguments
      */
-    this(T)(T[] values...)
+    this(T)(T[] values...) pure nothrow @safe
     in
     {
-        assert (values.length == size * size, "SquareMatrix!(T, N): wrong array length in constructor!");
+        assert (values.length == size * size, "SquareMatrix!(T, size): wrong array length in constructor!");
     }
     body
     {
@@ -36,7 +37,7 @@ if(isNumeric!T && size > 0 && size <= 4)
      *  Constructor that uses array of values
      *  It is not used at any situations at the moment
      */
-    this(T)(T[] values)
+    this(T)(T[] values) pure nothrow @safe
     in
     {
         assert (values.length == size * size, "SquareMatrix!(T, N): wrong array length in constructor!");
@@ -57,7 +58,7 @@ if(isNumeric!T && size > 0 && size <= 4)
     /**
      *  Operators *= and /= for square matrix and scalar
      */
-    ref SquareMatrix!(T, size) opOpAssign(string op)(T scalar)
+    ref SquareMatrix!(T, size) opOpAssign(string op)(T scalar) pure nothrow @safe
     if(op == "*" || op == "/")
     {
         foreach(i; 0..size * size)
@@ -66,9 +67,20 @@ if(isNumeric!T && size > 0 && size <= 4)
     }
 
     /**
+     *  Binary operator * and / for square matrix and scalar
+     */
+    SquareMatrix!(T, size) opBinary(string op, U)(U right) const pure nothrow @safe
+    if(is(U : T) && (op == "*" || op == "/"))
+    {
+        SquareMatrix!(T, size) result = this;
+        mixin("result " ~ op ~ "= right;");
+        return result;
+    }
+
+    /**
      *  Operators += and -= for two square matrix
      */
-    ref SquareMatrix!(T, size) opOpAssign(string op)(ref const SquareMatrix!(T, size) right)
+    ref SquareMatrix!(T, size) opOpAssign(string op)(ref const SquareMatrix!(T, size) right) pure nothrow @safe
     if(op == "+" || op == "-")
     {
         foreach(i; 0..size * size)
@@ -79,19 +91,8 @@ if(isNumeric!T && size > 0 && size <= 4)
     /**
      *  Binary operator + and - for square matrices
      */
-    SquareMatrix!(T, size) opBinary(string op)(ref const SquareMatrix!(T, size) right) const
+    SquareMatrix!(T, size) opBinary(string op)(ref const SquareMatrix!(T, size) right) const pure nothrow @safe
     if(op == "+" || op == "-")
-    {
-        SquareMatrix!(T, size) result = this;
-        mixin("result " ~ op ~ "= right;");
-        return result;
-    }
-    
-    /**
-     *  Binary operator * and / for square matrix and scalar
-     */
-    SquareMatrix!(T, size) opBinary(string op, U)(U right) const
-    if(is(U : T) && (op == "*" || op == "/"))
     {
         SquareMatrix!(T, size) result = this;
         mixin("result " ~ op ~ "= right;");
@@ -102,7 +103,7 @@ if(isNumeric!T && size > 0 && size <= 4)
      *  Index operator T = Matrix[i,j]
      *  Indices start with 0
      */
-    T opIndex(size_t i, size_t j) const
+    T opIndex(size_t i, size_t j)  const pure nothrow @safe
     {
         return matrix[i * size + j];
     }
@@ -111,7 +112,7 @@ if(isNumeric!T && size > 0 && size <= 4)
      *  Index operator T = Matrix[index]
      *  Index starts with 0
      */
-    T opIndex(in size_t index) const
+    T opIndex(in size_t index) const pure nothrow @safe
     in
     {
         assert ((0 <= index) && (index < size * size),
@@ -126,7 +127,7 @@ if(isNumeric!T && size > 0 && size <= 4)
      *   Assign index operator Matrix[i, j] = T
      *   Indices start with 0
      */
-    T opIndexAssign(T t, size_t i, size_t j)
+    T opIndexAssign(T t, size_t i, size_t j) pure nothrow @safe
     in
     {
         assert (0 <= i && 0<= j && i < size * size && j < size * size, "Matrix.opIndexAssign(T t, size_t i, size_t j): array index out of bounds");
@@ -140,7 +141,7 @@ if(isNumeric!T && size > 0 && size <= 4)
      *  Assign index operator Matrix[index] = T
      *  Indices start with 0
      */
-    T opIndexAssign(T t, size_t index)
+    T opIndexAssign(T t, size_t index) pure nothrow @safe
     in
     {
         assert ((0 <= index) && (index < size * size), "Matrix.opIndexAssign(T t, size_t index): array index out of bounds");
@@ -150,7 +151,24 @@ if(isNumeric!T && size > 0 && size <= 4)
         return (matrix[index] = t);
     }
 
-    string toString() @property
+    void setIdentity() pure nothrow @safe
+    {
+        foreach(i; 0..size)
+        foreach(j; 0..size)
+        i == j ? ( matrix[i * size + j] = 1 ) : ( matrix[i * size + j] = 0);
+    }
+
+    /**
+     *   Returns identity square matrix
+     */
+    @property static SquareMatrix!(T, size) identity() pure nothrow @safe
+    {
+        SquareMatrix!(T, size) result;
+        result.setIdentity();
+        return result;
+    }
+
+    @property string toString() const
     {
         auto writer = appender!string();
         foreach (i; 0..size)
@@ -170,7 +188,7 @@ if(isNumeric!T && size > 0 && size <= 4)
     /**
      *   Symbolic element access
      */
-    private static string elements(string letter) @property
+    private static string elements(string letter)
     {
         string result;
         foreach (i; 0..size)
@@ -180,7 +198,7 @@ if(isNumeric!T && size > 0 && size <= 4)
         }
         return result;
     }
-
+private:
     /**
      *   Matrix elements
      */
@@ -229,34 +247,31 @@ unittest
 {
 //  Testing perators
     Matrix3x3f m1 = Matrix3x3f(
-                               9,8,7,
-                               6,5,4,
-                               3,2,1
-                               );
+        9,8,7,
+        6,5,4,
+        3,2,1
+    );
     Matrix3x3f m2 = Matrix3x3f(
-                               1,2,3,
-                               4,5,6,
-                               7,8,9
-                               );
+        1,2,3,
+        4,5,6,
+        7,8,9
+    );
 
     assert(m1 + m2 == Matrix3x3f(
-                                 10,10,10,
-                                 10,10,10,
-                                 10,10,10
-                                 ));
+        10,10,10,
+        10,10,10,
+        10,10,10
+    ));
 
     assert(m1 * 3.0f == Matrix3x3f(
-                                 27, 24, 21,
-                                 18, 15, 12,
-                                 9, 6, 3
+        27, 24, 21,
+        18, 15, 12,
+        9, 6, 3
 
-                                 ));
-
-    /* assert(m1 * m2 == Matrix3x3f(
-                                 30, 24, 18,
-                                 84, 69, 54,
-                                 138, 114, 90
-                                 ));
-    */
-
+    ));
+    assert(Matrix3x3f().identity == Matrix3x3f(
+        1, 0, 0,
+        0, 1, 0,
+        0, 0, 1
+    ));
 }
