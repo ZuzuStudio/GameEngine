@@ -7,6 +7,7 @@ private
     import std.math;
     import std.range;
     import std.traits;
+    import std.algorithm;
 
     import lib.math.vector;
 }
@@ -151,21 +152,12 @@ public:
         return (matrix[index] = t);
     }
 
-    void setIdentity() pure nothrow @safe
-    {
-        foreach(i; 0..size)
-        foreach(j; 0..size)
-        i == j ? ( matrix[i * size + j] = 1 ) : ( matrix[i * size + j] = 0);
-    }
-
     /**
      *   Returns identity square matrix
      */
     @property static SquareMatrix!(T, size) identity() pure nothrow @safe
     {
-        SquareMatrix!(T, size) result;
-        result.setIdentity();
-        return result;
+        mixin("return SquareMatrix!(T, size)(representationIdentity" ~ ('0' + size) ~ ");");
     }
 
     @property string toString() const
@@ -223,6 +215,35 @@ private:
 
         T matrix[size * size];
     }
+    
+	enum T[4*4] representationIdentity4 = [cast(T)1, 0, 0, 0,
+	                                              0, 1, 0, 0,
+	                                              0, 0, 1, 0,
+	                                              0, 0, 0, 1];
+
+	enum T[3*3] representationIdentity3 = [cast(T)1, 0, 0,
+	                                              0, 1, 0,
+	                                              0, 0, 1];
+
+	enum T[2*2] representationIdentity2 = [cast(T)1, 0,
+	                                              0, 1];
+
+	enum T[1*1] representationIdentity1 = [cast(T)1];
+	
+	enum linearSize = size * size;
+	
+	/**
+     *  Constructor by representation
+     */
+    this(T)(T[linearSize] values) pure nothrow @safe
+    in
+    {
+        assert (values.length == size * size, "SquareMatrix!(T, N): wrong array length in constructor!");
+    }
+    body
+    {
+        swap(matrix, values);
+    }
 };
 
 alias SquareMatrix!(float,3) Matrix3x3f;
@@ -232,10 +253,10 @@ alias SquareMatrix!(double,4) Matrix4x4d;
 
 unittest
 {
-// Testing constructirs
+// Testing constructors
     float ar[9] = [1,2,3,4,5,6,7,8,9];
     Matrix3x3f m1 = Matrix3x3f(ar);
-    Matrix3x3f m2 =  Matrix3x3f(1,2,3,4,5,6,7,8,9);
+    Matrix3x3f m2 = Matrix3x3f(1,2,3,4,5,6,7,8,9);
     assert(m1 == m2);
     assert(m1.a12 == 2 && m1.a21 == 4);
     assert(m1[0,0] == 1 );
