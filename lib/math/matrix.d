@@ -26,7 +26,7 @@ public:
     this(T)(T[] values...) pure nothrow @safe
     in
     {
-        assert (values.length == size * size, "SquareMatrix!(T, size): wrong array length in constructor!");
+        assert (values.length == linearSize, "SquareMatrix!(T, size): wrong array length in constructor!");
     }
     body
     {
@@ -41,7 +41,7 @@ public:
     this(T)(T[] values) pure nothrow @safe
     in
     {
-        assert (values.length == size * size, "SquareMatrix!(T, N): wrong array length in constructor!");
+        assert (values.length == linearSize, "SquareMatrix!(T, N): wrong array length in constructor!");
     }
     body
     {
@@ -62,7 +62,7 @@ public:
     ref SquareMatrix!(T, size) opOpAssign(string op)(T scalar) pure nothrow @safe
     if(op == "*" || op == "/")
     {
-        foreach(i; 0..size * size)
+        foreach(i; 0..linearSize)
         mixin("matrix[i] " ~ op ~ "= scalar;");
         return this;
     }
@@ -84,7 +84,7 @@ public:
     ref SquareMatrix!(T, size) opOpAssign(string op)(ref const SquareMatrix!(T, size) right) pure nothrow @safe
     if(op == "+" || op == "-")
     {
-        foreach(i; 0..size * size)
+        foreach(i; 0..linearSize)
         mixin("matrix[i] " ~ op ~ "= right.matrix[i];");
         return this;
     }
@@ -116,7 +116,7 @@ public:
     T opIndex(in size_t index) const pure nothrow @safe
     in
     {
-        assert ((0 <= index) && (index < size * size),
+        assert ((0 <= index) && (index < linearSize),
                 "Matrix.opIndex(size_t index): array index out of bounds");
     }
     body
@@ -131,7 +131,7 @@ public:
     T opIndexAssign(T t, size_t i, size_t j) pure nothrow @safe
     in
     {
-        assert (0 <= i && 0<= j && i < size * size && j < size * size, "Matrix.opIndexAssign(T t, size_t i, size_t j): array index out of bounds");
+        assert (0 <= i && 0<= j && i < size && j < size, "Matrix.opIndexAssign(T t, size_t i, size_t j): array index out of bounds");
     }
     body
     {
@@ -145,7 +145,7 @@ public:
     T opIndexAssign(T t, size_t index) pure nothrow @safe
     in
     {
-        assert ((0 <= index) && (index < size * size), "Matrix.opIndexAssign(T t, size_t index): array index out of bounds");
+        assert ((0 <= index) && (index < linearSize), "Matrix.opIndexAssign(T t, size_t index): array index out of bounds");
     }
     body
     {
@@ -157,7 +157,7 @@ public:
      */
     @property static SquareMatrix!(T, size) identity() pure nothrow @safe
     {
-        mixin("return SquareMatrix!(T, size)(representationIdentity" ~ ('0' + size) ~ ");");
+        return SquareMatrix!(T, size)(representationIdentity);
     }
 
     @property string toString() const
@@ -213,24 +213,33 @@ private:
             mixin(elements("a"));
         }
 
-        T matrix[size * size];
+        T matrix[linearSize];
     }
-    
-	enum T[4*4] representationIdentity4 = [cast(T)1, 0, 0, 0,
-	                                              0, 1, 0, 0,
-	                                              0, 0, 1, 0,
-	                                              0, 0, 0, 1];
 
-	enum T[3*3] representationIdentity3 = [cast(T)1, 0, 0,
-	                                              0, 1, 0,
-	                                              0, 0, 1];
-
-	enum T[2*2] representationIdentity2 = [cast(T)1, 0,
-	                                              0, 1];
-
-	enum T[1*1] representationIdentity1 = [cast(T)1];
-	
+    /**
+     *   Compile time calculation linear size of matrix
+     */
 	enum linearSize = size * size;
+    
+    /**
+     *   Compile time identity matrix representation
+     */
+	mixin(makeIdentityEnum());
+
+	/**
+     *   Build compile time identity matrix representation
+     */
+	private static string makeIdentityEnum() pure nothrow @safe
+	{
+		string result = "enum T[linearSize] representationIdentity = [cast(T)";
+		foreach(i; 0..size-1)
+		{
+			result ~= "1, ";
+			foreach(j; 0..size)
+				result ~= "0, ";
+		}
+		return result ~ "1];";
+	}
 	
 	/**
      *  Constructor by representation
@@ -238,7 +247,7 @@ private:
     this(T)(T[linearSize] values) pure nothrow @safe
     in
     {
-        assert (values.length == size * size, "SquareMatrix!(T, N): wrong array length in constructor!");
+        assert (values.length == linearSize, "SquareMatrix!(T, N): wrong array length in constructor!");
     }
     body
     {
