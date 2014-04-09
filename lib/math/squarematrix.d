@@ -14,12 +14,17 @@ private
 
 /**
  *   Square matrix with row-column order of storing
- *
+ *   with size varying from 1 to 4
  */
 struct SquareMatrix(T, size_t size)
-if(isNumeric!T && size > 0 && size <= 4)
+if(isNumeric!T && size > 1 && size <= 4)
 {
 public:
+    /**
+     *   Compile time calculation linear size of matrix
+     */
+    enum linearSize = size * size;
+
     /**
      *  Constructor with variable number of arguments
      */
@@ -30,22 +35,21 @@ public:
     }
     body
     {
-        foreach(i; 0.. size * size)
-        matrix[i] = values[i];
+        foreach(i; 0..linearSize)
+            matrix[i] = values[i];
     }
 
     /**
      *  Constructor that uses array of values
-     *  It is not used at any situations at the moment
      */
-    this(T)(T[] values) pure nothrow @safe
+    this(T)(T[linearSize] values) pure nothrow @safe
     in
     {
-        assert (values.length == linearSize, "SquareMatrix!(T, N): wrong array length in constructor!");
+        assert (values.length == linearSize, "SquareMatrix!(T, size): wrong array length in constructor!");
     }
     body
     {
-        matrix[] = values[];
+        swap(matrix, values);
     }
 
     /**
@@ -70,8 +74,8 @@ public:
     /**
      *  Binary operator * and / for square matrix and scalar
      */
-    SquareMatrix!(T, size) opBinary(string op, U)(U right) const pure nothrow @safe
-    if(is(U : T) && (op == "*" || op == "/"))
+    SquareMatrix!(T, size) opBinary(string op)(T right) const pure nothrow @safe
+    if(op == "*" || op == "/")
     {
         SquareMatrix!(T, size) result = this;
         mixin("result " ~ op ~ "= right;");
@@ -105,6 +109,12 @@ public:
      *  Indices start with 0
      */
     T opIndex(size_t i, size_t j)  const pure nothrow @safe
+    in
+    {
+        assert ((0 <= i) && (j < size),
+                "SquareMatrix!(T, size).opIndex(size_t i, size_t j): array index out of bounds");
+    }
+    body
     {
         return matrix[i * size + j];
     }
@@ -117,7 +127,7 @@ public:
     in
     {
         assert ((0 <= index) && (index < linearSize),
-                "Matrix.opIndex(size_t index): array index out of bounds");
+                "SquareMatrix!(T, size).opIndex(size_t index): array index out of bounds");
     }
     body
     {
@@ -131,7 +141,7 @@ public:
     T opIndexAssign(T t, size_t i, size_t j) pure nothrow @safe
     in
     {
-        assert (0 <= i && 0<= j && i < size && j < size, "Matrix.opIndexAssign(T t, size_t i, size_t j): array index out of bounds");
+        assert (0 <= i && 0<= j && i < size && j < size, "SquareMatrix!(T, size).opIndexAssign(T t, size_t i, size_t j): array index out of bounds");
     }
     body
     {
@@ -145,7 +155,7 @@ public:
     T opIndexAssign(T t, size_t index) pure nothrow @safe
     in
     {
-        assert ((0 <= index) && (index < linearSize), "Matrix.opIndexAssign(T t, size_t index): array index out of bounds");
+        assert ((0 <= index) && (index < linearSize), "SquareMatrix!(T, size).opIndexAssign(T t, size_t index): array index out of bounds");
     }
     body
     {
@@ -157,7 +167,7 @@ public:
      */
     @property static SquareMatrix!(T, size) identity() pure nothrow @safe
     {
-        return SquareMatrix!(T, size)(representationIdentity);
+        return SquareMatrix!(T, size)(identityRepresentation);
     }
 
     @property string toString() const
@@ -177,10 +187,50 @@ public:
         return writer.data;
     }
 
+private:
+
+    /**
+     *   Compile time identity matrix representation
+     */
+    mixin(makeIdentityEnum());
+
+    /**
+     *   Build compile time identity matrix representation
+     */
+    static string makeIdentityEnum() pure nothrow @safe
+    {
+        string result = "enum T[linearSize] identityRepresentation = [cast(T)";
+        foreach(i; 0..size-1)
+        {
+            result ~= "1, ";
+            foreach(j; 0..size)
+            result ~= "0, ";
+        }
+        return result ~ "1];";
+    }
+
+    /**
+     *   Compile time zero matrix representation
+     */
+    mixin(makeZeroEnum());
+
+    /**
+     *   Build compile time zero matrix representation
+     */
+    static string makeZeroEnum() pure nothrow @safe
+    {
+        string result = "enum T[linearSize] zeroRepresentation = [cast(T)";
+        foreach(i; 0..linearSize-1)
+        {
+            result ~= "0, ";
+        }
+        return result ~ "0];";
+    }
+
     /**
      *   Symbolic element access
      */
-    private static string elements(string letter)
+    static string elements(string letter)
     {
         string result;
         foreach (i; 0..size)
@@ -190,7 +240,7 @@ public:
         }
         return result;
     }
-private:
+
     /**
      *   Matrix elements
      */
@@ -211,47 +261,8 @@ private:
         struct
         {
             mixin(elements("a"));
-        }
-
+        };
         T matrix[linearSize];
-    }
-
-    /**
-     *   Compile time calculation linear size of matrix
-     */
-	enum linearSize = size * size;
-    
-    /**
-     *   Compile time identity matrix representation
-     */
-	mixin(makeIdentityEnum());
-
-	/**
-     *   Build compile time identity matrix representation
-     */
-	private static string makeIdentityEnum() pure nothrow @safe
-	{
-		string result = "enum T[linearSize] representationIdentity = [cast(T)";
-		foreach(i; 0..size-1)
-		{
-			result ~= "1, ";
-			foreach(j; 0..size)
-				result ~= "0, ";
-		}
-		return result ~ "1];";
-	}
-	
-	/**
-     *  Constructor by representation
-     */
-    this(T)(T[linearSize] values) pure nothrow @safe
-    in
-    {
-        assert (values.length == linearSize, "SquareMatrix!(T, N): wrong array length in constructor!");
-    }
-    body
-    {
-        swap(matrix, values);
     }
 };
 
@@ -275,7 +286,7 @@ unittest
 
 unittest
 {
-//  Testing perators
+//  Testing operators
     Matrix3x3f m1 = Matrix3x3f(
         9,8,7,
         6,5,4,

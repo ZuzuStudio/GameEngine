@@ -2,17 +2,20 @@ module lib.geometry.sphere;
 
 private
 {
-    import lib.geometry.shape;
-    import lib.math.matrix;
+    import lib.geometry.geometry;
+    import lib.math.squarematrix;
 }
 
-class Sphere : Shape
+class Sphere : Geometry
 {
     this(float r)
     {
         radius = r;
     }
 
+    /**
+     *  Inertia tensor of sphere equals to 2/5 * mass* r^2
+     */
     override Matrix3x3f inertiaTensor(float mass)
     {
         float v = 0.4f * mass * radius * radius;

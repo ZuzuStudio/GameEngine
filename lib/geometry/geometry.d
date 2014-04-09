@@ -1,11 +1,11 @@
-module lib.geometry.shape;
+module lib.geometry.geometry;
 
 private
 {
-    import lib.math.matrix;
+    import lib.math.squarematrix;
 }
 
-abstract class Shape
+abstract class Geometry
 {
     Matrix4x4f transformation;
 

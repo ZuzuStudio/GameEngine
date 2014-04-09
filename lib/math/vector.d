@@ -6,6 +6,8 @@ private
     import std.math;
     import std.range;
     import std.traits;
+
+    import lib.math.squarematrix;
 }
 
 struct Vector(T, size_t size)
@@ -57,12 +59,45 @@ public:
     }
 
     /**
+     *  Operator call returns zero-vector
+     */
+    Vector!(T, size) opCall() pure nothrow @safe
+    {
+        Vector!(T, size) result;
+        foreach(i; 0..size)
+            result[i] = 0;
+        return result;
+    }
+
+    /**
     *  Default postblit constructor
     */
 
     /**
      *  Default assign operator
     */
+
+    /**
+     *  Binary operator +, -, * and / for possible combination of vector and scalar, vector and square matrix
+     */
+    Vector!(T, size) opBinary(string op, U)(ref const U right) const pure nothrow @safe
+    if((is(U == Vector!(T, size)) && (op == "+" || op == "-")) || (is(U == SquareMatrix!(T,size)) && (op == "*")) || (is(U == T) && (op == "*" || op == "/")))
+    {
+        Vector!(T, size) result = this;
+        mixin("result " ~ op ~ "= right;");
+        return result;
+    }
+
+    /**
+     *  Operators += and -= for two vectors
+     */
+    ref Vector!(T, size) opOpAssign(string op)(const Vector!(T, size) right) pure nothrow @safe
+    if(op == "+" || op == "-")
+    {
+        foreach(i; 0..size)
+        mixin("coordinates[i] " ~ op ~ "= right.coordinates[i];");
+        return this;
+    }
 
     /**
      *  Operators *= and /= for vector and scalar
@@ -76,25 +111,22 @@ public:
     }
 
     /**
-     *  Operators += and -= for two vectors
+     *  Operator *= for vector and square matrix
      */
-    ref Vector!(T, size) opOpAssign(string op)(ref const Vector!(T, size) right) pure nothrow @safe
-    if(op == "+" || op == "-")
+    ref Vector!(T, size) opOpAssign(string op)(ref const SquareMatrix!(T, size) right) pure nothrow @safe
+    if(op == "*")
     {
-        foreach(i; 0..size)
-        mixin("coordinates[i] " ~ op ~ "= right.coordinates[i];");
-        return this;
-    }
+        Vector!(T, size) result = Vector!(T, size)();
 
-    /**
-     *  Binary operator +, -, * and / for possible combination of vector and scalar
-     */
-    Vector!(T, size) opBinary(string op, U)(ref const U right) const pure nothrow @safe
-    if((is(U == Vector!(T, size)) && (op == "+" || op == "-")) || (is(U == T) && (op == "*" || op == "/")))
-    {
-        Vector!(T, size) result = this;
-        mixin("result " ~ op ~ "= right;");
-        return result;
+        foreach(i; 0..size)
+        foreach(j; 0..size)
+        {
+            result[i] += coordinates[i] * right[j,i];
+        }
+        this = result;
+
+
+        return this;
     }
 
     /**
@@ -322,12 +354,22 @@ unittest
         sum += (a.coordinates[i] - b.coordinates[i]) ^^ 2;
         return sqrt(sum) < sqrt(float.epsilon);
     }
+
     Vector3f a = Vector3f(1.0f, 2.0f, 3.0f);
     Vector3f b = Vector3f(1.0f, -2.5f, 2.0f);
     Vector3f result = Vector3f(2.0f, -0.5f, 5.0f);
     assert(floatingEqual(a+b,result));
+
+    Vector3f v = Vector3f(1.0f, 2.0f, 3.0f);
+    Matrix3x3f m = Matrix3x3f(1.0f, 2.0f, 3.0f,
+                              4.0f, 5.0f, 6.0f,
+                              7.0f, 8.0f, 9.0f);
+
+    assert( v * m  == Vector3f(12.0f, 30.0f, 54.0f));
     // TODO
     // more tests
+
+
 }
 
 unittest
