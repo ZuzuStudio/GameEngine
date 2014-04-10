@@ -56,15 +56,13 @@ public:
         w = q.w;
     }
 
-    /**
-     *  Operator call returns zero quaternion
-     */
-    Quaternion!(T) opCall() pure nothrow @safe
-    {
-        foreach(i; 0..4)
-        components[i] = 0.0;
-        return this;
-    }
+	/**
+	 *  Zero property, for more sweet usability
+	 */
+	@property static Quaternion!(T) zero() pure nothrow @safe
+	{
+		return Quaternion!(T).init;
+	}
 
     /**
      *  Default postblit сonstructor
@@ -75,7 +73,7 @@ public:
      */
 
     /**
-     *  R-value operators * and / for quaternion and scalar
+     *  right sided operators * and / for quaternion and scalar
      */
     Quaternion!(T) opBinaryRight(string op)(T scalar) const pure nothrow @safe
     if(op == "*" || op == "/")
@@ -168,13 +166,29 @@ public:
 private:
     union
     {
+		T[4] components = [cast(T)0, cast(T)0, cast(T)0, cast(T)0];
+		
         struct
         {
             T x, y, z, w;
-        }
-
-        T[4] components;
+        }        
     }
+}
+
+unittest
+{
+	// Testing default zero initialization
+	Quaternionf a = Quaternionf();
+	assert([0.0f, 0.0f, 0.0f, 0.0f] == a.components);
+	Quaternionf b;
+	assert([0.0f, 0.0f, 0.0f, 0.0f] == b.components);
+	assert([0.0f, 0.0f, 0.0f, 0.0f] == (Quaternionf.init).components);
+	// TODO why folowing assertion is failed?
+	//assert(Quaternionf.zero == Quaternionf.init);
+	
+
+	assert([0.0f, 0.0f, 0.0f, 0.0f] == (Quaternionf.init).components);
+	assert([0.0, 0.0, 0.0, 0.0] == (Quaterniond.init).components);
 }
 
 unittest

@@ -172,6 +172,14 @@ public:
     /**
      *   Returns identity square matrix
      */
+    @property static SquareMatrix!(T, size) zero() pure nothrow @safe
+    {
+        return SquareMatrix!(T, size).init;
+    }
+    
+    /**
+     *   Returns identity square matrix
+     */
     @property static SquareMatrix!(T, size) identity() pure nothrow @safe
     {
         return SquareMatrix!(T, size)(identityRepresentation);
@@ -217,24 +225,6 @@ private:
     }
 
     /**
-     *   Compile time zero matrix representation
-     */
-    mixin(makeZeroEnum());
-
-    /**
-     *   Build compile time zero matrix representation
-     */
-    static string makeZeroEnum() pure nothrow @safe
-    {
-        string result = "enum T[linearSize] zeroRepresentation = [cast(T)";
-        foreach(i; 0..linearSize-1)
-        {
-            result ~= "0, ";
-        }
-        return result ~ "0];";
-    }
-
-    /**
      *   Symbolic element access
      */
     static string elements(string letter)
@@ -268,8 +258,23 @@ private:
         struct
         {
             mixin(elements("a"));
-        };
-        T matrix[linearSize];
+        }
+        
+		/**
+		 *   Declaration zero initialized matrix;
+		 */
+		mixin(declaration());
+    }
+    
+    /**
+     *   Build compile time zero matrix representation
+     */
+    static string declaration() pure nothrow @safe
+    {
+        string result = "T matrix[linearSize] = [cast(T)";
+        foreach(i; 0..linearSize)
+            result ~= "0, ";
+        return result ~ "];";
     }
 };
 

@@ -69,23 +69,20 @@ public:
     }
 
     /**
-     *  Operator call returns zero-vector
+     *  Default postblit constructor
      */
-    Vector!(T, size) opCall() pure nothrow @safe
-    {
-        Vector!(T, size) result;
-        foreach(i; 0..size)
-            result[i] = 0;
-        return result;
-    }
-
-    /**
-    *  Default postblit constructor
-    */
 
     /**
      *  Default assign operator
-    */
+     */
+     
+	/**
+	 *  Zero property, for more sweet usability
+	 */
+	@property static Vector!(T, size) zero() pure nothrow @safe
+	{
+		return Vector!(T, size).init;
+	}
 
     /**
      *  Binary operator +, -, * and / for possible combination of vector and scalar, vector and square matrix
@@ -260,7 +257,22 @@ public:
     }
 
 private:
-    T[size] coordinates;
+
+	/**
+	 *   Declaration zero initialized vector
+	 */
+	mixin(declaration());
+
+	/**
+     *   Build compile time zerovector representation
+     */
+	static string declaration() pure nothrow @safe
+	{
+		string result = "T[size] coordinates = [cast(T)";
+		foreach(unused; 0..size)
+		result ~= "0, ";
+		return result ~ "];";
+	}
 }
 
 /**
@@ -309,6 +321,24 @@ T distancesqr(T) (Vector!(T,3) a, Vector!(T,3) b) pure nothrow @safe
 {
     Vector!(T, size) difference =  a - b;
     return difference.lengthsqr;
+}
+
+unittest
+{
+	// Testing default zero initialization
+	Vector3f a = Vector3f();
+	assert([0.0f, 0.0f, 0.0f] == a.coordinates);
+	Vector3f b;
+	assert([0.0f, 0.0f, 0.0f] == b.coordinates);
+	assert([0.0f, 0.0f, 0.0f] == (Vector3f.init).coordinates);
+	assert(Vector3f.zero == Vector3f.init);
+	
+	assert([0.0f, 0.0f] == (Vector2f.init).coordinates);
+	assert([0.0f, 0.0f, 0.0f] == (Vector3f.init).coordinates);
+	assert([0.0f, 0.0f, 0.0f, 0.0f] == (Vector4f.init).coordinates);
+	assert([0.0, 0.0] == (Vector2d.init).coordinates);
+	assert([0.0, 0.0, 0.0] == (Vector3d.init).coordinates);
+	assert([0.0, 0.0, 0.0, 0.0] == (Vector4d.init).coordinates);
 }
 
 unittest
