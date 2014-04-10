@@ -91,7 +91,7 @@ public:
      *  Binary operator +, -, * and / for possible combination of vector and scalar, vector and square matrix
      */
     Vector!(T, size) opBinary(string op, U)(ref const U right) const pure nothrow @safe
-    if((is(U == Vector!(T, size)) && (op == "+" || op == "-")) || (is(U == SquareMatrix!(T,size)) && (op == "*")) || (is(U == T) && (op == "*" || op == "/")))
+    if((is(U == Vector!(T, size)) && (op == "+" || op == "-")) || (is(U == SquareMatrix!(T,size)) && (op == "*")) || (is(U : T) && (op == "*" || op == "/")))
     {
         Vector!(T, size) result = this;
         mixin("result " ~ op ~ "= right;");
@@ -112,11 +112,11 @@ public:
     /**
      *  Operators *= and /= for vector and scalar
      */
-    ref Vector!(T, size) opOpAssign(string op)(ref const T scalar) pure nothrow @safe
-    if(op == "*" || op == "/")
+    ref Vector!(T, size) opOpAssign(string op, U)(ref const U scalar) pure nothrow @safe
+    if(is(U : T) && (op == "*" || op == "/"))
     {
         foreach(i; 0..size)
-        mixin("coordinates[i] " ~ op ~ "= scalar;");
+        mixin("coordinates[i] " ~ op ~ "= cast(T)scalar;");
         return this;
     }
 
@@ -311,6 +311,23 @@ T distancesqr(T) (Vector!(T,3) a, Vector!(T,3) b) pure nothrow @safe
     return difference.lengthsqr;
 }
 
+unittest
+{
+	// Testing for flexibility of prodyct by scalar
+	auto x = Vector3f(1.0, 2.0, 3.0);
+	real rAlpha = 2.0L;
+	double dAlpha = 2.0;
+	float fAlpha = 2.0f;
+	long lAlpha = 2L;
+	int iAlpha = 2;
+	byte bAlpha = 2;
+	assert([2.0f, 4.0f, 6.0f] == (x * rAlpha).coordinates);
+	assert([2.0f, 4.0f, 6.0f] == (x * dAlpha).coordinates);
+	assert([2.0f, 4.0f, 6.0f] == (x * fAlpha).coordinates);
+	assert([2.0f, 4.0f, 6.0f] == (x * lAlpha).coordinates);
+	assert([2.0f, 4.0f, 6.0f] == (x * iAlpha).coordinates);
+	assert([2.0f, 4.0f, 6.0f] == (x * bAlpha).coordinates);
+}
 
 unittest
 {
