@@ -12,6 +12,13 @@ private
     import lib.math.vector;
 }
 
+alias Matrix2x2f = SquareMatrix!(float,2);
+alias Matrix3x3f = SquareMatrix!(float,3);
+alias Matrix4x4f = SquareMatrix!(float,4);
+alias Matrix2x2d = SquareMatrix!(double,2);
+alias Matrix3x3d = SquareMatrix!(double,3);
+alias Matrix4x4d = SquareMatrix!(double,4);
+
 /**
  *   Square matrix with row-column order of storing
  *   with size varying from 1 to 4
@@ -265,11 +272,6 @@ private:
         T matrix[linearSize];
     }
 };
-
-alias SquareMatrix!(float,3) Matrix3x3f;
-alias SquareMatrix!(float,4) Matrix4x4f;
-alias SquareMatrix!(double,3) Matrix3x3d;
-alias SquareMatrix!(double,4) Matrix4x4d;
 
 unittest
 {

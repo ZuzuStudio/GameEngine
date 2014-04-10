@@ -11,6 +11,12 @@ private
     import lib.math.squarematrix;
 }
 
+/**
+ * Predefined quaternion types
+ */
+alias Quaternionf = Quaternion!(float);
+alias Quaterniond = Quaternion!(double);
+
 public:
 
 struct Quaternion(T)
@@ -170,12 +176,6 @@ private:
         T[4] components;
     }
 }
-
-/**
- * Predefined quaternion types
- */
-alias Quaternion!(float) Quaternionf;
-alias Quaternion!(double) Quaterniond;
 
 unittest
 {

@@ -10,6 +10,16 @@ private
     import lib.math.squarematrix;
 }
 
+/**
+ * Predefined vector types
+ */
+alias Vector2f = Vector!(float, 2);
+alias Vector3f = Vector!(float, 3);
+alias Vector4f = Vector!(float, 4);
+alias Vector2d = Vector!(double, 2);
+alias Vector3d = Vector!(double, 3);
+alias Vector4d = Vector!(double, 4);
+
 struct Vector(T, size_t size)
 if(isNumeric!T && size > 0 && size <= 4)
 {
@@ -301,16 +311,6 @@ T distancesqr(T) (Vector!(T,3) a, Vector!(T,3) b) pure nothrow @safe
     return difference.lengthsqr;
 }
 
-/**
- * Predefined vector types
- */
-alias Vector!(float, 2) Vector2f;
-alias Vector!(float, 3) Vector3f;
-alias Vector!(float, 4) Vector4f;
-alias Vector!(double, 2) Vector2d;
-alias Vector!(double, 3) Vector3d;
-alias Vector!(double, 4) Vector4d;
-
 
 unittest
 {
@@ -331,7 +331,7 @@ unittest
 
 unittest
 {
-    // Testing of assign operator and postbli constructor
+    // Testing of assign operator and postblit constructor
     Vector3f a=Vector3f(1.0f, 2.0f, 3.0f);
     auto b = a;
     assert(a.coordinates !is b.coordinates);
