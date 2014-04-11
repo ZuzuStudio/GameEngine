@@ -393,7 +393,7 @@ unittest
 
 unittest
 {
-    // Testing of maath operations
+    // Testing of math operations
     bool floatingEqual(Vector3f a, Vector3f b)
     {
         float sum = 0.0;
@@ -417,6 +417,30 @@ unittest
     // more tests
 
 
+}
+
+unittest
+{
+	// Testing toString
+	assert("[0, 0]" == Vector2f.zero.toString);
+	assert("[0, 0, 0]" == Vector3f.zero.toString);
+	assert("[0, 0, 0, 0]" == Vector4f.zero.toString);
+	assert("[0, 0]" == Vector2d.zero.toString);
+	assert("[0, 0, 0]" == Vector3d.zero.toString);
+	assert("[0, 0, 0, 0]" == Vector4d.zero.toString);
+	
+	assert("[0.5, -1]" == Vector2f(0.5, -1.0).toString);
+}
+
+unittest
+{
+	// Testing declaration()
+	assert("T[size] coordinates = [cast(T)0, 0, ];" == Vector2f.declaration());
+	assert("T[size] coordinates = [cast(T)0, 0, ];" == Vector2d.declaration());
+	assert("T[size] coordinates = [cast(T)0, 0, 0, ];" == Vector3f.declaration());
+	assert("T[size] coordinates = [cast(T)0, 0, 0, ];" == Vector3d.declaration());
+	assert("T[size] coordinates = [cast(T)0, 0, 0, 0, ];" == Vector4f.declaration());
+	assert("T[size] coordinates = [cast(T)0, 0, 0, 0, ];" == Vector4d.declaration());
 }
 
 unittest
