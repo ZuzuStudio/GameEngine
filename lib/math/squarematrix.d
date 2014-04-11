@@ -233,7 +233,7 @@ private:
         foreach (i; 0..size)
         foreach (j; 0..size)
         {
-            result ~= "T " ~ letter ~ to!string(i+1) ~ to!string(j+1) ~ ";";
+            result ~= "T " ~ letter ~ to!string(i+1) ~ to!string(j+1) ~ " = cast(T)0;";
         }
         return result;
     }
@@ -263,19 +263,20 @@ private:
 		/**
 		 *   Declaration zero initialized matrix;
 		 */
-		mixin(declaration());
+		//mixin(declaration());
+		T[linearSize] matrix;
     }
     
     /**
      *   Build compile time zero matrix representation
-     */
+     *//* TODO candidate to deletion
     static string declaration() pure nothrow @safe
     {
         string result = "T matrix[linearSize] = [cast(T)";
         foreach(i; 0..linearSize)
             result ~= "0, ";
         return result ~ "];";
-    }
+    }*/
 };
 
 unittest
