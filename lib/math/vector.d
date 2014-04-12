@@ -393,6 +393,15 @@ unittest
 
 unittest
 {
+	// Testing parametrical constructors
+	Vector2d(1.0f, 2.0f);
+	Vector3f([1.0, 2.0, 3.0]);
+	auto v = Vector4f([1.0, 2.0, 3.0, 4.0f]);
+	Vector4f(v);
+}
+
+unittest
+{
     // Testing of math operations
     bool floatingEqual(Vector3f a, Vector3f b)
     {
@@ -456,6 +465,8 @@ unittest
     assert(d == -14.0);
     Vector3f f = cross(a, b);
     assert(f.isZero);
+    assert(Vector3d().isZero);
+    assert(!Vector2d(1.0, 0.0).isZero);
 }
 
 unittest
@@ -464,11 +475,66 @@ unittest
 	import core.exception; 
 	try
 	{
-		auto x = Vector2f(1.0f);
-		assert(false, "invalid constructor pass");
+		Vector2f(1.0f);
 	}
 	catch(AssertError ae)
 	{
 		assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
+	}
+	try
+	{
+		Vector3f(1.0f);
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
+	}
+	try
+	{
+		Vector4f(1.0f);
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
+	}
+	try
+	{
+		Vector2f(1.0f,2.0f,3.0f,4.0f,5.0f);
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
+	}
+	try
+	{
+		Vector3f(1.0f,2.0f,3.0f,4.0f,5.0f);
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
+	}
+	try
+	{
+		Vector4f(1.0f,2.0f,3.0f,4.0f,5.0f);
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
+	}
+	try
+	{
+		Vector2f([1.0f,2.0f,3.0f,4.0f,5.0f]);
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "The length of array that transmitted to constructor does not match vector dimension.", "wrong assert mesage");
+	}
+	try
+	{
+		Vector4f([1.0f,2.0f,3.0f]);
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "The length of array that transmitted to constructor does not match vector dimension.", "wrong assert mesage");
 	}
 }
