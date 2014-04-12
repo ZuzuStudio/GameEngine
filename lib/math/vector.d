@@ -457,3 +457,18 @@ unittest
     Vector3f f = cross(a, b);
     assert(f.isZero);
 }
+
+unittest
+{
+	// Testing assertattion and contracts
+	import core.exception; 
+	try
+	{
+		auto x = Vector2f(1.0f);
+		assert(false, "invalid constructor pass");
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
+	}
+}
