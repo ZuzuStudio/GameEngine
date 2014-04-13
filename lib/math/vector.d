@@ -467,6 +467,9 @@ unittest
     assert(f.isZero);
     assert(Vector3d().isZero);
     assert(!Vector2d(1.0, 0.0).isZero);
+    assert(5.0 == Vector4f(3.0f, 0.0f, 4.0f, 0.0f).length);
+    assert(0 == Vector!(int, 4)(3, 0, 4, 0).length);//TODO change semantics
+    assert(Vector3f(0.6f, 0.0f, 0.8f) == Vector3f(3.0f, 0.0f, 4.0f).normalized);
 }
 
 unittest
