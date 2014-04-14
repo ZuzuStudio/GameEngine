@@ -14,7 +14,7 @@ abstract class Geometry
         transformation = Matrix4x4f.identity;
     }
 
-    Matrix3x3f inertiaTensor(float mass)
+    Matrix3x3f inertiaTensor(float mass) pure nothrow @safe
     {
         return Matrix3x3f.identity * mass;
     }

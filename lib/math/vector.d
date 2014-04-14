@@ -75,16 +75,8 @@ public:
     /**
      *  Default assign operator
      */
-     
-	/**
-	 *  Zero property, for more sweet usability
-	 */
-	@property static Vector!(T, size) zero() pure nothrow @safe
-	{
-		return Vector!(T, size).init;
-	}
 
-    /**
+     /**
      *  Binary operator +, -, * and / for possible combination of vector and scalar, vector and square matrix
      */
     Vector!(T, size) opBinary(string op, U)(ref const U right) const pure nothrow @safe
@@ -161,6 +153,14 @@ public:
     {
         return coordinates[index];
     }
+
+    /**
+	 *  Zero property, for more sweet usability
+	 */
+	@property static Vector!(T, size) zero() pure nothrow @safe
+	{
+		return Vector!(T, size).init;
+	}
 
     /**
      *  Get Vector length squared
@@ -332,7 +332,7 @@ unittest
 	assert([0.0f, 0.0f, 0.0f] == b.coordinates);
 	assert([0.0f, 0.0f, 0.0f] == (Vector3f.init).coordinates);
 	assert(Vector3f.zero == Vector3f.init);
-	
+
 	assert([0.0f, 0.0f] == (Vector2f.init).coordinates);
 	assert([0.0f, 0.0f, 0.0f] == (Vector3f.init).coordinates);
 	assert([0.0f, 0.0f, 0.0f, 0.0f] == (Vector4f.init).coordinates);
@@ -417,11 +417,13 @@ unittest
     assert(floatingEqual(a+b,result));
 
     Vector3f v = Vector3f(1.0f, 2.0f, 3.0f);
+    Vector3f v = Vector3f(1.0f, 2.0f, 3.0f);
     Matrix3x3f m = Matrix3x3f(1.0f, 2.0f, 3.0f,
                               4.0f, 5.0f, 6.0f,
                               7.0f, 8.0f, 9.0f);
 
     assert( v * m  == Vector3f(12.0f, 30.0f, 54.0f));
+
     // TODO
     // more tests
 
@@ -437,7 +439,7 @@ unittest
 	assert("[0, 0]" == Vector2d.zero.toString);
 	assert("[0, 0, 0]" == Vector3d.zero.toString);
 	assert("[0, 0, 0, 0]" == Vector4d.zero.toString);
-	
+
 	assert("[0.5, -1]" == Vector2f(0.5, -1.0).toString);
 }
 
@@ -475,7 +477,7 @@ unittest
 unittest
 {
 	// Testing assertattion and contracts
-	import core.exception; 
+	import core.exception;
 	try
 	{
 		Vector2f(1.0f);

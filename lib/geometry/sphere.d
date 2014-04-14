@@ -8,7 +8,7 @@ private
 
 class Sphere : Geometry
 {
-    this(float r)
+    this(float r) pure nothrow @safe
     {
         radius = r;
     }
@@ -16,7 +16,7 @@ class Sphere : Geometry
     /**
      *  Inertia tensor of sphere equals to 2/5 * mass* r^2
      */
-    override Matrix3x3f inertiaTensor(float mass)
+    override Matrix3x3f inertiaTensor(float mass) pure nothrow @safe
     {
         float v = 0.4f * mass * radius * radius;
 
@@ -29,5 +29,4 @@ class Sphere : Geometry
 
 private:
     float radius;
-
 };

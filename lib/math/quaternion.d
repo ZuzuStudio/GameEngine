@@ -56,14 +56,6 @@ public:
         w = q.w;
     }
 
-	/**
-	 *  Zero property, for more sweet usability
-	 */
-	@property static Quaternion!(T) zero() pure nothrow @safe
-	{
-		return Quaternion!(T).init;
-	}
-
     /**
      *  Default postblit сonstructor
      */
@@ -73,7 +65,7 @@ public:
      */
 
     /**
-     *  right sided operators * and / for quaternion and scalar
+     *  Right sided operators * and / for quaternion and scalar
      */
     Quaternion!(T) opBinaryRight(string op)(T scalar) const pure nothrow @safe
     if(op == "*" || op == "/")
@@ -156,6 +148,14 @@ public:
         mixin("return Quaternion!(T)(" ~ op ~ "x, " ~ op ~ "y, " ~ op ~ "z, " ~ op ~ "w);");
     }
 
+    /**
+	 *  Zero property, for more sweet usability
+	 */
+	@property static Quaternion!(T) zero() pure nothrow @safe
+	{
+		return Quaternion!(T).init;
+	}
+
     @property string toString()
     {
         auto writer = appender!string();
@@ -167,11 +167,11 @@ private:
     union
     {
 		T[4] components = [cast(T)0, cast(T)0, cast(T)0, cast(T)0];
-		
+
         struct
         {
             T x, y, z, w;
-        }        
+        }
     }
 }
 
@@ -185,7 +185,7 @@ unittest
 	assert([0.0f, 0.0f, 0.0f, 0.0f] == (Quaternionf.init).components);
 	// TODO why folowing assertion is failed?
 	//assert(Quaternionf.zero == Quaternionf.init);
-	
+
 
 	assert([0.0f, 0.0f, 0.0f, 0.0f] == (Quaternionf.init).components);
 	assert([0.0, 0.0, 0.0, 0.0] == (Quaterniond.init).components);

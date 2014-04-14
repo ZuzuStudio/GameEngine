@@ -49,14 +49,14 @@ public:
     /**
      *  Constructor that uses array of values
      */
-    this(T)(T[linearSize] values) pure nothrow @safe
+    this(T)(T[] values) pure nothrow @safe
     in
     {
         assert (values.length == linearSize, "SquareMatrix!(T, size): wrong array length in constructor!");
     }
     body
     {
-        swap(matrix, values);
+        matrix[] = values[];
     }
 
     /**
@@ -66,6 +66,17 @@ public:
     /**
      *  Default assign operator
      */
+
+    /**
+     *  Binary operator * and / for square matrix and scalar
+     */
+    SquareMatrix!(T, size) opBinary(string op)(T right) const pure nothrow @safe
+    if(op == "*" || op == "/")
+    {
+        SquareMatrix!(T, size) result = this;
+        mixin("result " ~ op ~ "= right;");
+        return result;
+    }
 
     /**
      *  Operators *= and /= for square matrix and scalar
@@ -79,10 +90,10 @@ public:
     }
 
     /**
-     *  Binary operator * and / for square matrix and scalar
+     *  Binary operator + and - for square matrices
      */
-    SquareMatrix!(T, size) opBinary(string op)(T right) const pure nothrow @safe
-    if(op == "*" || op == "/")
+    SquareMatrix!(T, size) opBinary(string op)(ref const SquareMatrix!(T, size) right) const pure nothrow @safe
+    if(op == "+" || op == "-")
     {
         SquareMatrix!(T, size) result = this;
         mixin("result " ~ op ~ "= right;");
@@ -98,17 +109,6 @@ public:
         foreach(i; 0..linearSize)
         mixin("matrix[i] " ~ op ~ "= right.matrix[i];");
         return this;
-    }
-
-    /**
-     *  Binary operator + and - for square matrices
-     */
-    SquareMatrix!(T, size) opBinary(string op)(ref const SquareMatrix!(T, size) right) const pure nothrow @safe
-    if(op == "+" || op == "-")
-    {
-        SquareMatrix!(T, size) result = this;
-        mixin("result " ~ op ~ "= right;");
-        return result;
     }
 
     /**
@@ -176,7 +176,7 @@ public:
     {
         return SquareMatrix!(T, size).init;
     }
-    
+
     /**
      *   Returns identity square matrix
      */
@@ -225,6 +225,19 @@ private:
     }
 
     /**
+     *  Constructor that uses array of values for compiling time creating identity matrix
+     */
+    this(T)(T[linearSize] values) pure nothrow @safe
+    in
+    {
+        assert (values.length == linearSize, "SquareMatrix!(T, size): wrong array length in constructor!");
+    }
+    body
+    {
+        swap(matrix, values);
+    }
+
+    /**
      *   Symbolic element access
      */
     static string elements(string letter)
@@ -259,14 +272,14 @@ private:
         {
             mixin(elements("a"));
         }
-        
+
 		/**
 		 *   Declaration zero initialized matrix;
 		 */
 		//mixin(declaration());
 		T[linearSize] matrix;
     }
-    
+
     /**
      *   Build compile time zero matrix representation
      *//* TODO candidate to deletion
