@@ -4,3 +4,5 @@ obj/
 *.cbp
 *.lst
 *~
+*.depend*
+*.layout*
