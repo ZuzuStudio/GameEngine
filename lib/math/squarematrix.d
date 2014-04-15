@@ -110,6 +110,31 @@ public:
         mixin("matrix[i] " ~ op ~ "= right.matrix[i];");
         return this;
     }
+    
+    /**
+     *  Binary operator * for two square matrices
+     */
+	// TODO more pretty code
+    SquareMatrix!(T, size) opBinary(string op)(SquareMatrix!(T, size) right) const pure nothrow @safe
+    if(op == "*")
+    {
+        SquareMatrix!(T, size) result;
+        alias left = this;
+        foreach (i; 0..size)
+		foreach (j; 0..size)
+		foreach (k; 0..size)
+		result[i, j] = result[i, j] + left[i, k] * right[k, j];
+        return result;
+    }
+
+    /**
+     *  Operators *= for two square matrix
+     */
+    ref SquareMatrix!(T, size) opOpAssign(string op)(SquareMatrix!(T, size) right) pure nothrow @safe
+    if(op == "*")
+    {
+        return this = this * right;
+    }
 
     /**
      *  Index operator T = Matrix[i,j]
@@ -353,6 +378,11 @@ unittest
         0, 1, 0,
         0, 0, 1
     ));
+}
+
+unittest
+{
+	assert(Matrix2x2f(0.6, 0.8, -0.8, 0.6) * Matrix2x2f(0.6, -0.8, 0.8, 0.6) == Matrix2x2f.identity);
 }
 
 unittest
