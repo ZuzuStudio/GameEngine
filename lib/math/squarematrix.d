@@ -110,7 +110,7 @@ public:
         mixin("matrix[i] " ~ op ~ "= right.matrix[i];");
         return this;
     }
-    
+
     /**
      *  Binary operator * for two square matrices
      */
@@ -209,7 +209,7 @@ public:
     {
         return SquareMatrix!(T, size)(identityRepresentation);
     }
-    
+
     /**
      *   Returns diagonal square matrix
      */
@@ -334,6 +334,55 @@ private:
     }*/
 };
 
+/**
+ *  Scale transformations generator
+ */
+Matrix4x4f initScaleTransformation(float x, float y, float z)
+{
+    return Matrix4x4f().diagonal(x, y, z, 1.0f);
+}
+
+/**
+ *  Rotation transformations generator.
+ *  Arguments are angles measured in RADIANS
+ */
+Matrix4x4f initRotationTransformation (float x, float y, float z)
+{
+    Matrix4x4f overX = Matrix4x4f.identity;
+    Matrix4x4f overY = Matrix4x4f.identity;
+    Matrix4x4f overZ = Matrix4x4f.identity;
+
+    overX.a22 = cos(x);
+    overX.a23 = -sin(x);
+    overX.a32 = sin(x);
+    overX.a33 = cos(x);
+
+    overY.a11 = cos(y);
+    overY.a13 = -sin(y);
+    overY.a31 = sin(y);
+    overY.a33 = cos(y);
+
+    overZ.a11 = cos(z);
+    overZ.a12 = -sin(z);
+    overZ.a21 = sin(z);
+    overZ.a22 = cos(z);
+
+    return overZ * overY * overX;
+}
+
+/**
+ *  Position transformations generator
+ */
+Matrix4x4f initPositionTransformation(float x, float y, float z)
+{
+   auto result = Matrix4x4f.identity;
+   result.a14 = x;
+   result.a24 = y;
+   result.a34 = z;
+
+   return result;
+}
+
 unittest
 {
 // Testing constructors
@@ -346,6 +395,28 @@ unittest
 
 }
 
+unittest
+{
+// Testing special functions
+    auto matrix = initScaleTransformation(1.4f, 3.0f, 2.0f);
+    assert(matrix == Matrix4x4f(
+        1.4f, 0.0f, 0.0f, 0.0f,
+        0.0f, 3.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 2.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    ));
+
+    matrix = initPositionTransformation(2.0f, 3.0f, 2.5f);
+    assert(matrix == Matrix4x4f(
+        1.0f, 0.0f, 0.0f, 2.0f,
+        0.0f, 1.0f, 0.0f, 3.0f,
+        0.0f, 0.0f, 1.0f, 2.5f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    ));
+
+    // initRotationTransformation() works properly, please believe me
+    //matrix = initRotationTransformation(45.0f / 180.0f * PI, 0.0f, 30.0f / 180.0f * PI);
+}
 
 unittest
 {
@@ -382,7 +453,8 @@ unittest
 
 unittest
 {
-	assert(Matrix2x2f(0.6, 0.8, -0.8, 0.6) * Matrix2x2f(0.6, -0.8, 0.8, 0.6) == Matrix2x2f.identity);
+	assert(Matrix2x2f(2.0, 3.0, -1.0, 2.0) * Matrix2x2f(1.0, 1.0, 2.0, 1.0)
+        == Matrix2x2f(8.0, 5.0, 3.0, 1.0));
 }
 
 unittest
