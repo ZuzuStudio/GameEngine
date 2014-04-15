@@ -110,7 +110,7 @@ public:
         mixin("matrix[i] " ~ op ~ "= right.matrix[i];");
         return this;
     }
-    
+
     /**
      *  Binary operator * for two square matrices
      */
@@ -134,6 +134,23 @@ public:
     if(op == "*")
     {
         return this = this * right;
+    }
+
+     /**
+     *  Operator * for square matrix and vector
+     */
+    Vector!(T, size) opBinary(string op)(ref const Vector!(T, size) right) pure nothrow @safe
+    if(op == "*")
+    {
+        Vector!(T, size) result;
+
+        foreach(i; 0..size)
+        foreach(j; 0..size)
+        {
+            result[i] =  result[i] + matrix[i * size + j] * right[j];
+        }
+
+        return result;
     }
 
     /**
@@ -209,7 +226,7 @@ public:
     {
         return SquareMatrix!(T, size)(identityRepresentation);
     }
-    
+
     /**
      *   Returns diagonal square matrix
      */
@@ -378,6 +395,14 @@ unittest
         0, 1, 0,
         0, 0, 1
     ));
+
+    Vector3f v = Vector3f(1.0f, 2.0f, 3.0f);
+    Matrix3x3f m = Matrix3x3f(1.0f, 2.0f, 3.0f,
+                              4.0f, 5.0f, 6.0f,
+                              7.0f, 8.0f, 9.0f);
+
+    assert( m * v  == Vector3f(14.0f, 32.0f, 50.0f));
+
 }
 
 unittest

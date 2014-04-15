@@ -77,10 +77,10 @@ public:
      */
 
      /**
-     *  Binary operator +, -, * and / for possible combination of vector and scalar, vector and square matrix
+     *  Binary operator +, -, * and / for possible combination of vector and scalar
      */
     Vector!(T, size) opBinary(string op, U)(ref const U right) const pure nothrow @safe
-    if((is(U == Vector!(T, size)) && (op == "+" || op == "-")) || (is(U == SquareMatrix!(T,size)) && (op == "*")) || (is(U : T) && (op == "*" || op == "/")))
+    if((is(U == Vector!(T, size)) && (op == "+" || op == "-")) || (is(U : T) && (op == "*" || op == "/")))
     {
         Vector!(T, size) result = this;
         mixin("result " ~ op ~ "= right;");
@@ -110,25 +110,6 @@ public:
     }
 
     /**
-     *  Operator *= for vector and square matrix
-     */
-    ref Vector!(T, size) opOpAssign(string op)(ref const SquareMatrix!(T, size) right) pure nothrow @safe
-    if(op == "*")
-    {
-        Vector!(T, size) result = Vector!(T, size)();
-
-        foreach(i; 0..size)
-        foreach(j; 0..size)
-        {
-            result[i] += coordinates[i] * right[j,i];
-        }
-        this = result;
-
-
-        return this;
-    }
-
-    /**
      *  Unary operators + and -
      */
     Vector!(T, size) opUnary(string op)() const pure nothrow @safe
@@ -143,7 +124,7 @@ public:
     /**
      *  Index operator
      */
-    ref T opIndex (this vector)(size_t index) pure nothrow @safe
+    T opIndex (this vector)(size_t index) pure nothrow @safe
     in
     {
         assert ((0 <= index) && (index < size),
@@ -152,6 +133,20 @@ public:
     body
     {
         return coordinates[index];
+    }
+
+    /**
+     *  Assign index operator
+     */
+    T opIndexAssign (this vector)(T t, size_t index) pure nothrow @safe
+    in
+    {
+        assert ((0 <= index) && (index < size),
+        "Vector!(T,size).opIndexAssign(size_t index): array index out of bounds");
+    }
+    body
+    {
+        return coordinates[index] = t;
     }
 
     /**
@@ -415,14 +410,6 @@ unittest
     Vector3f b = Vector3f(1.0f, -2.5f, 2.0f);
     Vector3f result = Vector3f(2.0f, -0.5f, 5.0f);
     assert(floatingEqual(a+b,result));
-
-    Vector3f v = Vector3f(1.0f, 2.0f, 3.0f);
-    Matrix3x3f m = Matrix3x3f(1.0f, 2.0f, 3.0f,
-                              4.0f, 5.0f, 6.0f,
-                              7.0f, 8.0f, 9.0f);
-
-    assert( v * m  == Vector3f(12.0f, 30.0f, 54.0f));
-
     // TODO
     // more tests
 

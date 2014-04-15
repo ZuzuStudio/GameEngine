@@ -16,17 +16,13 @@ public:
 
         mass = 1.0f;
         invMass = 1.0f;
-        position = Vector3f(0.0f, 0.0f, 0.0f);
-        linearVelocity = Vector3f(0.0f, 0.0f, 0.0f);
-        linearAcceleration = Vector3f(0.0f, 0.0f, 0.0f);
-        forceAccumulator = Vector3f(0.0f, 0.0f, 0.0f);
-
+        position = Vector3f();
+        linearVelocity = Vector3f();
         inertia = Matrix3x3f.identity;
         invInertia = Matrix3x3f.identity;
-        orientation = Quaternionf(0.0f, 0.0f, 0.0f, 1.0f);
-        angularVelocity = Vector3f(0.0f, 0.0f, 0.0f);
-        angularAcceleration = Vector3f(0.0f, 0.0f, 0.0f);
-        torqueAccumulator = Vector3f(0.0f, 0.0f, 0.0f);
+        orientation = Quaternionf();
+        angularAcceleration = Vector3f();
+        torqueAccumulator = Vector3f();
 
         geometry = null;
     }
@@ -37,7 +33,7 @@ public:
         linearVelocity += linearAcceleration * dt;
 
 
-        angularAcceleration = torqueAccumulator * invInertia;
+        angularAcceleration = inertia * torqueAccumulator;
         angularVelocity += angularAcceleration * dt;
     }
 
