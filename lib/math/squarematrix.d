@@ -383,6 +383,55 @@ Matrix4x4f initPositionTransformation(float x, float y, float z)
    return result;
 }
 
+/**
+ *  Camera transformations generator
+ */
+Matrix4x4f initCameraTransformation (Vector3f target, Vector3f up)
+{
+    auto N = target.normalized;
+    auto U = up.normalized;
+
+    U = cross(U, N);
+    auto V = cross(N, U);
+
+    auto result = Matrix4x4f.identity;
+    result.a11 = U.x;
+    result.a12 = U.y;
+    result.a13 = U.z;
+
+    result.a21 = V.x;
+    result.a22 = V.y;
+    result.a23 = V.z;
+
+    result.a31 = N.x;
+    result.a32 = N.y;
+    result.a33 = N.z;
+
+    return result;
+}
+
+/**
+ *  Perspective transformation generator
+ */
+Matrix4x4f initPerspectiveTransformation (float angle, float width, float height, float nearestPlane, float farPlane)
+{
+    const float ratio = width / height;
+    const float near = nearestPlane;
+    const float far = farPlane;
+    const float range = near - far;
+    const float tangentHalf = tan (angle / 360.0f * PI);
+
+    auto result = Matrix4x4f.identity;
+    result.a11 = 1.0f / (ratio * tangentHalf);
+    result.a22 = 1.0f / tangentHalf;
+    result.a33 = (-near - far) / range;
+    result.a34 = 2.0f * far * near / range;
+    result.a43 = 1.0f;
+    result.a44 = 0.0f;
+
+    return result;
+}
+
 unittest
 {
 // Testing constructors
@@ -414,8 +463,13 @@ unittest
         0.0f, 0.0f, 0.0f, 1.0f
     ));
 
-    // initRotationTransformation() works properly, please believe me
-    //matrix = initRotationTransformation(45.0f / 180.0f * PI, 0.0f, 30.0f / 180.0f * PI);
+    /*
+     *  The following functions work properly, please believe me
+     *
+     *  matrix = initRotationTransformation(45.0f / 180.0f * PI, 0.0f, 30.0f / 180.0f * PI);
+     *  matrix = initPerspectiveTransformation(45.0f, 20.0f, 30.0f, 1.0f, 100.0f);
+     *  matrix = initCameraTransformation (Vector3f(1.0f, 2.0f, 1.4f), Vector3f(3.0f, 2.5f, 1.2f));
+     */
 }
 
 unittest
