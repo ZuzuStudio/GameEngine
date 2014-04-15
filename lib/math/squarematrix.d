@@ -170,7 +170,7 @@ public:
     }
 
     /**
-     *   Returns identity square matrix
+     *   Returns zero square matrix
      */
     @property static SquareMatrix!(T, size) zero() pure nothrow @safe
     {
@@ -183,6 +183,23 @@ public:
     @property static SquareMatrix!(T, size) identity() pure nothrow @safe
     {
         return SquareMatrix!(T, size)(identityRepresentation);
+    }
+    
+    /**
+     *   Returns diagonal square matrix
+     */
+    static SquareMatrix!(T, size) diagonal(U)(U[] values...) pure nothrow @safe
+    if(is(U : T))
+    in
+    {
+        assert (values.length == size, "SquareMatrix!(T, size): wrong arguments number for diagonal matrix!");
+    }
+    body
+    {
+		auto result = SquareMatrix!(T,size)();
+		foreach(i; 0..size)
+		result.matrix[i * size + i] = values[i];
+        return result;
     }
 
     @property string toString() const
@@ -336,4 +353,24 @@ unittest
         0, 1, 0,
         0, 0, 1
     ));
+}
+
+unittest
+{
+	//Testing diagonal initializator
+	assert(Matrix2x2f.diagonal(3.0f, -4.0f) == Matrix2x2f(
+	                                             3, 0,
+	                                             0, -4
+	));
+	assert(Matrix3x3f.diagonal(1.0f, 2.0f, 3.0f) == Matrix3x3f(
+	                                             1, 0, 0,
+	                                             0, 2, 0,
+	                                             0, 0, 3
+	));
+	assert(Matrix4x4f.diagonal(1.0f, 2.0f, 3.0f, 4.0f) == Matrix4x4f(
+	                                             1, 0, 0, 0,
+	                                             0, 2, 0, 0,
+	                                             0, 0, 3, 0,
+	                                             0, 0, 0, 4
+	));
 }
