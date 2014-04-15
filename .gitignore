@@ -1,4 +1,6 @@
 *.[oas]
+*.obj
+*.exe
 bin/
 obj/
 *.cbp
