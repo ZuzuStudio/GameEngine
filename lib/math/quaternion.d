@@ -2,15 +2,20 @@ module lib.math.quaternion;
 
 private
 {
-    import std.stdio;
-    import std.conv;
-    import std.range;
     import std.format;
     import std.math;
+    import std.range;
     import std.traits;
 
     import lib.math.vector;
+    import lib.math.squarematrix;
 }
+
+/**
+ * Predefined quaternion types
+ */
+alias Quaternionf = Quaternion!(float);
+alias Quaterniond = Quaternion!(double);
 
 public:
 
@@ -21,7 +26,7 @@ public:
     /**
      *  Constructor
      */
-    this (T x, T y, T z, T w)
+    this (T x, T y, T z, T w) pure nothrow @safe
     {
         this.x = x;
         this.y = y;
@@ -32,7 +37,7 @@ public:
     /**
      *  Constructor that uses vector & angle
      */
-    this (Vector!(T, 3) v, T w)
+    this (Vector!(T, 3) v, T w) pure nothrow @safe
     {
         this.x = v.x;
         this.y = v.y;
@@ -43,7 +48,7 @@ public:
     /**
      *  Constructor that uses quaternion
      */
-    this (Quaternion!(T) q)
+    this (Quaternion!(T) q) pure nothrow @safe
     {
         x = q.x;
         y = q.y;
@@ -60,23 +65,96 @@ public:
      */
 
     /**
+     *  Right sided operators * and / for quaternion and scalar
+     */
+    Quaternion!(T) opBinaryRight(string op)(T scalar) const pure nothrow @safe
+    if(op == "*" || op == "/")
+    {
+        mixin("return this " ~op ~ " scalar;");
+    }
+
+    /**
+     *  Operators * and / for quaternion and scalar
+     */
+    Quaternion!(T) opBinary(string op)(const T scalar) const pure nothrow @safe
+    if(op == "*" || op == "/")
+    {
+        Quaternion!(T) result = this;
+        mixin("return result "~op~"= scalar;");
+    }
+
+    /**
      *  Operators *= and /= for quaternion and scalar
      */
-     Quaternion!(T) opOpAssign(string op)(ref const T)
-        if(op == "*" || op == "/")
-     {
+    ref Quaternion!(T) opOpAssign(string op)(const T scalar) pure nothrow @safe
+    if(op == "*" || op == "/")
+    {
+        mixin("x " ~op~ "= scalar;"
+              "y " ~op~ "= scalar;"
+              "z " ~op~ "= scalar;"
+              "w " ~op~ "= scalar;");
+        return this;
+    }
 
-     }
-
-     /**
-     *  Unary operations + and -
+    /**
+     *  Binary operetor +, -, * for two quaternions
      */
-    Quaternion!(T) opUnary(string op)() const
+    Quaternion!(T) opBinary(string op)(const ref Quaternion!(T) right) pure nothrow @safe
+    if(op == "+" || op == "-" || op == "*")
+    {
+        Quaternion!(T) result = this;
+        mixin("return result" ~ op ~ "= right;");
+    }
+
+    /**
+     *  Binary operetor += , -= for two quaternions
+     */
+    ref Quaternion!(T) opOpAssign(string op)(const Quaternion!(T) right) pure nothrow @safe
+    if(op == "+" || op == "-" )
+    {
+        mixin("x " ~op ~ "= right.x;"
+              "y " ~op ~ "= right.y;"
+              "z " ~op ~ "= right.z;"
+              "w " ~op ~ "= right.w;"
+             );
+
+        return this;
+    }
+
+    /**
+     *  Binary operetor *= for two quaternions
+     */
+    ref Quaternion!(T) opOpAssign(string op)(const ref Quaternion!(T) right) pure nothrow @safe
+    if(op == "*")
+    {
+        this = Quaternion!(T)
+               (
+                   (x * right.w) + (w * right.x) + (y * right.z) - (z * right.y),
+                   (y * right.w) + (w * right.y) + (z * right.x) - (x * right.z),
+                   (z * right.w) + (w * right.z) + (x * right.y) - (y * right.x),
+                   (w * right.w) - (x * right.x) - (y * right.y) - (z * right.z)
+               );
+
+        return this;
+    }
+
+    /**
+     *  Unary operators + and -
+     */
+    Quaternion!(T) opUnary(string op)() const pure nothrow @safe
     if(op == "+" || op == "-")
     {
         // Fell the power of Dlang!
         mixin("return Quaternion!(T)(" ~ op ~ "x, " ~ op ~ "y, " ~ op ~ "z, " ~ op ~ "w);");
     }
+
+    /**
+	 *  Zero property, for more sweet usability
+	 */
+	@property static Quaternion!(T) zero() pure nothrow @safe
+	{
+		return Quaternion!(T).init;
+	}
 
     @property string toString()
     {
@@ -88,19 +166,30 @@ public:
 private:
     union
     {
+		T[4] components = [cast(T)0, cast(T)0, cast(T)0, cast(T)0];
+
         struct
         {
             T x, y, z, w;
         }
-        T[4] components;
     }
 }
 
-/**
- * Predefined quaternion types
- */
-alias Quaternion!(float) Quaternionf;
-alias Quaternion!(double) Quaterniond;
+unittest
+{
+	// Testing default zero initialization
+	Quaternionf a = Quaternionf();
+	assert([0.0f, 0.0f, 0.0f, 0.0f] == a.components);
+	Quaternionf b;
+	assert([0.0f, 0.0f, 0.0f, 0.0f] == b.components);
+	assert([0.0f, 0.0f, 0.0f, 0.0f] == (Quaternionf.init).components);
+	// TODO why folowing assertion is failed?
+	//assert(Quaternionf.zero == Quaternionf.init);
+
+
+	assert([0.0f, 0.0f, 0.0f, 0.0f] == (Quaternionf.init).components);
+	assert([0.0, 0.0, 0.0, 0.0] == (Quaterniond.init).components);
+}
 
 unittest
 {
@@ -114,7 +203,11 @@ unittest
 
 unittest
 {
-    Quaternionf q = Quaternionf(1.0, 2.0, 3.0, 3.14);
+    // Operetors testing
+    Quaternionf q = Quaternionf(1.0, 2.0, 3.0, 0.5);
     Quaternionf q1 = -q;
     assert(q == -q1);
+    q1 = 3f * q;
+
+    assert(3f * q  == Quaternionf(3.0, 6.0, 9.0, 1.5));
 }

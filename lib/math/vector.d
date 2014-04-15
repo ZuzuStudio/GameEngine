@@ -2,11 +2,23 @@ module lib.math.vector;
 
 private
 {
-    import std.math;
     import std.format;
+    import std.math;
     import std.range;
     import std.traits;
+
+    import lib.math.squarematrix;
 }
+
+/**
+ * Predefined vector types
+ */
+alias Vector2f = Vector!(float, 2);
+alias Vector3f = Vector!(float, 3);
+alias Vector4f = Vector!(float, 4);
+alias Vector2d = Vector!(double, 2);
+alias Vector3d = Vector!(double, 3);
+alias Vector4d = Vector!(double, 4);
 
 struct Vector(T, size_t size)
 if(isNumeric!T && size > 0 && size <= 4)
@@ -16,7 +28,7 @@ public:
     /**
      *  Constructor with variable number of arguments
      */
-    this(T[] values...)
+    this(T[] values...) pure nothrow @safe
     {
         if(values.length == size)
         {
@@ -34,7 +46,7 @@ public:
      *  Constructor that uses array of values
      *  It is not used at any situations at the moment
      */
-    this(T[] values)
+    this(T[] values) pure nothrow @safe
     {
         if(values.length == size)
         {
@@ -51,34 +63,34 @@ public:
     /**
      *  Constructor that uses vector
      */
-    this(Vector!(T, size) v)
+    this(Vector!(T, size) v) pure nothrow @safe
     {
         coordinates[] = v.coordinates[];
     }
 
     /**
-    *  Default postblit constructor
-    */
+     *  Default postblit constructor
+     */
 
     /**
      *  Default assign operator
-    */
-
-    /**
-     *  Operators *= and /= for vector and scalar
      */
-    ref Vector!(T, size) opOpAssign(string op)(ref const T scalar)
-    if(op == "*" || op == "/")
+
+     /**
+     *  Binary operator +, -, * and / for possible combination of vector and scalar, vector and square matrix
+     */
+    Vector!(T, size) opBinary(string op, U)(ref const U right) const pure nothrow @safe
+    if((is(U == Vector!(T, size)) && (op == "+" || op == "-")) || (is(U == SquareMatrix!(T,size)) && (op == "*")) || (is(U : T) && (op == "*" || op == "/")))
     {
-        foreach(i; 0..size)
-        mixin("coordinates[i] " ~ op ~ "= scalar;");
-        return this;
+        Vector!(T, size) result = this;
+        mixin("result " ~ op ~ "= right;");
+        return result;
     }
 
     /**
      *  Operators += and -= for two vectors
      */
-    ref Vector!(T, size) opOpAssign(string op)(ref const Vector!(T, size) right)
+    ref Vector!(T, size) opOpAssign(string op)(const Vector!(T, size) right) pure nothrow @safe
     if(op == "+" || op == "-")
     {
         foreach(i; 0..size)
@@ -87,20 +99,39 @@ public:
     }
 
     /**
-     *  Binary operator +, -, * and / for possible combination of vector and scalar
+     *  Operators *= and /= for vector and scalar
      */
-    Vector!(T, size) opBinary(string op, U)(ref const U right) const
-    if((is(U == Vector!(T,size)) && (op == "+" || op == "-")) || (is(U == T) && (op == "*" || op == "/")))
+    ref Vector!(T, size) opOpAssign(string op, U)(ref const U scalar) pure nothrow @safe
+    if(is(U : T) && (op == "*" || op == "/"))
     {
-        Vector!(T, size) result = this;
-        mixin("result " ~ op ~ "= right;");
-        return result;
+        foreach(i; 0..size)
+        mixin("coordinates[i] " ~ op ~ "= cast(T)scalar;");
+        return this;
     }
 
     /**
-     *  Unary operations + and -
+     *  Operator *= for vector and square matrix
      */
-    Vector!(T, size) opUnary(string op)() const
+    ref Vector!(T, size) opOpAssign(string op)(ref const SquareMatrix!(T, size) right) pure nothrow @safe
+    if(op == "*")
+    {
+        Vector!(T, size) result = Vector!(T, size)();
+
+        foreach(i; 0..size)
+        foreach(j; 0..size)
+        {
+            result[i] += coordinates[i] * right[j,i];
+        }
+        this = result;
+
+
+        return this;
+    }
+
+    /**
+     *  Unary operators + and -
+     */
+    Vector!(T, size) opUnary(string op)() const pure nothrow @safe
     if(op == "+" || op == "-")
     {
         Vector!(T, size) result;
@@ -110,9 +141,9 @@ public:
     }
 
     /**
-     *  Index operation
+     *  Index operator
      */
-    ref T opIndex (this vector)(size_t index)
+    ref T opIndex (this vector)(size_t index) pure nothrow @safe
     in
     {
         assert ((0 <= index) && (index < size),
@@ -124,9 +155,17 @@ public:
     }
 
     /**
+	 *  Zero property, for more sweet usability
+	 */
+	@property static Vector!(T, size) zero() pure nothrow @safe
+	{
+		return Vector!(T, size).init;
+	}
+
+    /**
      *  Get Vector length squared
      */
-    @property T lengthsqr()
+    @property T lengthsqr() const pure nothrow @safe
     {
         T lensqr = 0;
         foreach (component; coordinates)
@@ -137,7 +176,7 @@ public:
     /**
      *  Get vector length
      */
-    @property T length()
+    @property T length() const pure nothrow @safe
     {
         static if (isFloatingPoint!T)
         {
@@ -155,7 +194,7 @@ public:
     /**
      *  Set vector length to 1
      */
-    void normalize()
+    void normalize() pure nothrow @safe
     {
         static if (isFloatingPoint!T)
         {
@@ -177,7 +216,7 @@ public:
     /**
      *  Return normalized copy
      */
-    @property Vector!(T, size) normalized()
+    @property Vector!(T, size) normalized() const pure nothrow @safe
     {
         Vector!(T, size) result = this;
         result.normalize();
@@ -187,7 +226,7 @@ public:
     /**
      *  Return true if all components are zero
      */
-    @property bool isZero()
+    @property bool isZero() const pure nothrow @safe
     {
         foreach(i; 0..size)
         if(coordinates[i] != 0)
@@ -196,7 +235,7 @@ public:
         return true;
     }
 
-    @property string toString()
+    @property string toString() const
     {
         auto writer = appender!string();
         formattedWrite(writer, "%s", coordinates);
@@ -218,13 +257,28 @@ public:
     }
 
 private:
-    T[size] coordinates;
+
+	/**
+	 *   Declaration zero initialized vector
+	 */
+	mixin(declaration());
+
+	/**
+     *   Build compile time zerovector representation
+     */
+	static string declaration() pure nothrow @safe
+	{
+		string result = "T[size] coordinates = [cast(T)";
+		foreach(unused; 0..size)
+		result ~= "0, ";
+		return result ~ "];";
+	}
 }
 
 /**
  * Dot product
  */
-T dot(T, int size) (Vector!(T, size) a, Vector!(T, size) b)
+T dot(T, int size) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
 {
     T result = 0;
     foreach(i; 0..size)
@@ -239,7 +293,7 @@ T dot(T, int size) (Vector!(T, size) a, Vector!(T, size) b)
  * det | a.x a.y a.z | = i((a.y * b.z) - (a.z * b.y)) + j((a.z * b.x) - (a.x * b.z)) +k((a.x * b.y) - (a.y * b.x));
  *     | b.x b.y b.z |
  */
-Vector!(T, size) cross(T, int size) (Vector!(T, size) a, Vector!(T, size) b)
+Vector!(T, size) cross(T, int size) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
 if(size == 3)
 {
 
@@ -254,7 +308,7 @@ if(size == 3)
 /**
  *  Compute distance between two points
  */
-T distance(T) (Vector!(T, size) a, Vector!(T, size) b)
+T distance(T) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
 {
     Vector!(T, size) difference =  a - b;
     return difference.length;
@@ -263,22 +317,47 @@ T distance(T) (Vector!(T, size) a, Vector!(T, size) b)
 /**
  *  Compute distance squared between two points
  */
-T distancesqr(T) (Vector!(T,3) a, Vector!(T,3) b)
+T distancesqr(T) (Vector!(T,3) a, Vector!(T,3) b) pure nothrow @safe
 {
     Vector!(T, size) difference =  a - b;
     return difference.lengthsqr;
 }
 
-/**
- * Predefined vector types
- */
-alias Vector!(float, 2) Vector2f;
-alias Vector!(float, 3) Vector3f;
-alias Vector!(float, 4) Vector4f;
-alias Vector!(double, 2) Vector2d;
-alias Vector!(double, 3) Vector3d;
-alias Vector!(double, 4) Vector4d;
+unittest
+{
+	// Testing default zero initialization
+	Vector3f a = Vector3f();
+	assert([0.0f, 0.0f, 0.0f] == a.coordinates);
+	Vector3f b;
+	assert([0.0f, 0.0f, 0.0f] == b.coordinates);
+	assert([0.0f, 0.0f, 0.0f] == (Vector3f.init).coordinates);
+	assert(Vector3f.zero == Vector3f.init);
 
+	assert([0.0f, 0.0f] == (Vector2f.init).coordinates);
+	assert([0.0f, 0.0f, 0.0f] == (Vector3f.init).coordinates);
+	assert([0.0f, 0.0f, 0.0f, 0.0f] == (Vector4f.init).coordinates);
+	assert([0.0, 0.0] == (Vector2d.init).coordinates);
+	assert([0.0, 0.0, 0.0] == (Vector3d.init).coordinates);
+	assert([0.0, 0.0, 0.0, 0.0] == (Vector4d.init).coordinates);
+}
+
+unittest
+{
+	// Testing for flexibility of prodyct by scalar
+	auto x = Vector3f(1.0, 2.0, 3.0);
+	real rAlpha = 2.0L;
+	double dAlpha = 2.0;
+	float fAlpha = 2.0f;
+	long lAlpha = 2L;
+	int iAlpha = 2;
+	byte bAlpha = 2;
+	assert([2.0f, 4.0f, 6.0f] == (x * rAlpha).coordinates);
+	assert([2.0f, 4.0f, 6.0f] == (x * dAlpha).coordinates);
+	assert([2.0f, 4.0f, 6.0f] == (x * fAlpha).coordinates);
+	assert([2.0f, 4.0f, 6.0f] == (x * lAlpha).coordinates);
+	assert([2.0f, 4.0f, 6.0f] == (x * iAlpha).coordinates);
+	assert([2.0f, 4.0f, 6.0f] == (x * bAlpha).coordinates);
+}
 
 unittest
 {
@@ -299,7 +378,7 @@ unittest
 
 unittest
 {
-    // Testing of assign operator and postbli constructor
+    // Testing of assign operator and postblit constructor
     Vector3f a=Vector3f(1.0f, 2.0f, 3.0f);
     auto b = a;
     assert(a.coordinates !is b.coordinates);
@@ -314,7 +393,16 @@ unittest
 
 unittest
 {
-    // Testing of maath operations
+	// Testing parametrical constructors
+	Vector2d(1.0f, 2.0f);
+	Vector3f([1.0, 2.0, 3.0]);
+	auto v = Vector4f([1.0, 2.0, 3.0, 4.0f]);
+	Vector4f(v);
+}
+
+unittest
+{
+    // Testing of math operations
     bool floatingEqual(Vector3f a, Vector3f b)
     {
         float sum = 0.0;
@@ -322,12 +410,47 @@ unittest
         sum += (a.coordinates[i] - b.coordinates[i]) ^^ 2;
         return sqrt(sum) < sqrt(float.epsilon);
     }
+
     Vector3f a = Vector3f(1.0f, 2.0f, 3.0f);
     Vector3f b = Vector3f(1.0f, -2.5f, 2.0f);
     Vector3f result = Vector3f(2.0f, -0.5f, 5.0f);
     assert(floatingEqual(a+b,result));
+
+    Vector3f v = Vector3f(1.0f, 2.0f, 3.0f);
+    Matrix3x3f m = Matrix3x3f(1.0f, 2.0f, 3.0f,
+                              4.0f, 5.0f, 6.0f,
+                              7.0f, 8.0f, 9.0f);
+
+    assert( v * m  == Vector3f(12.0f, 30.0f, 54.0f));
+
     // TODO
     // more tests
+
+
+}
+
+unittest
+{
+	// Testing toString
+	assert("[0, 0]" == Vector2f.zero.toString);
+	assert("[0, 0, 0]" == Vector3f.zero.toString);
+	assert("[0, 0, 0, 0]" == Vector4f.zero.toString);
+	assert("[0, 0]" == Vector2d.zero.toString);
+	assert("[0, 0, 0]" == Vector3d.zero.toString);
+	assert("[0, 0, 0, 0]" == Vector4d.zero.toString);
+
+	assert("[0.5, -1]" == Vector2f(0.5, -1.0).toString);
+}
+
+unittest
+{
+	// Testing declaration()
+	assert("T[size] coordinates = [cast(T)0, 0, ];" == Vector2f.declaration());
+	assert("T[size] coordinates = [cast(T)0, 0, ];" == Vector2d.declaration());
+	assert("T[size] coordinates = [cast(T)0, 0, 0, ];" == Vector3f.declaration());
+	assert("T[size] coordinates = [cast(T)0, 0, 0, ];" == Vector3d.declaration());
+	assert("T[size] coordinates = [cast(T)0, 0, 0, 0, ];" == Vector4f.declaration());
+	assert("T[size] coordinates = [cast(T)0, 0, 0, 0, ];" == Vector4d.declaration());
 }
 
 unittest
@@ -343,4 +466,79 @@ unittest
     assert(d == -14.0);
     Vector3f f = cross(a, b);
     assert(f.isZero);
+    assert(Vector3d().isZero);
+    assert(!Vector2d(1.0, 0.0).isZero);
+    assert(5.0 == Vector4f(3.0f, 0.0f, 4.0f, 0.0f).length);
+    assert(0 == Vector!(int, 4)(3, 0, 4, 0).length);//TODO change semantics
+    assert(Vector3f(0.6f, 0.0f, 0.8f) == Vector3f(3.0f, 0.0f, 4.0f).normalized);
+}
+
+unittest
+{
+	// Testing assertattion and contracts
+	import core.exception;
+	try
+	{
+		Vector2f(1.0f);
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
+	}
+	try
+	{
+		Vector3f(1.0f);
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
+	}
+	try
+	{
+		Vector4f(1.0f);
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
+	}
+	try
+	{
+		Vector2f(1.0f,2.0f,3.0f,4.0f,5.0f);
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
+	}
+	try
+	{
+		Vector3f(1.0f,2.0f,3.0f,4.0f,5.0f);
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
+	}
+	try
+	{
+		Vector4f(1.0f,2.0f,3.0f,4.0f,5.0f);
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
+	}
+	try
+	{
+		Vector2f([1.0f,2.0f,3.0f,4.0f,5.0f]);
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "The length of array that transmitted to constructor does not match vector dimension.", "wrong assert mesage");
+	}
+	try
+	{
+		Vector4f([1.0f,2.0f,3.0f]);
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "The length of array that transmitted to constructor does not match vector dimension.", "wrong assert mesage");
+	}
 }

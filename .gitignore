@@ -1,5 +1,10 @@
-*
-!*.d
-!Makefile
-!.gitignore
-!README.md
+*.[oas]
+*.obj
+*.exe
+bin/
+obj/
+*.cbp
+*.lst
+*~
+*.depend*
+*.layout*
