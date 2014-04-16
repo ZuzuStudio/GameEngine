@@ -11,8 +11,7 @@ import derelict.util.exception: DerelictException;
 public import wackyEnums;
 public import wackyExceptions;
 import wackyShaderHandler;
-
-import squarematrix;
+import wackyPipeline;
 
 class WackyRender
 {

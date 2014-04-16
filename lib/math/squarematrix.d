@@ -345,16 +345,21 @@ private:
 /**
  *  Scale transformations generator
  */
-Matrix4x4f initScaleTransformation(float x, float y, float z)
+Matrix4x4f initScaleTransformation(float x, float y, float z) pure nothrow
 {
     return Matrix4x4f().diagonal(x, y, z, 1.0f);
+}
+
+Matrix4x4f initScaleTransformation(Vector3f data) pure nothrow
+{
+    return Matrix4x4f().diagonal(data.x, data.y, data.z, 1.0f);
 }
 
 /**
  *  Rotation transformations generator.
  *  Arguments are angles measured in RADIANS
  */
-Matrix4x4f initRotationTransformation (float x, float y, float z)
+Matrix4x4f initRotationTransformation (float x, float y, float z) pure nothrow
 {
     Matrix4x4f overX = Matrix4x4f.identity;
     Matrix4x4f overY = Matrix4x4f.identity;
@@ -378,10 +383,14 @@ Matrix4x4f initRotationTransformation (float x, float y, float z)
     return overZ * overY * overX;
 }
 
+Matrix4x4f initRotationTransformation(Vector3f data) pure nothrow
+{
+    return initRotationTransformation(data.x, data.y, data.z);
+}
 /**
  *  Position transformations generator
  */
-Matrix4x4f initPositionTransformation(float x, float y, float z)
+Matrix4x4f initPositionTransformation(float x, float y, float z) pure nothrow
 {
    auto result = Matrix4x4f.identity;
    result.a14 = x;
@@ -391,10 +400,15 @@ Matrix4x4f initPositionTransformation(float x, float y, float z)
    return result;
 }
 
+Matrix4x4f initPositionTransformation(Vector3f data) pure nothrow
+{
+    return initPositionTransformation(data.x, data.y, data.z);
+}
+
 /**
  *  Camera transformations generator
  */
-Matrix4x4f initCameraTransformation (Vector3f target, Vector3f up)
+Matrix4x4f initCameraTransformation (Vector3f target, Vector3f up) pure nothrow
 {
     auto N = target.normalized;
     auto U = up.normalized;

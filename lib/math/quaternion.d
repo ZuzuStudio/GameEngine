@@ -225,6 +225,30 @@ public:
     }
 }
 
+/**
+ *  Fast rotation using quaternions.
+ *  The angle is measured in RADIANS
+ *
+ */
+Vector3f rotate (Vector3f processed, Vector3f axis, float angle)
+{
+    const float sinHalfAngle = sin (angle/2);
+    const float cosHalfAngle = cos (angle/2);
+
+    float tempX = axis.x * sinHalfAngle;
+    float tempY = axis.y * sinHalfAngle;
+    float tempZ = axis.z * sinHalfAngle;
+    float tempW = cosHalfAngle;
+
+    auto rotationQuaternion = Quaternionf(tempX, tempY, tempZ, tempW);
+
+    Quaternionf conjugateQuaternion = rotationQuaternion.conjugate;
+
+    Quaternionf result = rotationQuaternion * processed * conjugateQuaternion;
+
+    return Vector3f(result.x, result.y, result.z);
+}
+
 unittest
 {
 	// Testing default zero initialization
@@ -272,4 +296,13 @@ unittest
     q.normalize();
     assert(q.length < 1.0f + float.epsilon && q.length > 1.0f - float.epsilon);
     assert (q.conjugate == Quaternionf(-q.x, -q.y, -q.z, q.w));
+}
+
+unittest
+{
+    // Rotation test
+    auto vector = rotate(Vector3f(1.0f, 2.0f, 4.0f), Vector3f(1.0f, 0.0f, 0.0f), 45.0f / 180.0f * PI);
+    assert(vector.x < 1.0f + float.epsilon && vector.x > 1.0f - float.epsilon);
+    assert(vector.y < -1.41f + 0.01f && vector.y > -1.41f - 0.01f);
+    assert(vector.z < 4.24f + 0.01f && vector.z > 4.24f - 0.01f);
 }
