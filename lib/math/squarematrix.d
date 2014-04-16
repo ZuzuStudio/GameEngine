@@ -4,13 +4,12 @@ private
 {
     import std.conv;
     import std.format;
-    import std.math;
     import std.range;
     import std.traits;
     import std.algorithm;
-
-    import lib.math.vector;
 }
+    import lib.math.vector;
+
 
 alias Matrix2x2f = SquareMatrix!(float,2);
 alias Matrix3x3f = SquareMatrix!(float,3);
@@ -35,7 +34,8 @@ public:
     /**
      *  Constructor with variable number of arguments
      */
-    this(T)(T[] values...) pure nothrow @safe
+    this(U)(U[] values...) pure nothrow @safe
+    if(is(U : T))
     in
     {
         assert (values.length == linearSize, "SquareMatrix!(T, size): wrong array length in constructor!");
@@ -43,13 +43,14 @@ public:
     body
     {
         foreach(i; 0..linearSize)
-            matrix[i] = values[i];
+            matrix[i] = cast(T)values[i];
     }
 
     /**
      *  Constructor that uses array of values
      */
-    this(T)(T[] values) pure nothrow @safe
+    this(U)(U[] values) pure nothrow @safe
+    if(is(U : T))
     in
     {
         assert (values.length == linearSize, "SquareMatrix!(T, size): wrong array length in constructor!");
@@ -238,9 +239,9 @@ public:
     }
     body
     {
-		auto result = SquareMatrix!(T,size)();
+		SquareMatrix!(T,size) result;
 		foreach(i; 0..size)
-		result.matrix[i * size + i] = values[i];
+		result.matrix[i * size + i] = cast(T)values[i];
         return result;
     }
 
@@ -422,8 +423,8 @@ unittest
 	                                             0, 2, 0,
 	                                             0, 0, 3
 	));
-	assert(Matrix4x4f.diagonal(1.0f, 2.0f, 3.0f, 4.0f) == Matrix4x4f(
-	                                             1, 0, 0, 0,
+	assert(Matrix4x4f.diagonal(1.5f, 2.0f, 3.0f, 4.0f) == Matrix4x4f(
+	                                             1.5, 0, 0, 0,
 	                                             0, 2, 0, 0,
 	                                             0, 0, 3, 0,
 	                                             0, 0, 0, 4

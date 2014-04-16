@@ -6,8 +6,6 @@ private
     import std.math;
     import std.range;
     import std.traits;
-
-    import lib.math.squarematrix;
 }
 
 /**
@@ -273,7 +271,7 @@ private:
 /**
  * Dot product
  */
-T dot(T, int size) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
+T dot(T, size_t size)(Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
 {
     T result = 0;
     foreach(i; 0..size)
@@ -288,7 +286,7 @@ T dot(T, int size) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
  * det | a.x a.y a.z | = i((a.y * b.z) - (a.z * b.y)) + j((a.z * b.x) - (a.x * b.z)) +k((a.x * b.y) - (a.y * b.x));
  *     | b.x b.y b.z |
  */
-Vector!(T, size) cross(T, int size) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
+Vector!(T, size) cross(T, size_t size) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
 if(size == 3)
 {
 
@@ -303,7 +301,7 @@ if(size == 3)
 /**
  *  Compute distance between two points
  */
-T distance(T) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
+T distance(T, size_t  size)(Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
 {
     Vector!(T, size) difference =  a - b;
     return difference.length;
@@ -312,7 +310,7 @@ T distance(T) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
 /**
  *  Compute distance squared between two points
  */
-T distancesqr(T) (Vector!(T,3) a, Vector!(T,3) b) pure nothrow @safe
+T distancesqr(T) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
 {
     Vector!(T, size) difference =  a - b;
     return difference.lengthsqr;

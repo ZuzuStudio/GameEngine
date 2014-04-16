@@ -6,10 +6,10 @@ private
     import std.math;
     import std.range;
     import std.traits;
-
+}
     import lib.math.vector;
     import lib.math.squarematrix;
-}
+
 
 /**
  * Predefined quaternion types
