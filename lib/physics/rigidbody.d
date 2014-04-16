@@ -1,9 +1,12 @@
 module physics.rigidbody;
 
-import lib.math.vector;
-import lib.math.quaternion;
-import lib.math.squarematrix;
-import lib.geometry.geometry;
+public
+{
+    import lib.math.vector;
+    import lib.math.quaternion;
+    import lib.math.squarematrix;
+    import lib.geometry.geometry;
+}
 
 /**
  *  Absolute rigid body
@@ -11,9 +14,8 @@ import lib.geometry.geometry;
 class RigidBody
 {
 public:
-    this()
+    this() pure nothrow @safe
     {
-
         mass = 1.0f;
         invMass = 1.0f;
         inertia = Matrix3x3f.identity;
@@ -21,7 +23,7 @@ public:
         geometry = null;
     }
 
-    void integrateForces(float dt)
+    void integrateForces(float dt) pure nothrow @safe
     {
         linearAcceleration = forceAccumulator * invMass;
         linearVelocity += linearAcceleration * dt;
@@ -31,7 +33,7 @@ public:
         angularVelocity += angularAcceleration * dt;
     }
 
-    void integrateVelocities(float dt)
+    void integrateVelocities(float dt) pure nothrow @safe
     {
         if (linearVelocity.length < float.epsilon)
             linearVelocity = Vector3f(0.0f, 0.0f, 0.0f);
@@ -43,20 +45,20 @@ public:
         // orientation.normalize();
     }
 
-    void setGeometry(Geometry geometry)
+    void setGeometry(Geometry geometry) pure nothrow @safe
     {
         this.geometry = geometry;
 
         inertia = geometry.inertiaTensor(mass);
         //  invInertia = inertia.inverse;
-     }
+    }
 
-    void applyForce(Vector3f force)
+    void applyForce(Vector3f force) pure nothrow @safe
     {
         forceAccumulator += force;
     }
 
-    void applyTorque(Vector3f torque)
+    void applyTorque(Vector3f torque) pure nothrow @safe
     {
         torqueAccumulator += torque;
     }
