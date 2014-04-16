@@ -1,9 +1,6 @@
 module lib.geometry.geometry;
 
-private
-{
-    import lib.math.squarematrix;
-}
+public import lib.math.squarematrix;
 
 abstract class Geometry
 {
