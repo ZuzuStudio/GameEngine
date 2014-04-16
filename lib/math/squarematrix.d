@@ -8,7 +8,7 @@ private
     import std.traits;
     import std.algorithm;
 }
-    import lib.math.vector;
+import lib.math.vector;
 
 
 alias Matrix2x2f = SquareMatrix!(float,2);
@@ -34,8 +34,8 @@ public:
     /**
      *  Constructor with variable number of arguments
      */
-    this(U)(U[] values...) pure nothrow @safe
-    if(is(U : T))
+    this(T[] values...) pure nothrow @safe
+    //if(is(U : T))
     in
     {
         assert (values.length == linearSize, "SquareMatrix!(T, size): wrong array length in constructor!");
@@ -43,14 +43,14 @@ public:
     body
     {
         foreach(i; 0..linearSize)
-            matrix[i] = cast(T)values[i];
+        matrix[i] = values[i];
     }
 
     /**
      *  Constructor that uses array of values
      */
-    this(U)(U[] values) pure nothrow @safe
-    if(is(U : T))
+    this(T[] values) pure nothrow @safe
+//    if(is(U : T))
     in
     {
         assert (values.length == linearSize, "SquareMatrix!(T, size): wrong array length in constructor!");
@@ -115,16 +115,16 @@ public:
     /**
      *  Binary operator * for two square matrices
      */
-	// TODO more pretty code
+    // TODO more pretty code
     SquareMatrix!(T, size) opBinary(string op)(SquareMatrix!(T, size) right) const pure nothrow @safe
     if(op == "*")
     {
         SquareMatrix!(T, size) result;
         alias left = this;
         foreach (i; 0..size)
-		foreach (j; 0..size)
-		foreach (k; 0..size)
-		result[i, j] = result[i, j] + left[i, k] * right[k, j];
+        foreach (j; 0..size)
+        foreach (k; 0..size)
+        result[i, j] = result[i, j] + left[i, k] * right[k, j];
         return result;
     }
 
@@ -137,9 +137,9 @@ public:
         return this = this * right;
     }
 
-     /**
-     *  Operator * for square matrix and vector
-     */
+    /**
+    *  Operator * for square matrix and vector
+    */
     Vector!(T, size) opBinary(string op)(Vector!(T, size) right) pure nothrow @safe
     if(op == "*")
     {
@@ -231,17 +231,16 @@ public:
     /**
      *   Returns diagonal square matrix
      */
-    static SquareMatrix!(T, size) diagonal(U)(U[] values...) pure nothrow @safe
-    if(is(U : T))
-    in
+    static SquareMatrix!(T, size) diagonal(T[] values...) pure nothrow @safe
+        in
     {
         assert (values.length == size, "SquareMatrix!(T, size): wrong arguments number for diagonal matrix!");
     }
     body
     {
-		SquareMatrix!(T,size) result;
-		foreach(i; 0..size)
-		result.matrix[i * size + i] = cast(T)values[i];
+        SquareMatrix!(T,size) result;
+        foreach(i; 0..size)
+        result.matrix[i * size + i] = values[i];
         return result;
     }
 
@@ -333,23 +332,23 @@ private:
             mixin(elements("a"));
         }
 
-		/**
-		 *   Declaration zero initialized matrix;
-		 */
-		//mixin(declaration());
-		T[linearSize] matrix;
+        /**
+         *   Declaration zero initialized matrix;
+         */
+        //mixin(declaration());
+        T[linearSize] matrix;
     }
 
     /**
      *   Build compile time zero matrix representation
      *//* TODO candidate to deletion
-    static string declaration() pure nothrow @safe
-    {
-        string result = "T matrix[linearSize] = [cast(T)";
-        foreach(i; 0..linearSize)
-            result ~= "0, ";
-        return result ~ "];";
-    }*/
+static string declaration() pure nothrow @safe
+{
+    string result = "T matrix[linearSize] = [cast(T)";
+    foreach(i; 0..linearSize)
+        result ~= "0, ";
+    return result ~ "];";
+}*/
 };
 
 unittest
@@ -399,8 +398,8 @@ unittest
 
     Vector3f v = Vector3f(1.0f, 2.0f, 3.0f);
     Matrix3x3f m = Matrix3x3f(1.0f, 2.0f, 3.0f,
-                              4.0f, 5.0f, 6.0f,
-                              7.0f, 8.0f, 9.0f);
+    4.0f, 5.0f, 6.0f,
+    7.0f, 8.0f, 9.0f);
 
     assert( m * v  == Vector3f(14.0f, 32.0f, 50.0f));
 
@@ -408,28 +407,38 @@ unittest
 
 unittest
 {
-	assert(Matrix2x2f(0.6, 0.8, -0.8, 0.6) * Matrix2x2f(0.6, -0.8, 0.8, 0.6) == Matrix2x2f.identity);
+    assert(Matrix2x2f(0.6, 0.8, -0.8, 0.6) * Matrix2x2f(0.6, -0.8, 0.8, 0.6) == Matrix2x2f.identity);
 }
 
 unittest
 {
-	//Testing diagonal initializator
-	assert(Matrix2x2f.diagonal(3.0f, -4.0f) == Matrix2x2f(
-	                                             3, 0,
-	                                             0, -4
-	));
-	assert(Matrix3x3f.diagonal(1.0f, 2.0f, 3.0f) == Matrix3x3f(
-	                                             1, 0, 0,
-	                                             0, 2, 0,
-	                                             0, 0, 3
-	));
-	/*assert(Matrix4x4f.diagonal(1.5f, 2.0f, 3.0f, 4.0f) == Matrix4x4f(
-	                                             1.5, 0, 0, 0,
-	                                             0, 2, 0, 0,
-	                                             0, 0, 3, 0,
-	                                             0, 0, 0, 4
-	));*/
+    //Testing diagonal initializator
+    assert(Matrix2x2f.diagonal(3.0f, -4.0f) == Matrix2x2f(
+        3, 0,
+        0, -4
+    ));
+    assert(Matrix3x3f.diagonal(1.0f, 2.0f, 3.0f) == Matrix3x3f(
+        1, 0, 0,
+        0, 2, 0,
+        0, 0, 3
+    ));
+    assert(Matrix4x4f.diagonal(1.5, 2, 3, 4.0f) == Matrix4x4f(
+    	                                             1.5, 0, 0, 0,
+    	                                             0, 2f, 0, 0,
+    	                                             0, 0, 3f, 0,
+    	                                             0, 0, 0, 4
+    	));
 	assert("lib.math.squarematrix.SquareMatrix!(float, 4).SquareMatrix" == typeid(Matrix4x4f.diagonal(1, 2, 3, 4)).toString());
 	assert("lib.math.squarematrix.SquareMatrix!(float, 4).SquareMatrix" == typeid(Matrix4x4f.diagonal(1, 2.0, 3, 4)).toString());
 	assert("lib.math.squarematrix.SquareMatrix!(float, 4).SquareMatrix" == typeid(Matrix4x4f.diagonal(1, 2, 3.0L, 4L)).toString());
+    assert( Matrix3x3f(
+        1.5, 0f, 0f,
+        0f, 0f, 0f,
+        0f, 0f, 0f
+    ) == Matrix3x3f(
+        1.5f, 0f, 0f,
+        0f, 0f, 0f,
+        0f, 0f, 0f
+    )
+          );
 }

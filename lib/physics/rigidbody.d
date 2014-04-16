@@ -18,8 +18,23 @@ public:
     {
         mass = 1.0f;
         invMass = 1.0f;
+
+        /*  Default zero initialization for
+         *
+         *  - position
+         *  - position;
+         *  - linearVelocity;
+         *  - linearAcceleration;
+         *  - forceAccumulator;
+         *  - orientation;
+         *  - angularVelocity;
+         *  - angularAcceleration;
+         *  - torqueAccumulator;
+         */
+
         inertia = Matrix3x3f.identity;
         invInertia = Matrix3x3f.identity;
+
         geometry = null;
     }
 
