@@ -423,10 +423,13 @@ unittest
 	                                             0, 2, 0,
 	                                             0, 0, 3
 	));
-	assert(Matrix4x4f.diagonal(1.5f, 2.0f, 3.0f, 4.0f) == Matrix4x4f(
+	/*assert(Matrix4x4f.diagonal(1.5f, 2.0f, 3.0f, 4.0f) == Matrix4x4f(
 	                                             1.5, 0, 0, 0,
 	                                             0, 2, 0, 0,
 	                                             0, 0, 3, 0,
 	                                             0, 0, 0, 4
-	));
+	));*/
+	assert("lib.math.squarematrix.SquareMatrix!(float, 4).SquareMatrix" == typeid(Matrix4x4f.diagonal(1, 2, 3, 4)).toString());
+	assert("lib.math.squarematrix.SquareMatrix!(float, 4).SquareMatrix" == typeid(Matrix4x4f.diagonal(1, 2.0, 3, 4)).toString());
+	assert("lib.math.squarematrix.SquareMatrix!(float, 4).SquareMatrix" == typeid(Matrix4x4f.diagonal(1, 2, 3.0L, 4L)).toString());
 }
