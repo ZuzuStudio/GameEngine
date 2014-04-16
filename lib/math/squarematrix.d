@@ -30,7 +30,7 @@ public:
     /**
      *   Compile time calculation linear size of matrix
      */
-    enum linearSize = size * size;
+    private enum linearSize = size * size;
 
     /**
      *  Constructor with variable number of arguments
@@ -81,7 +81,7 @@ public:
     /**
      *  Operators *= and /= for square matrix and scalar
      */
-    ref SquareMatrix!(T, size) opOpAssign(string op)(T scalar) pure nothrow @safe
+    SquareMatrix!(T, size) opOpAssign(string op)(T scalar) pure nothrow @safe
     if(op == "*" || op == "/")
     {
         foreach(i; 0..linearSize)
@@ -92,7 +92,7 @@ public:
     /**
      *  Binary operator + and - for square matrices
      */
-    SquareMatrix!(T, size) opBinary(string op)(ref const SquareMatrix!(T, size) right) const pure nothrow @safe
+    SquareMatrix!(T, size) opBinary(string op)(SquareMatrix!(T, size) right) const pure nothrow @safe
     if(op == "+" || op == "-")
     {
         SquareMatrix!(T, size) result = this;
@@ -103,7 +103,7 @@ public:
     /**
      *  Operators += and -= for two square matrix
      */
-    ref SquareMatrix!(T, size) opOpAssign(string op)(ref const SquareMatrix!(T, size) right) pure nothrow @safe
+    SquareMatrix!(T, size) opOpAssign(string op)(SquareMatrix!(T, size) right) pure nothrow @safe
     if(op == "+" || op == "-")
     {
         foreach(i; 0..linearSize)
@@ -130,7 +130,7 @@ public:
     /**
      *  Operators *= for two square matrix
      */
-    ref SquareMatrix!(T, size) opOpAssign(string op)(SquareMatrix!(T, size) right) pure nothrow @safe
+    SquareMatrix!(T, size) opOpAssign(string op)(SquareMatrix!(T, size) right) pure nothrow @safe
     if(op == "*")
     {
         return this = this * right;
@@ -139,7 +139,7 @@ public:
      /**
      *  Operator * for square matrix and vector
      */
-    Vector!(T, size) opBinary(string op)(ref const Vector!(T, size) right) pure nothrow @safe
+    Vector!(T, size) opBinary(string op)(Vector!(T, size) right) pure nothrow @safe
     if(op == "*")
     {
         Vector!(T, size) result;
@@ -157,7 +157,7 @@ public:
      *  Index operator T = Matrix[i,j]
      *  Indices start with 0
      */
-    T opIndex(size_t i, size_t j)  const pure nothrow @safe
+    T opIndex(size_t i, size_t j) const pure nothrow @safe
     in
     {
         assert ((0 <= i) && (j < size),

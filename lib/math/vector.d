@@ -79,7 +79,7 @@ public:
      /**
      *  Binary operator +, -, * and / for possible combination of vector and scalar
      */
-    Vector!(T, size) opBinary(string op, U)(ref const U right) const pure nothrow @safe
+    Vector!(T, size) opBinary(string op, U)(U right) const pure nothrow @safe
     if((is(U == Vector!(T, size)) && (op == "+" || op == "-")) || (is(U : T) && (op == "*" || op == "/")))
     {
         Vector!(T, size) result = this;
@@ -90,7 +90,7 @@ public:
     /**
      *  Operators += and -= for two vectors
      */
-    ref Vector!(T, size) opOpAssign(string op)(const Vector!(T, size) right) pure nothrow @safe
+    Vector!(T, size) opOpAssign(string op)(Vector!(T, size) right) pure nothrow @safe
     if(op == "+" || op == "-")
     {
         foreach(i; 0..size)
@@ -101,7 +101,7 @@ public:
     /**
      *  Operators *= and /= for vector and scalar
      */
-    ref Vector!(T, size) opOpAssign(string op, U)(ref const U scalar) pure nothrow @safe
+    Vector!(T, size) opOpAssign(string op, U)( U scalar) pure nothrow @safe
     if(is(U : T) && (op == "*" || op == "/"))
     {
         foreach(i; 0..size)

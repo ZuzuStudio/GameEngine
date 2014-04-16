@@ -16,14 +16,8 @@ public:
 
         mass = 1.0f;
         invMass = 1.0f;
-        position = Vector3f();
-        linearVelocity = Vector3f();
         inertia = Matrix3x3f.identity;
         invInertia = Matrix3x3f.identity;
-        orientation = Quaternionf();
-        angularAcceleration = Vector3f();
-        torqueAccumulator = Vector3f();
-
         geometry = null;
     }
 
@@ -71,6 +65,8 @@ private:
 
     float mass;
     float invMass;
+
+    /*  By default Vector, Quaternion and Matrix are created with zero values   */
     Vector3f position;
     Vector3f linearVelocity;
     Vector3f linearAcceleration;
