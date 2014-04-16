@@ -35,7 +35,6 @@ public:
      *  Constructor with variable number of arguments
      */
     this(T[] values...) pure nothrow @safe
-    //if(is(U : T))
     in
     {
         assert (values.length == linearSize, "SquareMatrix!(T, size): wrong array length in constructor!");
@@ -50,7 +49,6 @@ public:
      *  Constructor that uses array of values
      */
     this(T[] values) pure nothrow @safe
-//    if(is(U : T))
     in
     {
         assert (values.length == linearSize, "SquareMatrix!(T, size): wrong array length in constructor!");
@@ -335,20 +333,8 @@ private:
         /**
          *   Declaration zero initialized matrix;
          */
-        //mixin(declaration());
         T[linearSize] matrix;
     }
-
-    /**
-     *   Build compile time zero matrix representation
-     *//* TODO candidate to deletion
-static string declaration() pure nothrow @safe
-{
-    string result = "T matrix[linearSize] = [cast(T)";
-    foreach(i; 0..linearSize)
-        result ~= "0, ";
-    return result ~ "];";
-}*/
 };
 
 unittest
