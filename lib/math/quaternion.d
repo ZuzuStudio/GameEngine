@@ -96,8 +96,9 @@ public:
         return this;
     }
 
+
     /**
-     *  Binary operetor +, -, * for two quaternions
+     *  Binary operator +, -, * for two quaternions
      */
     Quaternion!(T) opBinary(string op)(const ref Quaternion!(T) right) pure nothrow @safe
     if(op == "+" || op == "-" || op == "*")
@@ -107,7 +108,21 @@ public:
     }
 
     /**
-     *  Binary operetor += , -= for two quaternions
+     *  Binary operator * for a quaternion and a 3-dimensional vector
+     */
+    Quaternion!(T) opBinary (string op) (Vector!(T, 3) arg)
+    if (op == "*")
+    {
+        const T tempX =   (w * arg.x) + (y * arg.z) - (z * arg.y);
+        const T tempY =   (w * arg.y) + (z * arg.x) - (x * arg.z);
+        const T tempZ =   (w * arg.z) + (x * arg.y) - (y * arg.x);
+        const T tempW = - (x * arg.x) - (y * arg.y) - (z * arg.z);
+
+        return Quaternion!(T) (tempX, tempY, tempZ, tempW);
+    }
+
+    /**
+     *  Binary operator += , -= for two quaternions
      */
     ref Quaternion!(T) opOpAssign(string op)(const Quaternion!(T) right) pure nothrow @safe
     if(op == "+" || op == "-" )
@@ -122,7 +137,7 @@ public:
     }
 
     /**
-     *  Binary operetor *= for two quaternions
+     *  Binary operator *= for two quaternions
      */
     ref Quaternion!(T) opOpAssign(string op)(const ref Quaternion!(T) right) pure nothrow @safe
     if(op == "*")
@@ -161,6 +176,31 @@ public:
         auto writer = appender!string();
         formattedWrite(writer, "%s", components);
         return writer.data;
+    }
+
+    @property Quaternion!(T) normalized() nothrow
+    {
+        const T length = sqrt (x * x + y * y + z * z + w * w);
+        return Quaternion!(T)(x / length, y / length, z / length, w / length);
+    }
+
+    @property T length() pure nothrow
+    {
+        return x * x + y * y + z * z + w * w;
+    }
+
+    @property Quaternion!(T) conjugate()
+    {
+       return Quaternion!(T)(-x, -y, -z, w);
+    }
+
+    void normalize() pure nothrow
+    {
+        const T length = sqrt (x * x + y * y + z * z + w * w);
+        x /= length;
+        y /= length;
+        z /= length;
+        w /= length;
     }
 
 private:
@@ -203,11 +243,23 @@ unittest
 
 unittest
 {
-    // Operetors testing
+    // Operators testing
     Quaternionf q = Quaternionf(1.0, 2.0, 3.0, 0.5);
     Quaternionf q1 = -q;
     assert(q == -q1);
     q1 = 3f * q;
 
     assert(3f * q  == Quaternionf(3.0, 6.0, 9.0, 1.5));
+
+    auto q3 = Quaternionf(1.0f, 2.0f, 3.0f, 5.0f) * Vector3f(2.0f, 3.0f, 5.0f);
+    assert(q3 == Quaternionf(11.0f, 16.0f, 24.0f, -23.0f));
+}
+
+unittest
+{
+    // normalize() and conjugate() tests
+    Quaternionf q = Quaternionf(1.0f, 2.0f, 3.0f, 4.0f);
+    q.normalize();
+    assert(q.length < 1.0f + float.epsilon && q.length > 1.0f - float.epsilon);
+    assert (q.conjugate == Quaternionf(-q.x, -q.y, -q.z, q.w));
 }

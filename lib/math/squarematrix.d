@@ -280,6 +280,14 @@ private:
     }
 
     /**
+     *  Necessary fot GL functions
+     */
+    @property T* ptr()
+    {
+        return matrix.ptr;
+    }
+
+    /**
      *   Symbolic element access
      */
     static string elements(string letter)
@@ -415,19 +423,16 @@ Matrix4x4f initCameraTransformation (Vector3f target, Vector3f up)
  */
 Matrix4x4f initPerspectiveTransformation (float angle, float width, float height, float nearestPlane, float farPlane)
 {
-    const float ratio = width / height;
-    const float near = nearestPlane;
-    const float far = farPlane;
-    const float range = near - far;
-    const float tangentHalf = tan (angle / 360.0f * PI);
+    float ratio = width / height;
+    float near = nearestPlane;
+    float far = farPlane;
+    float range = near - far;
+    float tangentHalf = tan (angle / 360.0f * PI);
 
-    auto result = Matrix4x4f.identity;
-    result.a11 = 1.0f / (ratio * tangentHalf);
-    result.a22 = 1.0f / tangentHalf;
-    result.a33 = (-near - far) / range;
+    auto result = Matrix4x4f().diagonal(1.0f / (ratio * tangentHalf), 1.0f / tangentHalf,
+                                      (-near - far) / range, 0.0f );
     result.a34 = 2.0f * far * near / range;
     result.a43 = 1.0f;
-    result.a44 = 0.0f;
 
     return result;
 }

@@ -13,6 +13,7 @@ private
 /**
  * Predefined vector types
  */
+alias Vector2i = Vector!(int, 2);
 alias Vector2f = Vector!(float, 2);
 alias Vector3f = Vector!(float, 3);
 alias Vector4f = Vector!(float, 4);
