@@ -2,6 +2,9 @@ module lib.physics.contact.d;
 
 public import lib.physics.rigidbody;
 
+/**
+ *  Contact of two rigid bodyes
+ */
 struct Contact
 {
     RigidBody body1;

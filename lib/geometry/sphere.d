@@ -6,6 +6,9 @@ public
     import lib.math.vector;
 }
 
+/**
+ *  Sphere
+ */
 class Sphere : Geometry
 {
     this(Vector3f center, float r) pure nothrow @safe

@@ -2,6 +2,9 @@ module lib.geometry.geometry;
 
 public import lib.math.squarematrix;
 
+/**
+ *  Abstract geometry
+ */
 abstract class Geometry
 {
     Matrix4x4f transformation;

@@ -97,7 +97,7 @@ public:
     }
 
     /**
-     *  Binary operetor +, -, * for two quaternions
+     *  Binary operator +, -, * for two quaternions
      */
     Quaternion!(T) opBinary(string op)(Quaternion!(T) right) pure nothrow @safe
     if(op == "+" || op == "-" || op == "*")
@@ -107,7 +107,7 @@ public:
     }
 
     /**
-     *  Binary operetor += , -= for two quaternions
+     *  Binary operator += , -= for two quaternions
      */
     Quaternion!(T) opOpAssign(string op)(Quaternion!(T) right) pure nothrow @safe
     if(op == "+" || op == "-" )
@@ -122,7 +122,7 @@ public:
     }
 
     /**
-     *  Binary operetor *= for two quaternions
+     *  Binary operator *= for two quaternions
      */
     Quaternion!(T) opOpAssign(string op)(Quaternion!(T) right) pure nothrow @safe
     if(op == "*")

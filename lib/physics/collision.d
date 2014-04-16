@@ -3,6 +3,9 @@ module lib.physics.collision.d;
 import lib.physics.contact;
 import lib.geometry.sphere;
 
+/**
+ *  It's detects collisions beytween sphere vs sphere
+ */
 bool CollisionSphereVsSphere(Sphere sphere1, Sphere sphere2, ref Contact contact) pure nothrow @safe
 {
     float distance = distance(sphere1.center, sphere2.center);
