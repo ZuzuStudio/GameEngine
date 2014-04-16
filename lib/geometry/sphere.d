@@ -25,9 +25,9 @@ class Sphere : Geometry
         float v = 0.4f * mass * radius * radius;
 
         return Matrix3x3f(
-                   v, 0f, 0f,
-                   0f, v, 0f,
-                   0f, 0f, v
+                   v, 0, 0,
+                   0, v, 0,
+                   0, 0, v
                );
     }
 
