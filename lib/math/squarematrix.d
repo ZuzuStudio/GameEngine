@@ -420,6 +420,7 @@ Matrix4x4f initCameraTransformation (Vector3f target, Vector3f up)
 
 /**
  *  Perspective transformation generator
+ *  Angle is measured in DEGREES
  */
 Matrix4x4f initPerspectiveTransformation (float angle, float width, float height, float nearestPlane, float farPlane)
 {

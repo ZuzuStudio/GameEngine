@@ -202,8 +202,18 @@ public:
         z /= length;
         w /= length;
     }
-
-private:
+/*
+ *  Why shouldn't we make the elements public?
+ *  I think we should make the array private and
+ *  the struct public, so it will be more convenient
+ *  to get an access to the elements
+ */
+public:
+    /*
+     *  Is it correct to combine an array and a struct in a union?
+     *  What if T == short or any other type which length
+     *  doesn't equal 4 bytes (or 8, depends on the OS)?
+     */
     union
     {
 		T[4] components = [cast(T)0, cast(T)0, cast(T)0, cast(T)0];
