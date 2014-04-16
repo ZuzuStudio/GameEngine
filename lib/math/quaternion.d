@@ -186,7 +186,7 @@ public:
 
     @property T length() pure nothrow
     {
-        return x * x + y * y + z * z + w * w;
+        return sqrt(x * x + y * y + z * z + w * w);
     }
 
     @property Quaternion!(T) conjugate()
