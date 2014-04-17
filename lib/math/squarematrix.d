@@ -80,7 +80,7 @@ public:
     /**
      *  Operators *= and /= for square matrix and scalar
      */
-    SquareMatrix!(T, size) opOpAssign(string op)(T scalar) pure nothrow @safe
+    ref SquareMatrix!(T, size) opOpAssign(string op)(T scalar) pure nothrow @safe
     if(op == "*" || op == "/")
     {
         foreach(i; 0..linearSize)
@@ -102,7 +102,7 @@ public:
     /**
      *  Operators += and -= for two square matrix
      */
-    SquareMatrix!(T, size) opOpAssign(string op)(SquareMatrix!(T, size) right) pure nothrow @safe
+    ref SquareMatrix!(T, size) opOpAssign(string op)(SquareMatrix!(T, size) right) pure nothrow @safe
     if(op == "+" || op == "-")
     {
         foreach(i; 0..linearSize)
@@ -129,7 +129,7 @@ public:
     /**
      *  Operators *= for two square matrix
      */
-    SquareMatrix!(T, size) opOpAssign(string op)(SquareMatrix!(T, size) right) pure nothrow @safe
+    ref SquareMatrix!(T, size) opOpAssign(string op)(SquareMatrix!(T, size) right) pure nothrow @safe
     if(op == "*")
     {
         return this = this * right;
@@ -153,7 +153,7 @@ public:
     }
 
     /**
-     *  Index operator T = Matrix[i,j]
+     *  Index operator T = SquareMatrix!(T, size)[i,j]
      *  Indices start with 0
      */
     T opIndex(size_t i, size_t j) const pure nothrow @safe
@@ -168,7 +168,7 @@ public:
     }
 
     /**
-     *  Index operator T = Matrix[index]
+     *  Index operator T = SquareMatrix!(T, size)[index]
      *  Index starts with 0
      */
     T opIndex(in size_t index) const pure nothrow @safe
@@ -183,7 +183,7 @@ public:
     }
 
     /**
-     *   Assign index operator Matrix[i, j] = T
+     *   Assign index operator SquareMatrix!(T, size)[i, j] = T
      *   Indices start with 0
      */
     T opIndexAssign(T t, size_t i, size_t j) pure nothrow @safe
@@ -197,7 +197,7 @@ public:
     }
 
     /**
-     *  Assign index operator Matrix[index] = T
+     *  Assign index operator SquareMatrix!(T, size)[index] = T
      *  Indices start with 0
      */
     T opIndexAssign(T t, size_t index) pure nothrow @safe

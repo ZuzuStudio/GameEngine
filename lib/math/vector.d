@@ -88,7 +88,7 @@ public:
     /**
      *  Operators += and -= for two vectors
      */
-    Vector!(T, size) opOpAssign(string op)(Vector!(T, size) right) pure nothrow @safe
+    ref Vector!(T, size) opOpAssign(string op)(Vector!(T, size) right) pure nothrow @safe
     if(op == "+" || op == "-")
     {
         foreach(i; 0..size)
@@ -99,7 +99,7 @@ public:
     /**
      *  Operators *= and /= for vector and scalar
      */
-    Vector!(T, size) opOpAssign(string op, U)( U scalar) pure nothrow @safe
+    ref Vector!(T, size) opOpAssign(string op, U)( U scalar) pure nothrow @safe
     if(is(U : T) && (op == "*" || op == "/"))
     {
         foreach(i; 0..size)
@@ -120,7 +120,7 @@ public:
     }
 
     /**
-     *  Index operator
+     *  Index operator T = Vecrot(T, size)[index]
      */
     T opIndex (this vector)(size_t index) pure nothrow @safe
     in
@@ -134,7 +134,7 @@ public:
     }
 
     /**
-     *  Assign index operator
+     *  Assign index operator Vector(T, size)[i, j] = T
      */
     T opIndexAssign (this vector)(T t, size_t index) pure nothrow @safe
     in

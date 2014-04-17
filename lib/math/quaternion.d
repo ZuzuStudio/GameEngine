@@ -86,7 +86,7 @@ public:
     /**
      *  Operators *= and /= for quaternion and scalar
      */
-    Quaternion!(T) opOpAssign(string op)(T scalar) pure nothrow @safe
+    ref Quaternion!(T) opOpAssign(string op)(T scalar) pure nothrow @safe
     if(op == "*" || op == "/")
     {
         mixin("x " ~op~ "= scalar;"
@@ -109,7 +109,7 @@ public:
     /**
      *  Binary operator += , -= for two quaternions
      */
-    Quaternion!(T) opOpAssign(string op)(Quaternion!(T) right) pure nothrow @safe
+    ref Quaternion!(T) opOpAssign(string op)(Quaternion!(T) right) pure nothrow @safe
     if(op == "+" || op == "-" )
     {
         mixin("x " ~op ~ "= right.x;"
@@ -124,7 +124,7 @@ public:
     /**
      *  Binary operator *= for two quaternions
      */
-    Quaternion!(T) opOpAssign(string op)(Quaternion!(T) right) pure nothrow @safe
+    ref Quaternion!(T) opOpAssign(string op)(Quaternion!(T) right) pure nothrow @safe
     if(op == "*")
     {
         this = Quaternion!(T)
