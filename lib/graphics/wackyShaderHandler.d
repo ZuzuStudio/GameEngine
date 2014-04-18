@@ -91,7 +91,7 @@ public:
      *  Returns a non-zero value by which the program
      *  object can be referenced
      */
-    @property auto program()
+    @property auto program() pure nothrow
     {
         return shaderProgram;
     }

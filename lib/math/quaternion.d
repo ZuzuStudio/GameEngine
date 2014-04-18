@@ -209,11 +209,7 @@ public:
  *  to get an access to the elements
  */
 public:
-    /*
-     *  Is it correct to combine an array and a struct in a union?
-     *  What if T == short or any other type which length
-     *  doesn't equal 4 bytes (or 8, depends on the OS)?
-     */
+
     union
     {
 		T[4] components = [cast(T)0, cast(T)0, cast(T)0, cast(T)0];

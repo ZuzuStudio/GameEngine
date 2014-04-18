@@ -95,7 +95,7 @@ public:
     /**
      * Sets a key and an action for making the window close
      */
-    auto setExitKeyAndAction(WackyKeys key, WackyActions action)
+    auto setExitKeyAndAction(WackyKeys key, WackyActions action) nothrow
     {
         exitKey = key;
         exitAction = action;
@@ -106,37 +106,37 @@ public:
      */
     @property
     {
-        auto windowPointer()
+        auto windowPointer() pure nothrow
         {
             return window;
         }
 
-        auto windowWidth()
+        auto windowWidth() pure nothrow
         {
             return width;
         }
 
-        auto windowHeight()
+        auto windowHeight() pure nothrow
         {
             return width;
         }
 
-        auto windowName()
+        auto windowName() pure nothrow
         {
             return name;
         }
 
-        auto windowMode()
+        auto windowMode() pure nothrow
         {
             return mode;
         }
 
-        auto currentExitKey()
+        auto currentExitKey() nothrow
         {
             return exitKey;
         }
 
-        auto currentExitAction()
+        auto currentExitAction() nothrow
         {
             return exitAction;
         }

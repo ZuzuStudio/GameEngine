@@ -3,6 +3,7 @@ module main;
 import std.stdio;
 
 import wackyRender;
+import wackyPipeline;
 
 void main()
 {

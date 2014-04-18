@@ -244,6 +244,15 @@ public:
         return writer.data;
     }
 
+    /**
+     *  Necessary fot GL functions
+     */
+    @property T* ptr()
+    {
+        return matrix.ptr;
+    }
+
+
 private:
 
     /**
@@ -277,14 +286,6 @@ private:
     body
     {
         swap(matrix, values);
-    }
-
-    /**
-     *  Necessary fot GL functions
-     */
-    @property T* ptr()
-    {
-        return matrix.ptr;
     }
 
     /**
@@ -452,6 +453,16 @@ Matrix4x4f initPerspectiveTransformation (float angle, float width, float height
     return result;
 }
 
+Matrix4x4f initPerspectiveTransformation(float[] data)
+in
+{
+    assert (data.length == 5, "initPerspectiveTransformation: wrong array length");
+}
+body
+{
+    return initPerspectiveTransformation(data[0], data[1], data[2], data[3], data[4]);
+}
+
 unittest
 {
 // Testing constructors
@@ -483,13 +494,17 @@ unittest
         0.0f, 0.0f, 0.0f, 1.0f
     ));
 
-    /*
-     *  The following functions work properly, please believe me
-     *
-     *  matrix = initRotationTransformation(45.0f / 180.0f * PI, 0.0f, 30.0f / 180.0f * PI);
-     *  matrix = initPerspectiveTransformation(45.0f, 20.0f, 30.0f, 1.0f, 100.0f);
-     *  matrix = initCameraTransformation (Vector3f(1.0f, 2.0f, 1.4f), Vector3f(3.0f, 2.5f, 1.2f));
-     */
+    matrix = initRotationTransformation(45.0f / 180.0f * PI, 0.0f, 30.0f / 180.0f * PI);
+    assert(matrix[0, 0] < 0.866f + 0.001f && matrix[0, 0] > 0.866f - 0.001f);
+    assert(matrix[1, 2] < -0.612f + 0.001f && matrix[1, 2] > -0.612f - 0.001f);
+
+    matrix = initPerspectiveTransformation(45.0f, 20.0f, 30.0f, 1.0f, 100.0f);
+    assert(matrix[0, 0] < 3.621f + 0.001f && matrix[0, 0] > 3.621f - 0.001f);
+    assert(matrix[2, 3] < -2.02f + 0.01f && matrix[1, 2] > -2.02f - 0.01f);
+
+    matrix = initCameraTransformation (Vector3f(1.0f, 2.0f, 1.4f), Vector3f(3.0f, 2.5f, 1.2f));
+    assert(matrix[0, 1] < -0.278f + 0.001f && matrix[0, 0] > -0.278f - 0.001f);
+    assert(matrix[1, 1] < -0.068f + 0.001f && matrix[1, 1] > -0.068f - 0.001f);
 }
 
 unittest

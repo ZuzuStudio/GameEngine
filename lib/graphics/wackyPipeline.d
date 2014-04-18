@@ -1,13 +1,13 @@
 module wackyPipeline;
 
+import std.math: PI;
+
 import lib.math.vector;
 import lib.math.squarematrix;
-import std.math: PI;
 
 /**
  * The class holds transformations
  */
-
 class WackyPipeline
 {
 public:
@@ -53,33 +53,115 @@ public:
     }
 
     /**
+     *  Setting perspective data.
+     *  For width and height parameters values of
+     *  glfwGetWindowWidth() should be used
+     */
+    auto setPerspectiveData(float angle, float width, float height, float nearPlane, float farPlane)
+    {
+        perspectiveData = PerspectiveData(angle, width, height, nearPlane, farPlane);
+    }
+
+    /**
+     *  Setting camera data
+     */
+    auto setCameraData(Vector3f position, Vector3f target, Vector3f up)
+    {
+        cameraData = CameraData(position, target, up);
+    }
+
+    /**
      *  Returns a Matrix4x4f which represents world transformation
      */
-    auto getWorldTransformation() pure nothrow
+    @property auto getWorldTransformation() pure nothrow
     {
-        auto scaleTransformation = initScaleTransformation(scale);
-        auto worldPoistionTransformation = initPositionTransformation(worldPosition);
+        auto worldPositionTransformation = initPositionTransformation(worldPosition);
         auto rotationTransformation = initRotationTransformation(rotationAngles);
+        auto scaleTransformation = initScaleTransformation(scale);
 
-        return worldPoistionTransformation * rotationTransformation * scaleTransformation;
+        return worldPositionTransformation * rotationTransformation * scaleTransformation;
+    }
+
+    /**
+     *  Returns the viewport transformation
+     */
+    @property auto getViewportTransformation()
+    {
+        auto perspectiveTransformation = initPerspectiveTransformation(perspectiveData.toArray);
+        auto cameraRotationTransformation = initCameraTransformation(cameraData.target, cameraData.up);
+        auto cameraPositionTransformation = initPositionTransformation( - cameraData.position);
+
+        return perspectiveTransformation
+                * cameraRotationTransformation
+                * cameraPositionTransformation;
+
+    }
+
+    /**
+     *  Returns general transformation (viewport * world)
+     */
+    @property auto getWVPTransformation()
+    {
+        return getViewportTransformation() * getWorldTransformation();
     }
 
 private:
+
     Vector3f scale = Vector3f(1.0f, 1.0f, 1.0f);
     Vector3f worldPosition;
     Vector3f rotationAngles;
-};
+
+    /**
+     *  Perspective data
+     */
+    struct PerspectiveData
+    {
+        float angle = 30.0f;
+        float width;
+        float height;
+        float nearPlane = 0.5f;
+        float farPlane = 100.0f;
+
+        @property auto toArray() pure nothrow
+        {
+            return [angle, width, height, nearPlane, farPlane];
+        }
+    }
+
+    PerspectiveData perspectiveData;
+
+    /**
+     *  Camera data
+     */
+    struct CameraData
+    {
+        Vector3f position = Vector3f(0.0f, 0.0f, 0.0f);
+        Vector3f target = Vector3f(0.0f, 0.0f, 1.0f);
+        Vector3f up = Vector3f(0.0f, 1.0f, 0.0f);
+
+        @property auto toArray() pure nothrow
+        {
+            return [position, target, up];
+        }
+    }
+
+    CameraData cameraData;
+}
 
 
 unittest
 {
+    // The general function test
     auto pipeline = new WackyPipeline();
+
     pipeline.setScale(0.01f, 0.01f, 0.01f);
     pipeline.setWorldPosition(2.0f, 0.0f, 3.0f);
-    pipeline.setRotation(0.0f, 45.0f / 180.0f * PI, 0.0f);
-    auto matrix = pipeline.getWorldTransformation();
+    pipeline.setRotation(45.0f / 180.0f * PI, 0.0f, 0.0f);
+    pipeline.setCameraData(Vector3f(5.0f, 2.0f, 1.0f), Vector3f(2.0f, 1.3f, 3.0f), Vector3f(1.0f, 2.0f, 2.5f));
+    pipeline.setPerspectiveData(45.0f, 12.0f, 3.0f, 6.0f, 20.0f);
 
-    assert (matrix[2, 0] < 0.007 + 0.0001 && matrix[2, 0] > 0.007 - 0.0001);
-    assert (matrix[2, 3] == 3.0f);
-    assert (matrix[1, 1] == 0.01f);
+    auto matrix = pipeline.getWVPTransformation;
+    assert (matrix[0, 0] < 0.0012f + 0.0001f && matrix[0, 0] > 0.0012f - 0.0001f);
+    assert (matrix[3, 3] < -0.67f + 0.01f && matrix[3, 3] > -0.67f - 0.01f);
+    assert (matrix[2, 1] < 0.014f + 0.001f && matrix[2, 1] > 0.014f - 0.001f);
 }
