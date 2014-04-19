@@ -1,4 +1,51 @@
 import std.math;
+import std.traits;
+
+alias Float = TransitiveComparableFloatingPoint!(float);
+
+struct TransitiveComparableFloatingPoint(T, int saveDigit = 10)
+if(isFloatingPoint!T)
+{
+	public:
+	
+	alias payload this;
+	
+	T payload;
+	
+	public this(T value)
+	{
+		payload = value;
+	}
+		
+	long opCmp(T rhs)
+	{
+		return floatCompare(this.payload, rhs, saveDigit);
+	}
+	
+	bool opEquals(T rhs)
+	{
+		return opCmp(rhs) == 0;
+	}
+}
+
+unittest
+{
+	Float a = 0x8.06p-4f;
+	Float b = 0x8.08p-4f;
+	assert(a == b);
+	assert(a.payload != b.payload);
+	assert(a == 0x8.08p-4f);
+	assert(a == 0x8.06p-4f);
+	assert(a != 0x8.04p-4f);
+	float f = 0.034f;
+	Float c = 0x8.04p-4f;
+}
+
+unittest
+{
+	Float a = 0x8.06p-4f;
+	real b = cast(real)a;
+}
 
 /**
  * Transitive float comparsion
@@ -50,47 +97,4 @@ unittest
 	assert(intransitiveFloatCompare(a, b) == 0);
 	assert(intransitiveFloatCompare(b, c) == 0);
 	assert(intransitiveFloatCompare(a, c) != 0);	
-}
-
-struct Float
-{
-	public:
-	
-	alias payload this;
-	
-	float payload;
-	
-	public this(float value)
-	{
-		payload = value;
-	}
-		
-	long opCmp(float rhs)
-	{
-		return floatCompare(this.payload, rhs);
-	}
-	
-	bool opEquals(float rhs)
-	{
-		return opCmp(rhs) == 0;
-	}
-}
-
-unittest
-{
-	Float a = 0x8.06p-4f;
-	Float b = 0x8.08p-4f;
-	assert(a == b);
-	assert(a.payload != b.payload);
-	assert(a == 0x8.08p-4f);
-	assert(a == 0x8.06p-4f);
-	assert(a != 0x8.04p-4f);
-	float f = 0.034f;
-	Float c = 0x8.04p-4f;
-}
-
-unittest
-{
-	Float a = 0x8.06p-4f;
-	real b = cast(real)a;
 }
