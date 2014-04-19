@@ -2,6 +2,8 @@ module wackyPipeline;
 
 import std.math: PI;
 
+import wackyCamera: CameraData;
+
 import lib.math.vector;
 import lib.math.squarematrix;
 
@@ -57,7 +59,7 @@ public:
      *  For width and height parameters values of
      *  glfwGetWindowWidth() should be used
      */
-    auto setPerspectiveData(float angle, float width, float height, float nearPlane, float farPlane)
+    auto setPerspectiveData(float angle, float width, float height, float nearPlane, float farPlane) pure nothrow
     {
         perspectiveData = PerspectiveData(angle, width, height, nearPlane, farPlane);
     }
@@ -65,7 +67,7 @@ public:
     /**
      *  Setting camera data
      */
-    auto setCameraData(Vector3f position, Vector3f target, Vector3f up)
+    auto setCameraData(Vector3f position, Vector3f target, Vector3f up) pure nothrow
     {
         cameraData = CameraData(position, target, up);
     }
@@ -92,8 +94,8 @@ public:
         auto cameraPositionTransformation = initPositionTransformation( - cameraData.position);
 
         return perspectiveTransformation
-                * cameraRotationTransformation
-                * cameraPositionTransformation;
+               * cameraRotationTransformation
+               * cameraPositionTransformation;
 
     }
 
@@ -111,43 +113,27 @@ private:
     Vector3f worldPosition;
     Vector3f rotationAngles;
 
-    /**
-     *  Perspective data
-     */
-    struct PerspectiveData
-    {
-        float angle = 30.0f;
-        float width;
-        float height;
-        float nearPlane = 0.5f;
-        float farPlane = 100.0f;
-
-        @property auto toArray() pure nothrow
-        {
-            return [angle, width, height, nearPlane, farPlane];
-        }
-    }
-
     PerspectiveData perspectiveData;
-
-    /**
-     *  Camera data
-     */
-    struct CameraData
-    {
-        Vector3f position = Vector3f(0.0f, 0.0f, 0.0f);
-        Vector3f target = Vector3f(0.0f, 0.0f, 1.0f);
-        Vector3f up = Vector3f(0.0f, 1.0f, 0.0f);
-
-        @property auto toArray() pure nothrow
-        {
-            return [position, target, up];
-        }
-    }
 
     CameraData cameraData;
 }
 
+/**
+ *  Perspective data
+ */
+struct PerspectiveData
+{
+    float angle = 30.0f;
+    float width = 0.0f;
+    float height = 0.0f;
+    float nearPlane = 1.0f;
+    float farPlane = 100.0f;
+
+    @property auto toArray() pure nothrow
+    {
+        return [angle, width, height, nearPlane, farPlane];
+    }
+}
 
 unittest
 {

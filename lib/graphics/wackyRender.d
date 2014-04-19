@@ -6,7 +6,8 @@ import core.memory;
 
 import derelict.glfw3.glfw3;
 import derelict.opengl3.gl3;
-import derelict.util.exception: DerelictException;
+import derelict.util.exception:
+DerelictException;
 
 public import wackyEnums;
 public import wackyExceptions;
@@ -18,27 +19,34 @@ class WackyRender
 public:
 
     WackyShaderHandler shaderHandler;
+    WackyPipeline pipeline;
 
     this(int width, int height, string name, WackyWindowMode mode)
     {
-        try
+        if (!DerelictGLFW3.isLoaded)
         {
-            DerelictGLFW3.load();
-        }
-        catch (DerelictException)
-        {
-            throw new WackyException("GLFW3 or one of its dependencies "
-                                     "cannot be found on the file system");
+            try
+            {
+                DerelictGLFW3.load;
+            }
+            catch (DerelictException)
+            {
+                throw new WackyException("GLFW3 or one of its dependencies "
+                                         "cannot be found on the file system");
+            }
         }
 
-        try
+        if (!DerelictGL3.isLoaded)
         {
-            DerelictGL3.load();
-        }
-        catch (DerelictException)
-        {
-            throw new WackyException("OpenGL3 or one of its dependencies "
-                                     "cannot be found on the file system");
+            try
+            {
+                DerelictGL3.load;
+            }
+            catch (DerelictException)
+            {
+                throw new WackyException("OpenGL3 or one of its dependencies "
+                                         "cannot be found on the file system");
+            }
         }
 
         this.width = width;
@@ -49,6 +57,7 @@ public:
         initialize(this.width, this.height, this.name, this.mode);
 
         shaderHandler = new WackyShaderHandler();
+        pipeline = new WackyPipeline();
     }
 
     ~this()
@@ -69,10 +78,6 @@ public:
     // there's only a sketch of the rendering function
     auto execute()
     {
-        GC.collect();
-        GC.disable();
-        scope (exit) GC.enable();
-
         while(!glfwWindowShouldClose(window))
         {
             glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
