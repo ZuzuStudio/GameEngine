@@ -35,8 +35,8 @@ public:
         mousePosition.x = x;
         mousePosition.y = y;
 
-        horizontalAngle += deltaX / 300.0f;
-        verticalAngle += deltaY / 300.0f;
+        horizontalAngle += deltaX * sensitivity;
+        verticalAngle += deltaY * sensitivity;
 
         updateVectors();
     }
@@ -46,24 +46,24 @@ public:
      */
     auto keyProcessing(WackyKeys key, WackyActions action)
     {
-        if (action == WackyActions.REPEAT || action == WackyActions.PRESS)
+        if (action == WackyActions.REPEAT)// || action == WackyActions.PRESS)
         {
             switch (key)
             {
-            case WackyKeys.KEY_UP, WackyKeys.KEY_W:
+            case forwardMoveKey:
                 cameraData.position += (cameraData.target * step);
                 break;
 
-            case WackyKeys.KEY_DOWN, WackyKeys.KEY_S:
+            case backwardMoveKey:
                 cameraData.position -= (cameraData.target * step);
                 break;
 
-            case WackyKeys.KEY_LEFT, WackyKeys.KEY_A:
+            case leftwardMoveKey:
                 auto left = cross(cameraData.target, cameraData.up).normalized;
                 cameraData.position += left * step;
                 break;
 
-            case WackyKeys.KEY_RIGHT, WackyKeys.KEY_D:
+            case rightwardMoveKey:
                 auto right = cross(cameraData.up, cameraData.target).normalized;
                 cameraData.position += right * step;
                 break;
@@ -74,6 +74,15 @@ public:
     }
 
     /**
+     *  Setting the camera rotations sensitivity
+     */
+    auto setSensitivity(float sensitivity)
+    {
+        if (sensitivity <= 0.0f)
+            this.sensitivity = sensitivity;
+    }
+
+    /**
      * Setting the unit of distance for the camera movements
      */
     auto setStep(float step)
@@ -81,6 +90,10 @@ public:
         this.step = step;
     }
 
+    auto setForwardMoveKey(WackyKeys key)
+    {
+        forwardMoveKey = key;
+    }
     /**
      *  Usual getters
      */
@@ -103,7 +116,13 @@ private:
 
     CameraData cameraData;
 
-    float step;
+    float step = 0.01f;
+    float sensitivity = 0.0001f;
+    static WackyKeys forwardMoveKey = WackyKeys.KEY_W;
+    static WackyKeys backwardMoveKey = WackyKeys.KEY_S;
+    static WackyKeys rightwardMoveKey = WackyKeys.KEY_D;
+    static WackyKeys leftwardMoveKey = WackyKeys.KEY_A;
+
     float horizontalAngle, verticalAngle;
 
     Vector2f mousePosition = Vector2f(0.0f, 0.0f);

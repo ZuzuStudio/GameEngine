@@ -78,13 +78,16 @@ public:
     // there's only a sketch of the rendering function
     auto execute()
     {
+        float mainTime = glfwGetTime();
         while(!glfwWindowShouldClose(window))
         {
-            glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            glfwPollEvents();
+            if (isNextFrame(mainTime))
+            {
+                glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                glfwPollEvents();
 
-
-            glfwSwapBuffers(window);
+                glfwSwapBuffers(window);
+            }
         }
     }
 
@@ -107,10 +110,32 @@ public:
     }
 
     /**
+     *  Setting MINIMAL time per frame.
+     *  It may happen that the time segment is
+     *  too short for a frame to be rendered,
+     *  so the segment is only a lower limit
+     *  for a frame rendering time
+     */
+    auto setMinimalTimePerFrame(float seconds)
+    {
+        timePerFrame = seconds;
+    }
+
+    /**
      * Getters
      */
     @property
     {
+        auto SPF() pure nothrow
+        {
+            return timePerFrame;
+        }
+
+        auto FPS() pure nothrow
+        {
+            return 1.0f / timePerFrame;
+        }
+
         auto windowPointer() pure nothrow
         {
             return window;
@@ -159,6 +184,7 @@ private:
     static WackyKeys exitKey = WackyKeys.KEY_ESCAPE;
     static WackyActions exitAction = WackyActions.PRESS;
 
+    float timePerFrame = 0.001f; // 0.001 second
     /**
      *  The function does all necessary work for the render functioning
      */
@@ -210,8 +236,22 @@ private:
     }
 
     /**
-    *   GLFW3 callbacks
-    */
+     *   GLFW3 callbacks
+     */
+
+    /**
+     *  FPS handler
+     */
+    auto isNextFrame(ref float previous)
+    {
+        auto current = glfwGetTime();
+        if (current - previous > timePerFrame)
+        {
+            previous = current;
+            return true;
+        }
+        return false;
+    }
 
     // There will be some changes
     extern(C) static auto mouseButtonCallback (GLFWwindow* window, int key, int action, int mods) nothrow
