@@ -39,6 +39,9 @@ unittest
 	assert(a != 0x8.04p-4f);
 	float f = 0.034f;
 	Float c = 0x8.04p-4f;
+	assert(__traits(compiles, f = a));
+	assert(__traits(compiles, c = f));
+	assert(__traits(compiles, b = a));
 }
 
 unittest
