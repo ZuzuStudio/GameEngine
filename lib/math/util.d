@@ -3,25 +3,28 @@ import std.traits;
 
 alias Float = TransitiveComparableFloatingPoint!(float);
 
+/**
+ *  Wrapper around base floating point types, that provides transitive aproximate comparsion
+ */ 
 struct TransitiveComparableFloatingPoint(T, int saveDigit = 10)
 if(isFloatingPoint!T)
 {
 	public:
-	
+
 	alias payload this;
-	
+
 	T payload;
-	
+
 	public this(T value)
 	{
 		payload = value;
 	}
-		
+
 	long opCmp(T rhs)
 	{
 		return floatCompare(this.payload, rhs, saveDigit);
 	}
-	
+
 	bool opEquals(T rhs)
 	{
 		return opCmp(rhs) == 0;
@@ -44,12 +47,6 @@ unittest
 	assert(__traits(compiles, b = a));
 }
 
-unittest
-{
-	Float a = 0x8.06p-4f;
-	real b = cast(real)a;
-}
-
 /**
  * Transitive float comparsion
  *
@@ -62,7 +59,7 @@ unittest
  *
  * This comparsion is transitive: if a == b and b == c, then a == c.
  */
-long floatCompare(real lhs, real rhs, int saveDigit = 10) pure nothrow @safe
+private long floatCompare(real lhs, real rhs, int saveDigit = 10) pure nothrow @safe
 {
 	assert(isFinite(lhs) && isFinite(rhs));
 	return truncation(lhs, saveDigit) - truncation(rhs, saveDigit);
@@ -71,7 +68,7 @@ long floatCompare(real lhs, real rhs, int saveDigit = 10) pure nothrow @safe
 /**
  *  Roundig truncation
  */
-long truncation(real floatingNumber, int saveDigit) pure nothrow @safe
+private long truncation(real floatingNumber, int saveDigit) pure nothrow @safe
 {
 	auto result = cast(long)ldexp(floatingNumber, saveDigit+1);
 	auto lastBit = 1L & result;
