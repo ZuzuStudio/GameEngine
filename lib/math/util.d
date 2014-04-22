@@ -48,6 +48,54 @@ unittest
 }
 
 /**
+ *  Ducktyping predicate for floating point number
+ */
+template behaveAsFloatingPoint(T)
+{
+	enum bool behaveAsFloatingPoint = isAlgebraicField!T && isLinearComparable!T && hasEpsilon!T && hasNan!T && hasInf!T; 
+}
+
+/**
+ *  Predicate for fields (in algebraic sence) with assumption of computer features
+ */
+template isAlgebraicField(T)
+{
+	enum bool hasArithmeticOperation = __traits(compiles,{
+	                                                         T result, t;
+	                                                         result = t + t;
+	                                                         result = t - t;
+	                                                         result = t * t;
+	                                                         result = t / t;
+	                                                         result = +t;
+	                                                         result = -t;
+	                                                      });
+
+	static if(__traits(compiles, cast(T)0.0))
+		enum bool hasZero = (cast(T)0.0 == cast(T)0.0 + cast(T)0.0);
+	else 
+		enum bool hasZero = false;
+
+	static if(__traits(compiles, cast(T)1.0))
+		enum bool hasIdentity = (cast(T)1.0 == cast(T)1.0 * cast(T)1.0);
+	else
+		enum bool hasIdentity = false;
+
+	enum bool isAlgebraicField = hasArithmeticOperation && hasZero && hasIdentity; 
+}
+
+unittest
+{
+	// Testing isAlgebraicField!T
+	assert(isAlgebraicField!int);
+	assert(isAlgebraicField!long);
+	assert(isAlgebraicField!float);
+	assert(isAlgebraicField!double);
+	assert(isAlgebraicField!real);
+	assert(!isAlgebraicField!string);
+	assert(!isAlgebraicField!(float[]));
+}
+
+/**
  * Transitive float comparsion
  *
  * $(D long floatCompare(real lhs, real rhs, int saveDigit = 10);)
