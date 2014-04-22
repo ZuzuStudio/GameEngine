@@ -54,7 +54,6 @@ public:
 
         currentKey = key;
         currentAction = action;
-        segmentStepSum = 0.0f;
     }
 
     /**
@@ -62,33 +61,29 @@ public:
      */
     auto keyProcessing()
     {
-        if (segmentStepSum < step)
+        if (currentAction != WackyActions.RELEASE)
         {
-            if (currentAction == WackyActions.REPEAT || currentAction == WackyActions.PRESS)
+            switch (currentKey)
             {
-                segmentStepSum += stepSegment;
-                switch (currentKey)
-                {
-                case forwardMoveKey:
-                    cameraData.position += (cameraData.target * stepSegment);
-                    break;
+            case forwardMoveKey:
+                cameraData.position += (cameraData.target * stepSegment);
+                break;
 
-                case backwardMoveKey:
-                    cameraData.position -= (cameraData.target * stepSegment);
-                    break;
+            case backwardMoveKey:
+                cameraData.position -= (cameraData.target * stepSegment);
+                break;
 
-                case leftwardMoveKey:
-                    auto left = cross(cameraData.target, cameraData.up).normalized;
-                    cameraData.position += left * stepSegment;
-                    break;
+            case leftwardMoveKey:
+                auto left = cross(cameraData.target, cameraData.up).normalized;
+                cameraData.position += left * stepSegment;
+                break;
 
-                case rightwardMoveKey:
-                    auto right = cross(cameraData.up, cameraData.target).normalized;
-                    cameraData.position += right * stepSegment;
-                    break;
-                default:
-                    break;
-                }
+            case rightwardMoveKey:
+                auto right = cross(cameraData.up, cameraData.target).normalized;
+                cameraData.position += right * stepSegment;
+                break;
+            default:
+                break;
             }
         }
     }
@@ -216,7 +211,6 @@ private:
     float step = 1.0f;
     float stepDivisor = 10.0f;
     float stepSegment = 0.1f;
-    float segmentStepSum = 0.0f;
 
     float sensitivity = 0.001f;
 
