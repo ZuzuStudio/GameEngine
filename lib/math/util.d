@@ -9,13 +9,13 @@ alias Float = TransitiveComparableFloatingPoint!(float);
 struct TransitiveComparableFloatingPoint(T, int saveDigit = 10)
 if(isFloatingPoint!T)
 {
-	public:
+public:
 
 	alias payload this;
 
 	T payload;
 
-	public this(T value)
+	this(T value)
 	{
 		payload = value;
 	}
@@ -55,6 +55,28 @@ template behaveAsFloatingPoint(T)
 	enum bool behaveAsFloatingPoint = isAlgebraicField!T && isLinearComparable!T && hasEpsilon!T && hasNan!T && hasInf!T; 
 }
 
+unittest
+{
+	assert(behaveAsFloatingPoint!float);
+	assert(behaveAsFloatingPoint!double);
+	assert(behaveAsFloatingPoint!real);
+	assert(behaveAsFloatingPoint!Float);
+	assert(!behaveAsFloatingPoint!byte);
+	assert(!behaveAsFloatingPoint!short);
+	assert(!behaveAsFloatingPoint!int);
+	assert(!behaveAsFloatingPoint!long);
+	assert(!behaveAsFloatingPoint!char);
+	assert(!behaveAsFloatingPoint!dchar);
+	assert(!behaveAsFloatingPoint!wchar);
+	assert(!behaveAsFloatingPoint!string);
+	assert(!behaveAsFloatingPoint!(float[]));
+	assert(!behaveAsFloatingPoint!cdouble);
+	assert(!behaveAsFloatingPoint!idouble);
+	struct S{}
+	assert(!behaveAsFloatingPoint!S);
+	assert(!behaveAsFloatingPoint!(S[]));
+}
+
 /**
  *  Predicate for fields (in algebraic sence) with assumption of computer features
  */
@@ -70,15 +92,9 @@ template isAlgebraicField(T)
 	                                                         result = -t;
 	                                                      });
 
-	static if(__traits(compiles, cast(T)0.0))
-		enum bool hasZero = (cast(T)0.0 == cast(T)0.0 + cast(T)0.0);
-	else 
-		enum bool hasZero = false;
+	enum bool hasZero = __traits(compiles, cast(T)0.0);
 
-	static if(__traits(compiles, cast(T)1.0))
-		enum bool hasIdentity = (cast(T)1.0 == cast(T)1.0 * cast(T)1.0);
-	else
-		enum bool hasIdentity = false;
+	enum bool hasIdentity = __traits(compiles, cast(T)1.0);
 
 	enum bool isAlgebraicField = hasArithmeticOperation && hasZero && hasIdentity; 
 }
@@ -91,8 +107,96 @@ unittest
 	assert(isAlgebraicField!float);
 	assert(isAlgebraicField!double);
 	assert(isAlgebraicField!real);
+	assert(isAlgebraicField!Float);
 	assert(!isAlgebraicField!string);
 	assert(!isAlgebraicField!(float[]));
+}
+
+/**
+ *  Predicate which checks for equality and comparsion
+ */
+template isLinearComparable(T)
+{
+	enum bool isLinearComparable = __traits(compiles,{T t; bool result = t == t;}) && __traits(compiles,{T t; bool result = t < t;});
+}
+
+unittest
+{
+	assert(isLinearComparable!int);
+	assert(isLinearComparable!byte);
+	assert(isLinearComparable!long);
+	assert(isLinearComparable!float);
+	assert(isLinearComparable!double);
+	assert(isLinearComparable!real);
+	assert(isLinearComparable!Float);
+	assert(isLinearComparable!string);
+	assert(isLinearComparable!(float[]));
+	struct S{}
+	assert(!isLinearComparable!S);
+	assert(isLinearComparable!(S[]));//TODO that have not comparable
+}
+
+/**
+ *  Predicate which checks epsilon property
+ */
+template hasEpsilon(T)
+{
+	enum bool hasEpsilon = __traits(compiles,{ auto eps = T.epsilon;});
+}
+
+unittest
+{
+	assert(hasEpsilon!float);
+	assert(hasEpsilon!double);
+	assert(hasEpsilon!real);
+	assert(hasEpsilon!Float);
+	assert(!hasEpsilon!int);
+	assert(!hasEpsilon!(float[]));
+	struct S{}
+	assert(!hasEpsilon!S);
+	assert(!hasEpsilon!(S[]));
+}
+
+/**
+ *  Predicate which checks nan property
+ */
+template hasNan(T)
+{
+	enum bool hasNan = __traits(compiles,{ auto eps = T.nan;});
+}
+
+unittest
+{
+	assert(hasNan!float);
+	assert(hasNan!double);
+	assert(hasNan!real);
+	assert(hasNan!Float);
+	assert(!hasNan!int);
+	assert(!hasNan!(float[]));
+	struct S{}
+	assert(!hasNan!S);
+	assert(!hasNan!(S[]));
+}
+
+/**
+ *  Predicate which checks inf property
+ */
+template hasInf(T)
+{
+	enum bool hasInf = __traits(compiles,{ auto eps = T.infinity;});
+}
+
+unittest
+{
+	assert(hasInf!float);
+	assert(hasInf!double);
+	assert(hasInf!real);
+	assert(hasInf!Float);
+	assert(!hasInf!int);
+	assert(!hasInf!(float[]));
+	struct S{}
+	assert(!hasInf!S);
+	assert(!hasInf!(S[]));
 }
 
 /**
