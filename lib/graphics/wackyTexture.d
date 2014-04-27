@@ -38,7 +38,7 @@ public:
 
     ~this ()
     {
-        FreeImage_Unload (bitmap);
+        glDeleteTextures(1, &id);
         DerelictFI.unload();
     }
 
@@ -56,18 +56,17 @@ public:
             return false;
         }
 
-        glGenTextures(1, &pointer);
-        glBindTexture(pointer, type);
+        glGenTextures(1, &id);
+        glBindTexture(type, id);
 
         int width = FreeImage_GetWidth (bitmap);
         int height = FreeImage_GetHeight (bitmap);
 
         glTexImage2D(type, 0, GL_RGBA, width, height,
-                     0, GL_BGRA, GL_UNSIGNED_BYTE, cast(void*)FreeImage_GetBits(bitmap));
+                     0, GL_BGRA, GL_UNSIGNED_BYTE, cast (void*) FreeImage_GetBits(bitmap));
 
         glTexParameterf(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameterf(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
         return true;
     }
 
@@ -77,7 +76,7 @@ public:
     auto bind(GLenum textureUnit)
     {
         glActiveTexture(textureUnit);
-        glBindTexture(pointer, type);
+        glBindTexture(type, id);
     }
 
     /**
@@ -90,9 +89,9 @@ public:
             return name;
         }
 
-        auto getPointer()
+        auto getId()
         {
-            return pointer;
+            return id;
         }
     }
 
@@ -100,7 +99,7 @@ private:
 
     string name;
     GLenum type;
-    GLuint pointer;
+    GLuint id;
 
     int width, height;
 
