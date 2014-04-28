@@ -1,4 +1,4 @@
-module lib.math.squarematrix;
+module squarematrix;
 
 private
 {
@@ -9,7 +9,7 @@ private
     import std.traits;
     import std.algorithm;
 
-    import lib.math.vector;
+    import vector;
 }
 
 alias Matrix2x2f = SquareMatrix!(float,2);
@@ -208,6 +208,19 @@ public:
     @property static SquareMatrix!(T, size) identity() pure nothrow @safe
     {
         return SquareMatrix!(T, size)(identityRepresentation);
+    }
+
+    /**
+     *  Returns transposed matrix
+     */
+    @property SquareMatrix!(T, size) transposed() pure nothrow @safe
+    {
+        SquareMatrix!(T, size) result = SquareMatrix!(T, size).zero;
+        foreach(i; 0..size)
+            foreach(j; 0..size)
+                result[i, j] = this[j, i];
+
+        return result;
     }
 
     /**
@@ -564,4 +577,11 @@ unittest
 	                                             0, 0, 3, 0,
 	                                             0, 0, 0, 4
 	));
+}
+
+unittest
+{
+    //  Testing transposing
+    assert(Matrix2x2f(1.0f, 2.0f, 3.0f, 4.0f).transposed
+           == Matrix2x2f(1.0f, 3.0f, 2.0f, 4.0f));
 }

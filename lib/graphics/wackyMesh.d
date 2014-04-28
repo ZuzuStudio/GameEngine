@@ -1,8 +1,10 @@
 import derelict.assimp3.assimp;
 import derelict.opengl3.gl3;
 
+import lib.math.squarematrix;
+
 /**
- *  The class represents simple meshes
+ *  The class represents a simple mesh
  */
 class WackyMesh
 {
@@ -23,12 +25,15 @@ public:
         glDeleteVertexArrays(1, &VAO);
     }
 
-    auto render()
+    /**
+     *  Draws the mesh
+     */
+    auto render(GLuint uniformMat4Location, Matrix4x4f transformation = Matrix4x4f.identity)
     {
+        glUniformMatrix4fv(uniformMat4Location, 1, GL_TRUE, transformation.ptr);
         glBindVertexArray(VAO);
         glDrawElementsBaseVertex(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, cast (void*) indices.ptr, 0);
         glBindVertexArray(0);
-
     }
 
 private:
