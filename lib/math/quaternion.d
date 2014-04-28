@@ -6,10 +6,10 @@ private
     import std.math;
     import std.range;
     import std.traits;
-
+}
     import lib.math.vector;
     import lib.math.squarematrix;
-}
+
 
 /**
  * Predefined quaternion types
@@ -76,7 +76,7 @@ public:
     /**
      *  Operators * and / for quaternion and scalar
      */
-    Quaternion!(T) opBinary(string op)(const T scalar) const pure nothrow @safe
+    Quaternion!(T) opBinary(string op)( T scalar) const pure nothrow @safe
     if(op == "*" || op == "/")
     {
         Quaternion!(T) result = this;
@@ -86,7 +86,7 @@ public:
     /**
      *  Operators *= and /= for quaternion and scalar
      */
-    ref Quaternion!(T) opOpAssign(string op)(const T scalar) pure nothrow @safe
+    ref Quaternion!(T) opOpAssign(string op)(T scalar) pure nothrow @safe
     if(op == "*" || op == "/")
     {
         mixin("x " ~op~ "= scalar;"
@@ -100,7 +100,7 @@ public:
     /**
      *  Binary operator +, -, * for two quaternions
      */
-    Quaternion!(T) opBinary(string op)(const ref Quaternion!(T) right) pure nothrow @safe
+    Quaternion!(T) opBinary(string op)(Quaternion!(T) right) pure nothrow @safe
     if(op == "+" || op == "-" || op == "*")
     {
         Quaternion!(T) result = this;
@@ -124,7 +124,7 @@ public:
     /**
      *  Binary operator += , -= for two quaternions
      */
-    ref Quaternion!(T) opOpAssign(string op)(const Quaternion!(T) right) pure nothrow @safe
+    ref Quaternion!(T) opOpAssign(string op)(Quaternion!(T) right) pure nothrow @safe
     if(op == "+" || op == "-" )
     {
         mixin("x " ~op ~ "= right.x;"
@@ -139,7 +139,7 @@ public:
     /**
      *  Binary operator *= for two quaternions
      */
-    ref Quaternion!(T) opOpAssign(string op)(const ref Quaternion!(T) right) pure nothrow @safe
+    ref Quaternion!(T) opOpAssign(string op)(Quaternion!(T) right) pure nothrow @safe
     if(op == "*")
     {
         this = Quaternion!(T)

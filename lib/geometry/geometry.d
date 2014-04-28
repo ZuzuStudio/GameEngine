@@ -1,10 +1,10 @@
 module lib.geometry.geometry;
 
-private
-{
-    import lib.math.squarematrix;
-}
+public import lib.math.squarematrix;
 
+/**
+ *  Abstract geometry
+ */
 abstract class Geometry
 {
     Matrix4x4f transformation;

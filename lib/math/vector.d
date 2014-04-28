@@ -6,10 +6,9 @@ private
     import std.math;
     import std.range;
     import std.traits;
-
+}
     import lib.math.squarematrix;
     import lib.math.quaternion;
-}
 
 /**
  * Predefined vector types
@@ -79,10 +78,10 @@ public:
      */
 
      /**
-     *  Binary operator +, -, * and / for possible combination of vector and scalar, vector and square matrix
+     *  Binary operator +, -, * and / for possible combination of vector and scalar
      */
-    Vector!(T, size) opBinary(string op, U)(ref const U right) const pure nothrow @safe
-    if((is(U == Vector!(T, size)) && (op == "+" || op == "-")) || (is(U == SquareMatrix!(T,size)) && (op == "*")) || (is(U : T) && (op == "*" || op == "/")))
+    Vector!(T, size) opBinary(string op, U)(U right) const pure nothrow @safe
+    if((is(U == Vector!(T, size)) && (op == "+" || op == "-")) || (is(U : T) && (op == "*" || op == "/")))
     {
         Vector!(T, size) result = this;
         mixin("result " ~ op ~ "= right;");
@@ -92,7 +91,7 @@ public:
     /**
      *  Operators += and -= for two vectors
      */
-    ref Vector!(T, size) opOpAssign(string op)(const Vector!(T, size) right) pure nothrow @safe
+    ref Vector!(T, size) opOpAssign(string op)(Vector!(T, size) right) pure nothrow @safe
     if(op == "+" || op == "-")
     {
         foreach(i; 0..size)
@@ -103,30 +102,11 @@ public:
     /**
      *  Operators *= and /= for vector and scalar
      */
-    ref Vector!(T, size) opOpAssign(string op, U)(ref const U scalar) pure nothrow @safe
+    ref Vector!(T, size) opOpAssign(string op, U)( U scalar) pure nothrow @safe
     if(is(U : T) && (op == "*" || op == "/"))
     {
         foreach(i; 0..size)
         mixin("coordinates[i] " ~ op ~ "= cast(T)scalar;");
-        return this;
-    }
-
-    /**
-     *  Operator *= for vector and square matrix
-     */
-    ref Vector!(T, size) opOpAssign(string op)(ref const SquareMatrix!(T, size) right) pure nothrow @safe
-    if(op == "*")
-    {
-        Vector!(T, size) result = Vector!(T, size)();
-
-        foreach(i; 0..size)
-        foreach(j; 0..size)
-        {
-            result[i] += coordinates[i] * right[j,i];
-        }
-        this = result;
-
-
         return this;
     }
 
@@ -143,9 +123,9 @@ public:
     }
 
     /**
-     *  Index operator
+     *  Index operator T = Vecrot(T, size)[index]
      */
-    ref T opIndex (this vector)(size_t index) pure nothrow @safe
+    T opIndex (this vector)(size_t index) pure nothrow @safe
     in
     {
         assert ((0 <= index) && (index < size),
@@ -154,6 +134,20 @@ public:
     body
     {
         return coordinates[index];
+    }
+
+    /**
+     *  Assign index operator Vector(T, size)[i, j] = T
+     */
+    T opIndexAssign (this vector)(T t, size_t index) pure nothrow @safe
+    in
+    {
+        assert ((0 <= index) && (index < size),
+        "Vector!(T,size).opIndexAssign(size_t index): array index out of bounds");
+    }
+    body
+    {
+        return coordinates[index] = t;
     }
 
     /**
@@ -280,7 +274,7 @@ private:
 /**
  * Dot product
  */
-T dot(T, int size) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
+T dot(T, size_t size)(Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
 {
     T result = 0;
     foreach(i; 0..size)
@@ -295,7 +289,7 @@ T dot(T, int size) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
  * det | a.x a.y a.z | = i((a.y * b.z) - (a.z * b.y)) + j((a.z * b.x) - (a.x * b.z)) +k((a.x * b.y) - (a.y * b.x));
  *     | b.x b.y b.z |
  */
-Vector!(T, size) cross(T, int size) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
+Vector!(T, size) cross(T, size_t size) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
 if(size == 3)
 {
 
@@ -310,7 +304,7 @@ if(size == 3)
 /**
  *  Compute distance between two points
  */
-T distance(T) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
+T distance(T, size_t  size)(Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
 {
     Vector!(T, size) difference =  a - b;
     return difference.length;
@@ -319,7 +313,7 @@ T distance(T) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
 /**
  *  Compute distance squared between two points
  */
-T distancesqr(T) (Vector!(T,3) a, Vector!(T,3) b) pure nothrow @safe
+T distancesqr(T) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
 {
     Vector!(T, size) difference =  a - b;
     return difference.lengthsqr;
@@ -417,14 +411,6 @@ unittest
     Vector3f b = Vector3f(1.0f, -2.5f, 2.0f);
     Vector3f result = Vector3f(2.0f, -0.5f, 5.0f);
     assert(floatingEqual(a+b,result));
-
-    Vector3f v = Vector3f(1.0f, 2.0f, 3.0f);
-    Matrix3x3f m = Matrix3x3f(1.0f, 2.0f, 3.0f,
-                              4.0f, 5.0f, 6.0f,
-                              7.0f, 8.0f, 9.0f);
-
-    assert( v * m  == Vector3f(12.0f, 30.0f, 54.0f));
-
     // TODO
     // more tests
 

@@ -1,15 +1,19 @@
 module lib.geometry.sphere;
 
-private
+public
 {
     import lib.geometry.geometry;
-    import lib.math.squarematrix;
+    import lib.math.vector;
 }
 
+/**
+ *  Sphere
+ */
 class Sphere : Geometry
 {
-    this(float r) pure nothrow @safe
+    this(Vector3f center, float r) pure nothrow @safe
     {
+        this.center = center;
         radius = r;
     }
 
@@ -21,12 +25,12 @@ class Sphere : Geometry
         float v = 0.4f * mass * radius * radius;
 
         return Matrix3x3f(
-                   v, 0f, 0f,
-                   0f, v, 0f,
-                   0f, 0f, v
+                   v, 0, 0,
+                   0, v, 0,
+                   0, 0, v
                );
     }
 
-private:
+    Vector3f center;
     float radius;
 };
