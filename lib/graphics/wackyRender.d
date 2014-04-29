@@ -2,7 +2,6 @@ module lib.graphics.wackyRender;
 
 import std.stdio;
 import std.string;
-import core.memory;
 
 import derelict.glfw3.glfw3;
 import derelict.opengl3.gl3;
@@ -11,14 +10,15 @@ DerelictException;
 
 public import wackyEnums;
 public import wackyExceptions;
-import wackyShaderHandler;
-import wackyPipeline;
+import lib.graphics.wackyShaderProgram;
+import lib.graphics.wackyPipeline;
+import lib.graphics.wackyCamera;
 
 class WackyRender
 {
 public:
 
-    WackyShaderHandler shaderHandler;
+    WackyShaderProgram shaderProgram;
     WackyPipeline pipeline;
 
     this(int width, int height, string name, WackyWindowMode mode)
@@ -56,7 +56,7 @@ public:
 
         initialize(this.width, this.height, this.name, this.mode);
 
-        shaderHandler = new WackyShaderHandler();
+        shaderProgram = new WackyShaderProgram();
         pipeline = new WackyPipeline();
     }
 
@@ -70,13 +70,11 @@ public:
 
 
     /**
-    *   Main loop
-    *   Garbage collector will have been forbidden to operate
-    *   until the function will be executed
+    *   Main loop.
+    *   The parameter action() should contain all the objects to be rendered
     */
 
-    // there's only a sketch of the rendering function
-    auto execute()
+    auto execute(alias action)()
     {
         float mainTime = glfwGetTime();
         while(!glfwWindowShouldClose(window))
@@ -85,6 +83,8 @@ public:
             {
                 glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 glfwPollEvents();
+
+                action();
 
                 glfwSwapBuffers(window);
             }
@@ -95,7 +95,7 @@ public:
      *  Returns the number of seconds since the constructor
      *  for WackyRender was called
      */
-    auto getTime()
+    auto getTime() nothrow
     {
         return glfwGetTime();
     }
@@ -116,7 +116,7 @@ public:
      *  so the segment is only a lower limit
      *  for a frame rendering time
      */
-    auto setMinimalTimePerFrame(float seconds)
+    auto setMinimalTimePerFrame(float seconds) pure nothrow
     {
         timePerFrame = seconds;
     }

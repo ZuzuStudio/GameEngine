@@ -1,7 +1,17 @@
+import std.stdio:
+writefln;
+import std.string:
+toStringz;
+
+import derelict.util.exception:
+DerelictException;
 import derelict.assimp3.assimp;
 import derelict.opengl3.gl3;
 
+import WackyExceptions;
+
 import lib.math.squarematrix;
+import lib.math.vector;
 
 /**
  *  The class represents a simple mesh
@@ -10,19 +20,78 @@ class WackyMesh
 {
 public:
 
-    this(float[] vertices, uint[] indices, float[] textureCoordinates)
+    /**
+     *  Explicit creation of a mesh
+     */
+    this(float[] vertices, uint[] indices, float[] textureCoordinates = null)
     {
-        this.vertices = vertices;
-        this.indices = indices;
-        this.textureCoordinates = textureCoordinates;
+        if (!vertices || !indices)
+            throw new WackyException("WackyMesh: empty vertex or index array");
+
+        this.vertices = vertices.dup;
+        this.indices = indices.dup;
+        this.UVs = UVs.dup;
 
         generateBuffers();
+    }
+
+    this(Vector3f[] vertices, uint[] indices, Vector2f[] UVs = null)
+    {
+        if (!vertices || !indices)
+            throw new WackyException("WackyMesh: empty vertex or index array");
+        foreach(e; vertices)
+        {
+            this.vertices ~= e.x;
+            this.vertices ~= e.y;
+            this.vertices ~= e.z;
+        }
+
+        this.indices = indices.dup;
+
+        if (UVs)
+        {
+            foreach(e; UVs)
+            {
+                this.UVs ~= e.x;
+                this.UVs ~= e.y;
+            }
+        }
+
+        generateBuffers();
+    }
+
+    /**
+     *  Reading a mesh from a file
+     */
+    this(string fileName)
+    {
+        if (!DerelictASSIMP3.isLoaded)
+        {
+            try
+            {
+                DerelictASSIMP3.load;
+            }
+            catch (DerelictException)
+            {
+                throw new WackyException("ASSIMP3 or one of its dependencies "
+                                         "cannot be found on the file system");
+            }
+        }
+
+        auto scene = aiImportFile (toStringz(fileName),
+                                   aiProcess_Triangulate
+                                   | aiProcess_FlipUVs);
+        if (cast (bool) scene)
+        {
+            std.stdio.writeln("cool");
+        }
     }
 
     ~this()
     {
         glDeleteBuffers(buffers.length, buffers.ptr);
         glDeleteVertexArrays(1, &VAO);
+        DerelictASSIMP3.unload;
     }
 
     /**
@@ -39,10 +108,10 @@ public:
 private:
     /*
      *  Normals' support is not implemented yet
-     *  Vector 2f[] normals
+     *  float[] normals
      */
     float[] vertices;
-    float[] textureCoordinates;
+    float[] UVs;
     uint[] indices;
 
     enum
@@ -75,7 +144,7 @@ private:
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * float.sizeof, cast (const void*) 0);
 
         glBindBuffer(GL_ARRAY_BUFFER, buffers[TEXTURE_COORDINATES]);
-        glBufferData(GL_ARRAY_BUFFER, float.sizeof * textureCoordinates.length, textureCoordinates.ptr, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, float.sizeof * UVs.length, UVs.ptr, GL_STATIC_DRAW);
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * float.sizeof, cast (const void*) 0);
 

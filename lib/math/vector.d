@@ -7,8 +7,6 @@ private
     import std.range;
     import std.traits;
 }
-    import lib.math.squarematrix;
-    import lib.math.quaternion;
 
 /**
  * Predefined vector types

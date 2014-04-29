@@ -2,7 +2,7 @@ module wackyPipeline;
 
 import std.math: PI;
 
-import wackyCamera: CameraData;
+import lib.graphics.wackyCamera: CameraData;
 
 import lib.math.vector;
 import lib.math.squarematrix;
@@ -110,7 +110,7 @@ public:
 private:
 
     Vector3f scale = Vector3f(1.0f, 1.0f, 1.0f);
-    Vector3f worldPosition;
+    Vector3f worldPosition = Vector3f(0.0f, 0.0f, 0.0f);
     Vector3f rotationAngles;
 
     PerspectiveData perspectiveData;
