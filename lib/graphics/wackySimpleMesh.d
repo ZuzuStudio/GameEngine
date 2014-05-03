@@ -1,25 +1,26 @@
-import std.stdio:
-writefln;
-import std.string:
-toStringz;
-import std.conv:
-to;
+module wackySimpleMesh;
 
-import derelict.util.exception:
-DerelictException;
-import derelict.assimp3.assimp;
-import derelict.opengl3.gl3;
+private
+{
+    import std.stdio: writefln;
+    import std.string: toStringz;
+    import std.conv: to;
 
-//import WackyExceptions;
-import WackyTexture;
+    import derelict.util.exception: DerelictException;
+    import derelict.assimp3.assimp;
+    import derelict.opengl3.gl3;
 
-import squarematrix;
-import vector;
+    import WackyExceptions;
+    import WackyTexture;
+
+    import lib.math.squarematrix;
+    import lib.math.vector;
+}
 
 /**
  *  A simplest mesh that supports single texture layer
  */
-class WackyMesh
+class WackySimpleMesh
 {
 public:
 
@@ -28,8 +29,8 @@ public:
      */
     this(float[] vertices, uint[] indices, float[] UVs = null)
     {
-        //    if (!vertices || !indices)
-        //          throw new WackyException("WackyMesh: empty vertex or index array");
+        if (!vertices || !indices)
+            throw new WackySimpleMeshException("WackyMesh: empty vertex or index array");
 
         this.vertices = vertices.dup;
         this.indices = indices.dup;
@@ -40,6 +41,9 @@ public:
 
     this(Vector3f[] vertices, uint[] indices, Vector2f[] UVs = null)
     {
+
+        if (!vertices || !indices)
+            throw new WackySimpleMeshException("WackyMesh: empty vertex or index array");
 
         foreach(e; vertices)
         {
@@ -75,8 +79,8 @@ public:
             }
             catch (DerelictException)
             {
-//                throw new WackyException("ASSIMP3 or one of its dependencies "
-                //                                       "cannot be found on the file system");
+                throw new WackyException("ASSIMP3 or one of its dependencies "
+                                         "cannot be found on the file system");
             }
         }
 
