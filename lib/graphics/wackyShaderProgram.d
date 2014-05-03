@@ -94,6 +94,15 @@ public:
         return id;
     }
 
+    /**
+     *  Returns a number that represents
+     *  a reference to the variable is the program
+     */
+    auto getUniformLocation(string variableName)
+    {
+        return glGetUniformLocation(id, cast (const (char)*) variableName);
+    }
+
 private:
 
     GLuint id;
