@@ -1,3 +1,10 @@
-*.[oa]
+*.[oas]
+*.obj
+*.exe
+bin/
+obj/
 *.cbp
-
+*.lst
+*~
+*.depend*
+*.layout*
