@@ -1,25 +1,32 @@
-module lib.graphics.wackyRender;
+module wackyRender;
 
-import std.stdio;
-import std.string;
+private
+{
+    import std.stdio;
+    import std.string;
 
-import derelict.glfw3.glfw3;
-import derelict.opengl3.gl3;
-import derelict.util.exception:
-DerelictException;
+    import derelict.glfw3.glfw3;
+    import derelict.opengl3.gl3;
+    import derelict.util.exception: DerelictException;
 
-public import wackyEnums;
-public import wackyExceptions;
-import lib.graphics.wackyShaderProgram;
-import lib.graphics.wackyPipeline;
-import lib.graphics.wackyCamera;
+    import wackyPipeline;
+    import wackyCamera;
+
+    import lib.math.vector;
+}
+
+public
+{
+    import wackyEnums;
+    import wackyExceptions;
+}
 
 class WackyRender
 {
 public:
 
-    WackyShaderProgram shaderProgram;
-    WackyPipeline pipeline;
+    static WackyPipeline pipeline;
+    static WackyCamera observer;
 
     this(int width, int height, string name, WackyWindowMode mode)
     {
@@ -56,8 +63,10 @@ public:
 
         initialize(this.width, this.height, this.name, this.mode);
 
-        shaderProgram = new WackyShaderProgram();
-        pipeline = new WackyPipeline();
+        pipeline = new WackyPipeline;
+        observer = new WackyCamera;
+
+        glEnable(GL_DEPTH_TEST);
     }
 
     ~this()
@@ -74,7 +83,7 @@ public:
     *   The parameter action() should contain all the objects to be rendered
     */
 
-    auto execute(alias action)()
+    auto execute(alias action)(uint worldTransformationLocation)
     {
         float mainTime = glfwGetTime();
         while(!glfwWindowShouldClose(window))
@@ -83,6 +92,13 @@ public:
             {
                 glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 glfwPollEvents();
+
+                observer.keyProcessing();
+                pipeline.setCameraData(Vector3f(observer.getPosition),
+                                        Vector3f(observer.getTarget),
+                                        Vector3f(observer.getUp));
+
+                glUniformMatrix4fv(worldTransformationLocation, 1, GL_TRUE, pipeline.getWVPTransformation.ptr);
 
                 action();
 
@@ -185,6 +201,7 @@ private:
     static WackyActions exitAction = WackyActions.PRESS;
 
     float timePerFrame = 0.001f; // 0.001 second
+
     /**
      *  The function does all necessary work for the render functioning
      */
@@ -258,13 +275,16 @@ private:
     {
     }
 
-    extern(C) static auto mouseMoveCallback (GLFWwindow* window, double x, double y) nothrow
+    extern(C) static auto mouseMoveCallback (GLFWwindow* window, double x, double y)
     {
+        observer.mouseMoveEventHandler(cast (float) x, cast (float) y);
     }
 
     extern(C) static auto keyboardCallback (GLFWwindow* window, int key, int scancode, int action, int mods) nothrow
     {
         if (key == exitKey && action == exitAction)
             glfwSetWindowShouldClose (window, true);
+
+        observer.keyEventHandler (cast (WackyKeys) key, cast (WackyActions) action);
     }
 }

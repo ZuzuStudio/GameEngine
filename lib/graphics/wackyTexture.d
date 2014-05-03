@@ -1,15 +1,17 @@
-import std.stdio:
-writefln;
-import std.string:
-toStringz;
+module wackyTexture;
 
-import derelict.util.exception:
-DerelictException;
+private
+{
+    import std.stdio: writefln;
+    import std.string: toStringz;
 
-import derelict.freeimage.freeimage;
-import derelict.opengl3.gl3;
+    import derelict.util.exception: DerelictException;
 
-import wackyExceptions;
+    import derelict.freeimage.freeimage;
+    import derelict.opengl3.gl3;
+
+    import wackyExceptions;
+}
 
 /**
  * The class represents a texture

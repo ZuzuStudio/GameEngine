@@ -1,11 +1,15 @@
-import std.stdio;
-import std.string;
-import std.file;
+module wackyShaderProgram;
 
-import derelict.opengl3.gl3;
+private
+{
+    import std.stdio;
+    import std.string;
+    import std.file;
+
+    import derelict.opengl3.gl3;
+}
 
 public import wackyEnums;
-import wackyExceptions;
 
 /**
  *  Class that reads the source code of a shader, compiles it
@@ -113,11 +117,14 @@ private:
     string readSourceCode(string fileName)
     {
         string code;
-        try{
+        try
+        {
 
             code = fileName.readText();
 
-        }catch(FileException){
+        }
+        catch(FileException)
+        {
             writefln("WackyShaderLoader: cannot read file \"%s\"", fileName);
             return null;
         }

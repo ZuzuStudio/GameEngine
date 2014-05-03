@@ -1,14 +1,16 @@
-module lib.graphics.wackyCamera;
+module wackyCamera;
 
-import std.math;
+private
+{
+    import std.math;
 
-import derelict.glfw3.glfw3;
+    import derelict.glfw3.glfw3;
 
-import wackyEnums;
-import wackyPipeline;
+    import wackyEnums;
 
-import lib.math.vector;
-import lib.math.quaternion;
+    import lib.math.vector;
+    import lib.math.quaternion;
+}
 
 /**
  * The class represents first-person camera

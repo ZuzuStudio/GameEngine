@@ -1,12 +1,14 @@
 module wackyPipeline;
 
-import std.math: PI;
+private
+{
+    import std.math: PI;
 
-import lib.graphics.wackyCamera: CameraData;
+    import wackyCamera: CameraData;
 
-import lib.math.vector;
-import lib.math.squarematrix;
-
+    import lib.math.vector;
+    import lib.math.squarematrix;
+}
 /**
  * The class holds transformations
  */

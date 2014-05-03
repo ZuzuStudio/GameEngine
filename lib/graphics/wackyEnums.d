@@ -1,7 +1,10 @@
 module wackyEnums;
 
-import derelict.glfw3.glfw3;
-import derelict.opengl3.gl3;
+private
+{
+    import derelict.glfw3.glfw3;
+    import derelict.opengl3.gl3;
+}
 
 /**
  *  The enum describes whether the whole screen

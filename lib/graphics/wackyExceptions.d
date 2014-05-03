@@ -23,9 +23,9 @@ class WackyRenderException: Exception
 }
 
 /**
- *  The shader handler exception
+ *  The mesh exception
  */
-class WackyShaderHandlerException: Exception
+class WackySimpleMeshException: Exception
 {
     public this(string message)
     {
