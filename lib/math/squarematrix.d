@@ -11,12 +11,12 @@ private
 import lib.math.vector;
 
 
-alias Matrix2x2f = SquareMatrix!(float,2);
-alias Matrix3x3f = SquareMatrix!(float,3);
-alias Matrix4x4f = SquareMatrix!(float,4);
-alias Matrix2x2d = SquareMatrix!(double,2);
-alias Matrix3x3d = SquareMatrix!(double,3);
-alias Matrix4x4d = SquareMatrix!(double,4);
+alias Matrix2x2f = SquareMatrix!(float, 2);
+alias Matrix3x3f = SquareMatrix!(float, 3);
+alias Matrix4x4f = SquareMatrix!(float, 4);
+alias Matrix2x2d = SquareMatrix!(double, 2);
+alias Matrix3x3d = SquareMatrix!(double, 3);
+alias Matrix4x4d = SquareMatrix!(double, 4);
 
 /**
  *   Square matrix with row-column order of storing
