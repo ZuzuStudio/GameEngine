@@ -75,9 +75,9 @@ public:
      *  Default assign operator
      */
 
-     /**
-     *  Binary operator +, -, * and / for possible combination of vector and scalar
-     */
+    /**
+    *  Binary operator +, -, * and / for possible combination of vector and scalar
+    */
     Vector!(T, size) opBinary(string op, U)(U right) const pure nothrow @safe
     if((is(U == Vector!(T, size)) && (op == "+" || op == "-")) || (is(U : T) && (op == "*" || op == "/")))
     {
@@ -127,7 +127,7 @@ public:
     in
     {
         assert ((0 <= index) && (index < size),
-        "Vector!(T,size).opIndex(size_t index): array index out of bounds");
+                "Vector!(T,size).opIndex(size_t index): array index out of bounds");
     }
     body
     {
@@ -149,12 +149,12 @@ public:
     }
 
     /**
-	 *  Zero property, for more sweet usability
-	 */
-	@property static Vector!(T, size) zero() pure nothrow @safe
-	{
-		return Vector!(T, size).init;
-	}
+     *  Zero property, for more sweet usability
+     */
+    @property static Vector!(T, size) zero() pure nothrow @safe
+    {
+        return Vector!(T, size).init;
+    }
 
     /**
      *  Get vector length squared
@@ -252,21 +252,21 @@ public:
 
 private:
 
-	/**
-	 *   Declaration zero initialized vector
-	 */
-	mixin(declaration());
+    /**
+     *   Declaration zero initialized vector
+     */
+    mixin(declaration());
 
-	/**
+    /**
      *   Build compile time zerovector representation
      */
-	static string declaration() pure nothrow @safe
-	{
-		string result = "T[size] coordinates = [cast(T)";
-		foreach(unused; 0..size)
-		result ~= "0, ";
-		return result ~ "];";
-	}
+    static string declaration() pure nothrow @safe
+    {
+        string result = "T[size] coordinates = [cast(T)";
+        foreach(unused; 0..size)
+        result ~= "0, ";
+        return result ~ "];";
+    }
 }
 
 /**
@@ -319,38 +319,38 @@ T distancesqr(T) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
 
 unittest
 {
-	// Testing default zero initialization
-	Vector3f a = Vector3f();
-	assert([0.0f, 0.0f, 0.0f] == a.coordinates);
-	Vector3f b;
-	assert([0.0f, 0.0f, 0.0f] == b.coordinates);
-	assert([0.0f, 0.0f, 0.0f] == (Vector3f.init).coordinates);
-	assert(Vector3f.zero == Vector3f.init);
+    // Testing default zero initialization
+    Vector3f a = Vector3f();
+    assert([0.0f, 0.0f, 0.0f] == a.coordinates);
+    Vector3f b;
+    assert([0.0f, 0.0f, 0.0f] == b.coordinates);
+    assert([0.0f, 0.0f, 0.0f] == (Vector3f.init).coordinates);
+    assert(Vector3f.zero == Vector3f.init);
 
-	assert([0.0f, 0.0f] == (Vector2f.init).coordinates);
-	assert([0.0f, 0.0f, 0.0f] == (Vector3f.init).coordinates);
-	assert([0.0f, 0.0f, 0.0f, 0.0f] == (Vector4f.init).coordinates);
-	assert([0.0, 0.0] == (Vector2d.init).coordinates);
-	assert([0.0, 0.0, 0.0] == (Vector3d.init).coordinates);
-	assert([0.0, 0.0, 0.0, 0.0] == (Vector4d.init).coordinates);
+    assert([0.0f, 0.0f] == (Vector2f.init).coordinates);
+    assert([0.0f, 0.0f, 0.0f] == (Vector3f.init).coordinates);
+    assert([0.0f, 0.0f, 0.0f, 0.0f] == (Vector4f.init).coordinates);
+    assert([0.0, 0.0] == (Vector2d.init).coordinates);
+    assert([0.0, 0.0, 0.0] == (Vector3d.init).coordinates);
+    assert([0.0, 0.0, 0.0, 0.0] == (Vector4d.init).coordinates);
 }
 
 unittest
 {
-	// Testing for flexibility of prodyct by scalar
-	auto x = Vector3f(1.0, 2.0, 3.0);
-	real rAlpha = 2.0L;
-	double dAlpha = 2.0;
-	float fAlpha = 2.0f;
-	long lAlpha = 2L;
-	int iAlpha = 2;
-	byte bAlpha = 2;
-	assert([2.0f, 4.0f, 6.0f] == (x * rAlpha).coordinates);
-	assert([2.0f, 4.0f, 6.0f] == (x * dAlpha).coordinates);
-	assert([2.0f, 4.0f, 6.0f] == (x * fAlpha).coordinates);
-	assert([2.0f, 4.0f, 6.0f] == (x * lAlpha).coordinates);
-	assert([2.0f, 4.0f, 6.0f] == (x * iAlpha).coordinates);
-	assert([2.0f, 4.0f, 6.0f] == (x * bAlpha).coordinates);
+    // Testing for flexibility of prodyct by scalar
+    auto x = Vector3f(1.0, 2.0, 3.0);
+    real rAlpha = 2.0L;
+    double dAlpha = 2.0;
+    float fAlpha = 2.0f;
+    long lAlpha = 2L;
+    int iAlpha = 2;
+    byte bAlpha = 2;
+    assert([2.0f, 4.0f, 6.0f] == (x * rAlpha).coordinates);
+    assert([2.0f, 4.0f, 6.0f] == (x * dAlpha).coordinates);
+    assert([2.0f, 4.0f, 6.0f] == (x * fAlpha).coordinates);
+    assert([2.0f, 4.0f, 6.0f] == (x * lAlpha).coordinates);
+    assert([2.0f, 4.0f, 6.0f] == (x * iAlpha).coordinates);
+    assert([2.0f, 4.0f, 6.0f] == (x * bAlpha).coordinates);
 }
 
 unittest
@@ -387,11 +387,11 @@ unittest
 
 unittest
 {
-	// Testing parametrical constructors
-	Vector2d(1.0f, 2.0f);
-	Vector3f([1.0, 2.0, 3.0]);
-	auto v = Vector4f([1.0, 2.0, 3.0, 4.0f]);
-	Vector4f(v);
+    // Testing parametrical constructors
+    Vector2d(1.0f, 2.0f);
+    Vector3f([1.0, 2.0, 3.0]);
+    auto v = Vector4f([1.0, 2.0, 3.0, 4.0f]);
+    Vector4f(v);
 }
 
 unittest
@@ -417,26 +417,26 @@ unittest
 
 unittest
 {
-	// Testing toString
-	assert("[0, 0]" == Vector2f.zero.toString);
-	assert("[0, 0, 0]" == Vector3f.zero.toString);
-	assert("[0, 0, 0, 0]" == Vector4f.zero.toString);
-	assert("[0, 0]" == Vector2d.zero.toString);
-	assert("[0, 0, 0]" == Vector3d.zero.toString);
-	assert("[0, 0, 0, 0]" == Vector4d.zero.toString);
+    // Testing toString
+    assert("[0, 0]" == Vector2f.zero.toString);
+    assert("[0, 0, 0]" == Vector3f.zero.toString);
+    assert("[0, 0, 0, 0]" == Vector4f.zero.toString);
+    assert("[0, 0]" == Vector2d.zero.toString);
+    assert("[0, 0, 0]" == Vector3d.zero.toString);
+    assert("[0, 0, 0, 0]" == Vector4d.zero.toString);
 
-	assert("[0.5, -1]" == Vector2f(0.5, -1.0).toString);
+    assert("[0.5, -1]" == Vector2f(0.5, -1.0).toString);
 }
 
 unittest
 {
-	// Testing declaration()
-	assert("T[size] coordinates = [cast(T)0, 0, ];" == Vector2f.declaration());
-	assert("T[size] coordinates = [cast(T)0, 0, ];" == Vector2d.declaration());
-	assert("T[size] coordinates = [cast(T)0, 0, 0, ];" == Vector3f.declaration());
-	assert("T[size] coordinates = [cast(T)0, 0, 0, ];" == Vector3d.declaration());
-	assert("T[size] coordinates = [cast(T)0, 0, 0, 0, ];" == Vector4f.declaration());
-	assert("T[size] coordinates = [cast(T)0, 0, 0, 0, ];" == Vector4d.declaration());
+    // Testing declaration()
+    assert("T[size] coordinates = [cast(T)0, 0, ];" == Vector2f.declaration());
+    assert("T[size] coordinates = [cast(T)0, 0, ];" == Vector2d.declaration());
+    assert("T[size] coordinates = [cast(T)0, 0, 0, ];" == Vector3f.declaration());
+    assert("T[size] coordinates = [cast(T)0, 0, 0, ];" == Vector3d.declaration());
+    assert("T[size] coordinates = [cast(T)0, 0, 0, 0, ];" == Vector4f.declaration());
+    assert("T[size] coordinates = [cast(T)0, 0, 0, 0, ];" == Vector4d.declaration());
 }
 
 unittest
@@ -461,70 +461,70 @@ unittest
 
 unittest
 {
-	// Testing assertattion and contracts
-	import core.exception;
-	try
-	{
-		Vector2f(1.0f);
-	}
-	catch(AssertError ae)
-	{
-		assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
-	}
-	try
-	{
-		Vector3f(1.0f);
-	}
-	catch(AssertError ae)
-	{
-		assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
-	}
-	try
-	{
-		Vector4f(1.0f);
-	}
-	catch(AssertError ae)
-	{
-		assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
-	}
-	try
-	{
-		Vector2f(1.0f,2.0f,3.0f,4.0f,5.0f);
-	}
-	catch(AssertError ae)
-	{
-		assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
-	}
-	try
-	{
-		Vector3f(1.0f,2.0f,3.0f,4.0f,5.0f);
-	}
-	catch(AssertError ae)
-	{
-		assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
-	}
-	try
-	{
-		Vector4f(1.0f,2.0f,3.0f,4.0f,5.0f);
-	}
-	catch(AssertError ae)
-	{
-		assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
-	}
-	try
-	{
-		Vector2f([1.0f,2.0f,3.0f,4.0f,5.0f]);
-	}
-	catch(AssertError ae)
-	{
-		assert(ae.msg == "The length of array that transmitted to constructor does not match vector dimension.", "wrong assert mesage");
-	}
-	try
-	{
-		Vector4f([1.0f,2.0f,3.0f]);
-	}
-	catch(AssertError ae)
-	{
-		assert(ae.msg == "The length of array that transmitted to constructor does not match vector dimension.", "wrong assert mesage");
-	}
+    // Testing assertattion and contracts
+    import core.exception;
+    try
+    {
+        Vector2f(1.0f);
+    }
+    catch(AssertError ae)
+    {
+        assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
+    }
+    try
+    {
+        Vector3f(1.0f);
+    }
+    catch(AssertError ae)
+    {
+        assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
+    }
+    try
+    {
+        Vector4f(1.0f);
+    }
+    catch(AssertError ae)
+    {
+        assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
+    }
+    try
+    {
+        Vector2f(1.0f,2.0f,3.0f,4.0f,5.0f);
+    }
+    catch(AssertError ae)
+    {
+        assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
+    }
+    try
+    {
+        Vector3f(1.0f,2.0f,3.0f,4.0f,5.0f);
+    }
+    catch(AssertError ae)
+    {
+        assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
+    }
+    try
+    {
+        Vector4f(1.0f,2.0f,3.0f,4.0f,5.0f);
+    }
+    catch(AssertError ae)
+    {
+        assert(ae.msg == "The number of constructor parameters does not match vector dimension.", "wrong assert mesage");
+    }
+    try
+    {
+        Vector2f([1.0f,2.0f,3.0f,4.0f,5.0f]);
+    }
+    catch(AssertError ae)
+    {
+        assert(ae.msg == "The length of array that transmitted to constructor does not match vector dimension.", "wrong assert mesage");
+    }
+    try
+    {
+        Vector4f([1.0f,2.0f,3.0f]);
+    }
+    catch(AssertError ae)
+    {
+        assert(ae.msg == "The length of array that transmitted to constructor does not match vector dimension.", "wrong assert mesage");
+    }
 }
