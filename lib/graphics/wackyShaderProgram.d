@@ -9,11 +9,16 @@ private
     import derelict.opengl3.gl3;
 }
 
-public import wackyEnums;
+public
+{
+    import wackyEnums;
+    import wackyExceptions;
+}
 
 /**
  *  Class that reads the source code of a shader, compiles it
- *  and links the obtained shader program
+ *  and links the obtained shader program.
+ *  Sending data to a shader hasn't been implemented yet
  */
 
 class WackyShaderProgram
@@ -37,7 +42,7 @@ public:
     {
         string code = readSourceCode(fileName);
         if (!code)
-            return false;
+            return;
 
         GLuint shader = glCreateShader(type);
 
@@ -53,13 +58,14 @@ public:
         auto shaderStatus = shaderStatus(shader);
         if (shaderStatus != null)
         {
-            writefln("WackyShaderLoader (\"%s\"):", fileName);
+            writefln("WackyShaderProgram: (\"%s\"):", fileName);
             writeln(shaderStatus);
-            return false;
+            return;
         }
 
         glAttachShader(id, shader);
-        return true;
+
+        shaderAttached = true;
     }
 
     /**
@@ -67,12 +73,15 @@ public:
      */
     auto linkShaderProgram()
     {
+        if (!shaderAttached)
+            throw new WackyShaderProgramException("WackyShaderProgram: no files"
+                                                  " were attached");
         glLinkProgram (id);
 
         auto programStatus = programStatus(id);
         if (!programStatus)
         {
-            writefln("WackyShaderLoader: error while linking shader program");
+            writefln("WackyShaderProgram: error while linking shader program");
             return false;
         }
 
@@ -99,6 +108,15 @@ public:
     }
 
     /**
+     *  Returns true if at least one shader
+     *  has been attached successfully
+     */
+    @property auto isShaderAttached() pure nothrow
+    {
+        return shaderAttached;
+    }
+
+    /**
      *  Returns a number that represents
      *  a reference to the variable is the program
      */
@@ -110,6 +128,7 @@ public:
 private:
 
     GLuint id;
+    bool shaderAttached;
 
     /**
      *  Reads the code from the file with the given filename
@@ -125,7 +144,7 @@ private:
         }
         catch(FileException)
         {
-            writefln("WackyShaderLoader: cannot read file \"%s\"", fileName);
+            writefln("WackyShaderProgram: cannot read file \"%s\"", fileName);
             return null;
         }
         return code;

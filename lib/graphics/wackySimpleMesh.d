@@ -10,8 +10,8 @@ private
     import derelict.assimp3.assimp;
     import derelict.opengl3.gl3;
 
-    import WackyExceptions;
-    import WackyTexture;
+    import wackyExceptions;
+    import wackyTexture;
 
     import lib.math.squarematrix;
     import lib.math.vector;
@@ -132,10 +132,12 @@ public:
     /**
      *  Draws the mesh
      */
-    auto render(uint meshTransformationLocation, uint samplerLocation, Matrix4x4f transformation = Matrix4x4f.identity)
+    auto render(uint meshTransformationLocation, uint samplerLocation = -1, Matrix4x4f transformation = Matrix4x4f.identity)
     {
         glUniformMatrix4fv(meshTransformationLocation, 1, GL_TRUE, transformation.ptr);
-        glUniform1i(samplerLocation, textureUnit);
+
+        if (samplerLocation != -1)
+            glUniform1i(samplerLocation, textureUnit);
 
         glBindVertexArray(VAO);
         glDrawElementsBaseVertex(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, cast (void*) indices.ptr, 0);
@@ -184,10 +186,13 @@ private:
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * float.sizeof, cast (const void*) 0);
 
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[TEXTURE_COORDINATES]);
-        glBufferData(GL_ARRAY_BUFFER, float.sizeof * UVs.length, UVs.ptr, GL_STATIC_DRAW);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * float.sizeof, cast (const void*) 0);
+        if (UVs)
+        {
+            glBindBuffer(GL_ARRAY_BUFFER, buffers[TEXTURE_COORDINATES]);
+            glBufferData(GL_ARRAY_BUFFER, float.sizeof * UVs.length, UVs.ptr, GL_STATIC_DRAW);
+            glEnableVertexAttribArray(1);
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * float.sizeof, cast (const void*) 0);
+        }
 
         glBindBuffer(GL_ARRAY_BUFFER, buffers[INDICES]);
         glBufferData(GL_ARRAY_BUFFER, uint.sizeof * indices.length, indices.ptr, GL_STATIC_DRAW);
