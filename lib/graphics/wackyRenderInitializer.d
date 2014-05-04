@@ -2,6 +2,11 @@ module wackyRenderInitializer;
 
 private import wackyRender;
 
+/**
+ *  The class is designed for quick setup the WackyRender object.
+ *  It's recommended to use the initializer first and after that
+ *  set the render's properties on your own
+ */
 class WackyRenderInitializer
 {
     public static void initialize (WackyRender render)
