@@ -22,7 +22,7 @@ class Sphere : Geometry
      */
     override Matrix3x3f inertiaTensor(float mass) pure nothrow @safe
     {
-        float v = 0.4f * mass * radius * radius;
+        float v = 0.4 * mass * radius * radius;
 
         return Matrix3x3f(
                    v, 0, 0,
