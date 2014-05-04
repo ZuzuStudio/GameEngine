@@ -7,8 +7,8 @@ private
     import std.range;
     import std.traits;
 }
-    import lib.math.vector;
-    import lib.math.squarematrix;
+import lib.math.vector;
+import lib.math.squarematrix;
 
 
 /**
@@ -155,11 +155,11 @@ public:
     if (op == "*")
     {
         this = Quaternion!(T)(
-                                 (w * v.x) + (y * v.z) - (z * v.y),
-                                 (w * v.y) + (z * v.x) - (x * v.z),
-                                 (w * v.z) + (x * v.y) - (y * v.x),
-                               - (x * v.x) - (y * v.y) - (z * v.z)
-                              );
+                   (w * v.x) + (y * v.z) - (z * v.y),
+                   (w * v.y) + (z * v.x) - (x * v.z),
+                   (w * v.z) + (x * v.y) - (y * v.x),
+                   - (x * v.x) - (y * v.y) - (z * v.z)
+               );
         return this;
     }
 
@@ -174,12 +174,12 @@ public:
     }
 
     /**
-	 *  Zero property, for more sweet usability
-	 */
-	@property static Quaternion!(T) zero() pure nothrow @safe
-	{
-		return Quaternion!(T).init;
-	}
+     *  Zero property, for more sweet usability
+     */
+    @property static Quaternion!(T) zero() pure nothrow @safe
+    {
+        return Quaternion!(T).init;
+    }
 
     @property string toString() const
     {
@@ -189,11 +189,11 @@ public:
     }
 
     /**
-	 *  Get normalized copy
-	 */
+     *  Get normalized copy
+     */
     @property Quaternion!(T) normalized() const pure nothrow @safe
     {
-        T length = sqrt (x * x + y * y + z * z + w * w);
+        T length = this.length;
         return Quaternion!(T)(x / length, y / length, z / length, w / length);
     }
 
@@ -230,20 +230,12 @@ public:
      */
     @property Quaternion!(T) conjugate() const pure nothrow @safe
     {
-       return Quaternion!(T)(-x, -y, -z, w);
+        return Quaternion!(T)(-x, -y, -z, w);
     }
-
-/*
- *  Why shouldn't we make the elements public?
- *  I think we should make the array private and
- *  the struct public, so it will be more convenient
- *  to get an access to the elements
- */
-public:
 
     union
     {
-		T[4] components = [cast(T)0, cast(T)0, cast(T)0, cast(T)0];
+        T[4] components = [cast(T)0, cast(T)0, cast(T)0, cast(T)0];
 
         struct
         {
@@ -264,11 +256,11 @@ if( is (U:T) )
     const T cosHalfAngle = cos (cast(T)angle/2);
 
     Quaternion!(T) rotationQuaternion = Quaternion!(T)(
-                                                        axis.x * sinHalfAngle,
-                                                        axis.y * sinHalfAngle,
-                                                        axis.z * sinHalfAngle,
-                                                        cosHalfAngle
-                                                    );
+                                            axis.x * sinHalfAngle,
+                                            axis.y * sinHalfAngle,
+                                            axis.z * sinHalfAngle,
+                                            cosHalfAngle
+                                        );
 
     Quaternion!(T) conjugateQuaternion = rotationQuaternion.conjugate;
 
@@ -278,18 +270,17 @@ if( is (U:T) )
 
 unittest
 {
-	// Testing default zero initialization
-	Quaternionf a = Quaternionf();
-	assert([0.0f, 0.0f, 0.0f, 0.0f] == a.components);
-	Quaternionf b;
-	assert([0.0f, 0.0f, 0.0f, 0.0f] == b.components);
-	assert([0.0f, 0.0f, 0.0f, 0.0f] == (Quaternionf.init).components);
-	// TODO why folowing assertion is failed?
-	//assert(Quaternionf.zero == Quaternionf.init);
+    // Testing default zero initialization
+    Quaternionf a = Quaternionf();
+    assert([0.0f, 0.0f, 0.0f, 0.0f] == a.components);
+    Quaternionf b;
+    assert([0.0f, 0.0f, 0.0f, 0.0f] == b.components);
+    assert([0.0f, 0.0f, 0.0f, 0.0f] == (Quaternionf.init).components);
+    assert(Quaternionf.zero == Quaternionf.init);
 
 
-	assert([0.0f, 0.0f, 0.0f, 0.0f] == (Quaternionf.init).components);
-	assert([0.0, 0.0, 0.0, 0.0] == (Quaterniond.init).components);
+    assert([0.0f, 0.0f, 0.0f, 0.0f] == (Quaternionf.init).components);
+    assert([0.0, 0.0, 0.0, 0.0] == (Quaterniond.init).components);
 }
 
 unittest

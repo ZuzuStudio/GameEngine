@@ -397,12 +397,12 @@ SquareMatrix!(T, 4) initRotationTransformation (T) (Vector!(T, 3) data) pure not
  */
 SquareMatrix!(T, 4) initPositionTransformation (T) (T x, T y, T z) pure nothrow
 {
-   auto result = SquareMatrix!(T, 4).identity;
-   result.a14 = x;
-   result.a24 = y;
-   result.a34 = z;
+    auto result = SquareMatrix!(T, 4).identity;
+    result.a14 = x;
+    result.a24 = y;
+    result.a34 = z;
 
-   return result;
+    return result;
 }
 
 SquareMatrix!(T, 4) initPositionTransformation (T) (Vector!(T, 3) data) pure nothrow
@@ -450,7 +450,7 @@ SquareMatrix!(T, 4) initPerspectiveTransformation (T) (T angle, T width, T heigh
     T tangentHalf = tan (angle / 360.0f * PI);
 
     auto result = SquareMatrix!(T, 4)().diagonal(1.0f / (ratio * tangentHalf), 1.0f / tangentHalf,
-                                      (-near - far) / range, 0.0f );
+                  (-near - far) / range, 0.0f );
     result.a34 = 2.0f * far * near / range;
     result.a43 = 1.0f;
 
@@ -566,14 +566,14 @@ unittest
         0, 0, 3
     ));
     assert(Matrix4x4f.diagonal(1.5, 2, 3, 4.0f) == Matrix4x4f(
-    	                                             1.5, 0, 0, 0,
-    	                                             0, 2f, 0, 0,
-    	                                             0, 0, 3f, 0,
-    	                                             0, 0, 0, 4
-    	));
-	//assert("lib.math.squarematrix.SquareMatrix!(float, 4).SquareMatrix" == typeid(Matrix4x4f.diagonal(1, 2, 3, 4)).toString());
-	//assert("lib.math.squarematrix.SquareMatrix!(float, 4).SquareMatrix" == typeid(Matrix4x4f.diagonal(1, 2.0, 3, 4)).toString());
-	//assert("lib.math.squarematrix.SquareMatrix!(float, 4).SquareMatrix" == typeid(Matrix4x4f.diagonal(1, 2, 3.0L, 4L)).toString());
+        1.5, 0, 0, 0,
+        0, 2f, 0, 0,
+        0, 0, 3f, 0,
+        0, 0, 0, 4
+    ));
+    //assert("lib.math.squarematrix.SquareMatrix!(float, 4).SquareMatrix" == typeid(Matrix4x4f.diagonal(1, 2, 3, 4)).toString());
+    //assert("lib.math.squarematrix.SquareMatrix!(float, 4).SquareMatrix" == typeid(Matrix4x4f.diagonal(1, 2.0, 3, 4)).toString());
+    //assert("lib.math.squarematrix.SquareMatrix!(float, 4).SquareMatrix" == typeid(Matrix4x4f.diagonal(1, 2, 3.0L, 4L)).toString());
     assert( Matrix3x3f(
         1.5, 0f, 0f,
         0f, 0f, 0f,

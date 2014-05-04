@@ -18,7 +18,6 @@ public:
     {
         mass = 1.0f;
         invMass = 1.0f;
-
         /*  Default zero initialization for
          *
          *  - position
@@ -31,7 +30,6 @@ public:
          *  - angularAcceleration;
          *  - torqueAccumulator;
          */
-
         inertia = Matrix3x3f.identity;
         invInertia = Matrix3x3f.identity;
 
