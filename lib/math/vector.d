@@ -11,6 +11,7 @@ private
 /**
  * Predefined vector types
  */
+alias Vector2i = Vector!(int, 2);
 alias Vector2f = Vector!(float, 2);
 alias Vector3f = Vector!(float, 3);
 alias Vector4f = Vector!(float, 4);
@@ -134,9 +135,9 @@ public:
     }
 
     /**
-     *  Assign index operator Vector(T, size)[i, j] = T
+     *  Assign index operator Vector(T, size)[i] = value
      */
-    T opIndexAssign (this vector)(T t, size_t index) pure nothrow @safe
+    T opIndexAssign (this vector)(T value, size_t index) pure nothrow @safe
     in
     {
         assert ((0 <= index) && (index < size),
@@ -144,7 +145,7 @@ public:
     }
     body
     {
-        return coordinates[index] = t;
+        return coordinates[index] = value;
     }
 
     /**

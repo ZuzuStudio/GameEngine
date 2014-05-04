@@ -1,4 +1,4 @@
-module lib.math.squarematrix;
+module squarematrix;
 
 private
 {
@@ -7,6 +7,7 @@ private
     import std.range;
     import std.traits;
     import std.algorithm;
+    import std.math;
 }
 import lib.math.vector;
 
@@ -259,6 +260,15 @@ public:
         return writer.data;
     }
 
+    /**
+     *  Necessary fot GL functions
+     */
+    @property T* ptr()
+    {
+        return matrix.ptr;
+    }
+
+
 private:
 
     /**
@@ -337,6 +347,126 @@ private:
     }
 };
 
+/**
+ *  Scale transformations generator
+ */
+Matrix4x4f initScaleTransformation(float x, float y, float z) pure nothrow
+{
+    return Matrix4x4f().diagonal(x, y, z, 1.0f);
+}
+
+Matrix4x4f initScaleTransformation(Vector3f data) pure nothrow
+{
+    return Matrix4x4f().diagonal(data.x, data.y, data.z, 1.0f);
+}
+
+/**
+ *  Rotation transformations generator.
+ *  Arguments are angles measured in RADIANS
+ */
+Matrix4x4f initRotationTransformation (float x, float y, float z) pure nothrow
+{
+    Matrix4x4f overX = Matrix4x4f.identity;
+    Matrix4x4f overY = Matrix4x4f.identity;
+    Matrix4x4f overZ = Matrix4x4f.identity;
+
+    overX.a22 = cos(x);
+    overX.a23 = -sin(x);
+    overX.a32 = sin(x);
+    overX.a33 = cos(x);
+
+    overY.a11 = cos(y);
+    overY.a13 = -sin(y);
+    overY.a31 = sin(y);
+    overY.a33 = cos(y);
+
+    overZ.a11 = cos(z);
+    overZ.a12 = -sin(z);
+    overZ.a21 = sin(z);
+    overZ.a22 = cos(z);
+
+    return overZ * overY * overX;
+}
+
+Matrix4x4f initRotationTransformation(Vector3f data) pure nothrow
+{
+    return initRotationTransformation(data.x, data.y, data.z);
+}
+/**
+ *  Position transformations generator
+ */
+Matrix4x4f initPositionTransformation(float x, float y, float z) pure nothrow
+{
+   auto result = Matrix4x4f.identity;
+   result.a14 = x;
+   result.a24 = y;
+   result.a34 = z;
+
+   return result;
+}
+
+Matrix4x4f initPositionTransformation(Vector3f data) pure nothrow
+{
+    return initPositionTransformation(data.x, data.y, data.z);
+}
+
+/**
+ *  Camera transformations generator
+ */
+Matrix4x4f initCameraTransformation (Vector3f target, Vector3f up) pure nothrow
+{
+    auto N = target.normalized;
+    auto U = up.normalized;
+
+    U = cross(U, N);
+    auto V = cross(N, U);
+
+    auto result = Matrix4x4f.identity;
+    result.a11 = U.x;
+    result.a12 = U.y;
+    result.a13 = U.z;
+
+    result.a21 = V.x;
+    result.a22 = V.y;
+    result.a23 = V.z;
+
+    result.a31 = N.x;
+    result.a32 = N.y;
+    result.a33 = N.z;
+
+    return result;
+}
+
+/**
+ *  Perspective transformation generator
+ *  Angle is measured in DEGREES
+ */
+Matrix4x4f initPerspectiveTransformation (float angle, float width, float height, float nearestPlane, float farPlane)
+{
+    float ratio = width / height;
+    float near = nearestPlane;
+    float far = farPlane;
+    float range = near - far;
+    float tangentHalf = tan (angle / 360.0f * PI);
+
+    auto result = Matrix4x4f().diagonal(1.0f / (ratio * tangentHalf), 1.0f / tangentHalf,
+                                      (-near - far) / range, 0.0f );
+    result.a34 = 2.0f * far * near / range;
+    result.a43 = 1.0f;
+
+    return result;
+}
+
+Matrix4x4f initPerspectiveTransformation(float[] data)
+in
+{
+    assert (data.length == 5, "initPerspectiveTransformation: wrong array length");
+}
+body
+{
+    return initPerspectiveTransformation(data[0], data[1], data[2], data[3], data[4]);
+}
+
 unittest
 {
 // Testing constructors
@@ -349,6 +479,37 @@ unittest
 
 }
 
+unittest
+{
+// Testing special functions
+    auto matrix = initScaleTransformation(1.4f, 3.0f, 2.0f);
+    assert(matrix == Matrix4x4f(
+        1.4f, 0.0f, 0.0f, 0.0f,
+        0.0f, 3.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 2.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    ));
+
+    matrix = initPositionTransformation(2.0f, 3.0f, 2.5f);
+    assert(matrix == Matrix4x4f(
+        1.0f, 0.0f, 0.0f, 2.0f,
+        0.0f, 1.0f, 0.0f, 3.0f,
+        0.0f, 0.0f, 1.0f, 2.5f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    ));
+
+    matrix = initRotationTransformation(45.0f / 180.0f * PI, 0.0f, 30.0f / 180.0f * PI);
+    assert(matrix[0, 0] < 0.866f + 0.001f && matrix[0, 0] > 0.866f - 0.001f);
+    assert(matrix[1, 2] < -0.612f + 0.001f && matrix[1, 2] > -0.612f - 0.001f);
+
+    matrix = initPerspectiveTransformation(45.0f, 20.0f, 30.0f, 1.0f, 100.0f);
+    assert(matrix[0, 0] < 3.621f + 0.001f && matrix[0, 0] > 3.621f - 0.001f);
+    assert(matrix[2, 3] < -2.02f + 0.01f && matrix[1, 2] > -2.02f - 0.01f);
+
+    matrix = initCameraTransformation (Vector3f(1.0f, 2.0f, 1.4f), Vector3f(3.0f, 2.5f, 1.2f));
+    assert(matrix[0, 1] < -0.278f + 0.001f && matrix[0, 0] > -0.278f - 0.001f);
+    assert(matrix[1, 1] < -0.068f + 0.001f && matrix[1, 1] > -0.068f - 0.001f);
+}
 
 unittest
 {
@@ -391,10 +552,6 @@ unittest
 
 }
 
-unittest
-{
-    assert(Matrix2x2f(0.6, 0.8, -0.8, 0.6) * Matrix2x2f(0.6, -0.8, 0.8, 0.6) == Matrix2x2f.identity);
-}
 
 unittest
 {
@@ -414,9 +571,9 @@ unittest
     	                                             0, 0, 3f, 0,
     	                                             0, 0, 0, 4
     	));
-	assert("lib.math.squarematrix.SquareMatrix!(float, 4).SquareMatrix" == typeid(Matrix4x4f.diagonal(1, 2, 3, 4)).toString());
-	assert("lib.math.squarematrix.SquareMatrix!(float, 4).SquareMatrix" == typeid(Matrix4x4f.diagonal(1, 2.0, 3, 4)).toString());
-	assert("lib.math.squarematrix.SquareMatrix!(float, 4).SquareMatrix" == typeid(Matrix4x4f.diagonal(1, 2, 3.0L, 4L)).toString());
+	//assert("lib.math.squarematrix.SquareMatrix!(float, 4).SquareMatrix" == typeid(Matrix4x4f.diagonal(1, 2, 3, 4)).toString());
+	//assert("lib.math.squarematrix.SquareMatrix!(float, 4).SquareMatrix" == typeid(Matrix4x4f.diagonal(1, 2.0, 3, 4)).toString());
+	//assert("lib.math.squarematrix.SquareMatrix!(float, 4).SquareMatrix" == typeid(Matrix4x4f.diagonal(1, 2, 3.0L, 4L)).toString());
     assert( Matrix3x3f(
         1.5, 0f, 0f,
         0f, 0f, 0f,
