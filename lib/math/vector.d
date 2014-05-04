@@ -123,7 +123,7 @@ public:
     /**
      *  Index operator T = Vecrot(T, size)[index]
      */
-    T opIndex (this vector)(size_t index) pure nothrow @safe
+    T opIndex (this vector)(size_t index) const pure nothrow @safe
     in
     {
         assert ((0 <= index) && (index < size),
@@ -157,7 +157,7 @@ public:
 	}
 
     /**
-     *  Get Vector length squared
+     *  Get vector length squared
      */
     @property T lengthsqr() const pure nothrow @safe
     {
