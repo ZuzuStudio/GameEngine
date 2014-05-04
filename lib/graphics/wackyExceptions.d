@@ -32,3 +32,14 @@ class WackySimpleMeshException: Exception
         super(message);
     }
 }
+
+/**
+ *  Shader exception
+ */
+class WackyShaderProgramException: Exception
+{
+    public this(string message)
+    {
+        super(message);
+    }
+}

@@ -83,9 +83,14 @@ public:
     *   The parameter action() should contain all the objects to be rendered
     */
 
-    auto execute(alias action)(uint worldTransformationLocation)
+    auto execute(void delegate() action, uint WVPTransformationLocation)
     {
+
         float mainTime = glfwGetTime();
+
+        if (isVSyncEnabled)
+            glfwSwapInterval(1);
+
         while(!glfwWindowShouldClose(window))
         {
             if (isNextFrame(mainTime))
@@ -98,7 +103,7 @@ public:
                                         Vector3f(observer.getTarget),
                                         Vector3f(observer.getUp));
 
-                glUniformMatrix4fv(worldTransformationLocation, 1, GL_TRUE, pipeline.getWVPTransformation.ptr);
+                glUniformMatrix4fv(WVPTransformationLocation, 1, GL_TRUE, pipeline.getWVPTransformation.ptr);
 
                 action();
 
@@ -129,12 +134,33 @@ public:
      *  Setting MINIMAL time per frame.
      *  It may happen that the time segment is
      *  too short for a frame to be rendered,
-     *  so the segment is only a lower limit
-     *  for a frame rendering time
+     *  so the desired value is only a lower limit
+     *  for a frame rendering time.
+     *  If VSync is enabled, setting the value less than
+     *  (1 / monitor refresh frequency) will be senseless
      */
     auto setMinimalTimePerFrame(float seconds) pure nothrow
     {
         timePerFrame = seconds;
+    }
+
+    /**
+     *  Enables vertical synchronization.
+     *  If VSync is enabled, FPS is likely to
+     *  be the same as the user's monitor
+     *  refresh frequency or greater
+     */
+    auto enableVSync() pure nothrow
+    {
+        isVSyncEnabled = true;
+    }
+
+    /**
+     *  Disables vertical synchronization
+     */
+    auto disableVSync() pure nothrow
+    {
+        isVSyncEnabled = false;
     }
 
     /**
@@ -164,7 +190,7 @@ public:
 
         auto windowHeight() pure nothrow
         {
-            return width;
+            return height;
         }
 
         auto windowName() pure nothrow
@@ -186,6 +212,11 @@ public:
         {
             return exitAction;
         }
+
+        auto VSyncEnabled() nothrow
+        {
+            return isVSyncEnabled;
+        }
     }
 
 private:
@@ -201,6 +232,8 @@ private:
     static WackyActions exitAction = WackyActions.PRESS;
 
     float timePerFrame = 0.001f; // 0.001 second
+
+    bool isVSyncEnabled = false;
 
     /**
      *  The function does all necessary work for the render functioning
