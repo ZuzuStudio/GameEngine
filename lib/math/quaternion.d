@@ -80,7 +80,7 @@ public:
     if(op == "*" || op == "/")
     {
         Quaternion!(T) result = this;
-        mixin("return result "~op~"= scalar;");
+        mixin("return result " ~op~ "= scalar;");
     }
 
     /**
@@ -100,25 +100,11 @@ public:
     /**
      *  Binary operator +, -, * for two quaternions
      */
-    Quaternion!(T) opBinary(string op)(Quaternion!(T) right) pure nothrow @safe
+    Quaternion!(T) opBinary(string op)(Quaternion!(T) right) const pure nothrow @safe
     if(op == "+" || op == "-" || op == "*")
     {
         Quaternion!(T) result = this;
         mixin("return result" ~ op ~ "= right;");
-    }
-
-    /**
-     *  Binary operator * for a quaternion and a 3-dimensional vector
-     */
-    Quaternion!(T) opBinary (string op) (Vector!(T, 3) arg)
-    if (op == "*")
-    {
-        const T tempX =   (w * arg.x) + (y * arg.z) - (z * arg.y);
-        const T tempY =   (w * arg.y) + (z * arg.x) - (x * arg.z);
-        const T tempZ =   (w * arg.z) + (x * arg.y) - (y * arg.x);
-        const T tempW = - (x * arg.x) - (y * arg.y) - (z * arg.z);
-
-        return Quaternion!(T) (tempX, tempY, tempZ, tempW);
     }
 
     /**
@@ -132,7 +118,6 @@ public:
               "z " ~op ~ "= right.z;"
               "w " ~op ~ "= right.w;"
              );
-
         return this;
     }
 
@@ -149,7 +134,32 @@ public:
                    (z * right.w) + (w * right.z) + (x * right.y) - (y * right.x),
                    (w * right.w) - (x * right.x) - (y * right.y) - (z * right.z)
                );
+        return this;
+    }
 
+    /**
+     *  Binary operator * for a quaternion and a 3-dimensional vector
+     */
+    Quaternion!(T) opBinary (string op) (Vector!(T, 3) v) const pure nothrow @safe
+    if (op == "*")
+    {
+        Quaternion!(T) result = this;
+        result *= v;
+        return result;// *= v;
+    }
+
+    /**
+     *  Binary operator *= for a quaternion and a 3-dimensional vector
+     */
+    ref Quaternion!(T) opOpAssign (string op) (Vector!(T, 3) v) pure nothrow @safe
+    if (op == "*")
+    {
+        this = Quaternion!(T)(
+                                 (w * v.x) + (y * v.z) - (z * v.y),
+                                 (w * v.y) + (z * v.x) - (x * v.z),
+                                 (w * v.z) + (x * v.y) - (y * v.x),
+                               - (x * v.x) - (y * v.y) - (z * v.z)
+                              );
         return this;
     }
 
@@ -171,37 +181,58 @@ public:
 		return Quaternion!(T).init;
 	}
 
-    @property string toString()
+    @property string toString() const
     {
         auto writer = appender!string();
         formattedWrite(writer, "%s", components);
         return writer.data;
     }
 
-    @property Quaternion!(T) normalized() nothrow
+    /**
+	 *  Get normalized copy
+	 */
+    @property Quaternion!(T) normalized() const pure nothrow @safe
     {
-        const T length = sqrt (x * x + y * y + z * z + w * w);
+        T length = sqrt (x * x + y * y + z * z + w * w);
         return Quaternion!(T)(x / length, y / length, z / length, w / length);
     }
 
-    @property T length() pure nothrow
+    /**
+     *  Set quaternion length to 1
+     */
+    void normalize() pure nothrow @safe
     {
-        return sqrt(x * x + y * y + z * z + w * w);
-    }
-
-    @property Quaternion!(T) conjugate()
-    {
-       return Quaternion!(T)(-x, -y, -z, w);
-    }
-
-    void normalize() pure nothrow
-    {
-        const T length = sqrt (x * x + y * y + z * z + w * w);
+        T length = this.length;
         x /= length;
         y /= length;
         z /= length;
         w /= length;
     }
+
+    /**
+     *  Get quaternion length
+     */
+    @property T length() const pure nothrow @safe
+    {
+        return sqrt(this.lengthsqr);
+    }
+
+    /**
+     *  Get quaternion length squared
+     */
+    @property T lengthsqr() const pure nothrow @safe
+    {
+        return x * x + y * y + z * z + w * w;
+    }
+
+    /**
+     *  Returns conjugate quaternion
+     */
+    @property Quaternion!(T) conjugate() const pure nothrow @safe
+    {
+       return Quaternion!(T)(-x, -y, -z, w);
+    }
+
 /*
  *  Why shouldn't we make the elements public?
  *  I think we should make the array private and
@@ -226,23 +257,23 @@ public:
  *  The angle is measured in RADIANS
  *
  */
-Vector3f rotate (Vector3f processed, Vector3f axis, float angle)
+Vector!(T, 3) rotate(T, U) (Vector!(T, 3) processed, Vector!(T, 3) axis, U angle)
+if( is (U:T) )
 {
-    const float sinHalfAngle = sin (angle/2);
-    const float cosHalfAngle = cos (angle/2);
+    const T sinHalfAngle = sin (cast(T)angle/2);
+    const T cosHalfAngle = cos (cast(T)angle/2);
 
-    float tempX = axis.x * sinHalfAngle;
-    float tempY = axis.y * sinHalfAngle;
-    float tempZ = axis.z * sinHalfAngle;
-    float tempW = cosHalfAngle;
+    Quaternion!(T) rotationQuaternion = Quaternion!(T)(
+                                                        axis.x * sinHalfAngle,
+                                                        axis.y * sinHalfAngle,
+                                                        axis.z * sinHalfAngle,
+                                                        cosHalfAngle
+                                                    );
 
-    auto rotationQuaternion = Quaternionf(tempX, tempY, tempZ, tempW);
+    Quaternion!(T) conjugateQuaternion = rotationQuaternion.conjugate;
 
-    Quaternionf conjugateQuaternion = rotationQuaternion.conjugate;
-
-    Quaternionf result = rotationQuaternion * processed * conjugateQuaternion;
-
-    return Vector3f(result.x, result.y, result.z);
+    Quaternion!(T) result = rotationQuaternion * processed * conjugateQuaternion;
+    return Vector!(T, 3)(result.x, result.y, result.z);
 }
 
 unittest
@@ -281,7 +312,7 @@ unittest
 
     assert(3f * q  == Quaternionf(3.0, 6.0, 9.0, 1.5));
 
-    auto q3 = Quaternionf(1.0f, 2.0f, 3.0f, 5.0f) * Vector3f(2.0f, 3.0f, 5.0f);
+    Quaternionf q3 = Quaternionf(1.0f, 2.0f, 3.0f, 5.0f) *= Vector3f(2.0f, 3.0f, 5.0f);
     assert(q3 == Quaternionf(11.0f, 16.0f, 24.0f, -23.0f));
 }
 
