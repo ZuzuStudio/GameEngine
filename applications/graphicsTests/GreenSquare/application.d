@@ -15,7 +15,7 @@ import lib.graphics.wackySimpleMesh;
 void main()
 {
     // Creates the context for OpenGL
-    WackyRender engine = new WackyRender(640, 480, "Triangle", WackyWindowMode.WINDOW_MODE);
+    WackyRender engine = new WackyRender("Triangle", WackyWindowMode.WINDOW_MODE, 640, 480);
 
     // Initializes the engine's variables with optimal values
     // [not necessary]
@@ -33,7 +33,6 @@ void main()
 
     // Uses the obtained program
     shader.useShaderProgram();
-
 
     // Creates a simple mesh without any textures. The color
     // should be defined in the fragment shader

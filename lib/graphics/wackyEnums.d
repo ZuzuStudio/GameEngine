@@ -17,6 +17,13 @@ enum WackyWindowMode
 }
 
 /**
+ *  The enum contains some specific values
+ */
+enum WackyValues
+{
+    DEFAULT_VALUE = -1,
+}
+/**
  *  The enum represents the types of OpenGL shaders
  */
 enum WackyShaderTypes

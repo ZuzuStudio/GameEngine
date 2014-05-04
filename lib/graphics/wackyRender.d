@@ -28,7 +28,8 @@ public:
     static WackyPipeline pipeline;
     static WackyCamera observer;
 
-    this(int width, int height, string name, WackyWindowMode mode)
+    this(string name, WackyWindowMode mode,
+         int width = WackyValues.DEFAULT_VALUE, int height = WackyValues.DEFAULT_VALUE)
     {
         if (!DerelictGLFW3.isLoaded)
         {
@@ -243,10 +244,16 @@ private:
         if (glfwInit() == GL_FALSE)
             throw new WackyRenderException("Error while initializing GLFW3");
 
+        if (width == WackyValues.DEFAULT_VALUE && height == WackyValues.DEFAULT_VALUE)
+        {
+            this.width = width = glfwGetVideoMode(glfwGetPrimaryMonitor()).width;
+            this.height = height = glfwGetVideoMode(glfwGetPrimaryMonitor()).height;
+        }
+
         if (isBadResolution(width, height))
             throw new WackyRenderException("Invalid resolution");
 
-        GLFWmonitor* monitor;
+        GLFWmonitor* monitor = null;
         if (mode == WackyWindowMode.FULLSCREEN_MODE)
             monitor = glfwGetPrimaryMonitor();
 

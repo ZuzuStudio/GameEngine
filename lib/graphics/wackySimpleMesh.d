@@ -10,6 +10,7 @@ private
     import derelict.assimp3.assimp;
     import derelict.opengl3.gl3;
 
+    import wackyEnums;
     import wackyExceptions;
     import wackyTexture;
 
@@ -132,11 +133,11 @@ public:
     /**
      *  Draws the mesh
      */
-    auto render(uint meshTransformationLocation, uint samplerLocation = -1, Matrix4x4f transformation = Matrix4x4f.identity)
+    auto render(uint meshTransformationLocation, uint samplerLocation = WackyValues.DEFAULT_VALUE, Matrix4x4f transformation = Matrix4x4f.identity)
     {
         glUniformMatrix4fv(meshTransformationLocation, 1, GL_TRUE, transformation.ptr);
 
-        if (samplerLocation != -1)
+        if (samplerLocation != WackyValues.DEFAULT_VALUE)
             glUniform1i(samplerLocation, textureUnit);
 
         glBindVertexArray(VAO);
