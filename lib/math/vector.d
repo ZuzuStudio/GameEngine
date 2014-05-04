@@ -135,9 +135,9 @@ public:
     }
 
     /**
-     *  Assign index operator Vector(T, size)[i, j] = T
+     *  Assign index operator Vector(T, size)[i] = value
      */
-    T opIndexAssign (this vector)(T t, size_t index) pure nothrow @safe
+    T opIndexAssign (this vector)(T value, size_t index) pure nothrow @safe
     in
     {
         assert ((0 <= index) && (index < size),
@@ -145,7 +145,7 @@ public:
     }
     body
     {
-        return coordinates[index] = t;
+        return coordinates[index] = value;
     }
 
     /**
