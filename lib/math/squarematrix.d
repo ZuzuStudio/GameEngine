@@ -139,7 +139,7 @@ public:
     /**
     *  Operator * for square matrix and vector
     */
-    Vector!(T, size) opBinary(string op)(Vector!(T, size) right) pure nothrow @safe
+    Vector!(T, size) opBinary(string op)(Vector!(T, size) right) const pure nothrow @safe
     if(op == "*")
     {
         Vector!(T, size) result;
@@ -231,7 +231,7 @@ public:
      *   Returns diagonal square matrix
      */
     static SquareMatrix!(T, size) diagonal(T[] values...) pure nothrow @safe
-        in
+    in
     {
         assert (values.length == size, "SquareMatrix!(T, size): wrong arguments number for diagonal matrix!");
     }
