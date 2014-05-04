@@ -350,25 +350,25 @@ private:
 /**
  *  Scale transformations generator
  */
-Matrix4x4f initScaleTransformation(float x, float y, float z) pure nothrow
+SquareMatrix!(T, 4) initScaleTransformation (T)(T x, T y, T z) pure nothrow
 {
-    return Matrix4x4f().diagonal(x, y, z, 1.0f);
+    return SquareMatrix!(T,4).diagonal(x, y, z, 1.0f);
 }
 
-Matrix4x4f initScaleTransformation(Vector3f data) pure nothrow
+SquareMatrix!(T,4)  initScaleTransformation (T)(Vector!(T, 3) data) pure nothrow
 {
-    return Matrix4x4f().diagonal(data.x, data.y, data.z, 1.0f);
+    return SquareMatrix!(T,4).diagonal(data.x, data.y, data.z, 1.0f);
 }
 
 /**
  *  Rotation transformations generator.
  *  Arguments are angles measured in RADIANS
  */
-Matrix4x4f initRotationTransformation (float x, float y, float z) pure nothrow
+SquareMatrix!(T, 4) initRotationTransformation (T) (T x, T y, T z) pure nothrow
 {
-    Matrix4x4f overX = Matrix4x4f.identity;
-    Matrix4x4f overY = Matrix4x4f.identity;
-    Matrix4x4f overZ = Matrix4x4f.identity;
+    auto overX = SquareMatrix!(T, 4).identity;
+    auto overY = SquareMatrix!(T, 4).identity;
+    auto overZ = SquareMatrix!(T, 4).identity;
 
     overX.a22 = cos(x);
     overX.a23 = -sin(x);
@@ -388,16 +388,16 @@ Matrix4x4f initRotationTransformation (float x, float y, float z) pure nothrow
     return overZ * overY * overX;
 }
 
-Matrix4x4f initRotationTransformation(Vector3f data) pure nothrow
+SquareMatrix!(T, 4) initRotationTransformation (T) (Vector!(T, 3) data) pure nothrow
 {
     return initRotationTransformation(data.x, data.y, data.z);
 }
 /**
  *  Position transformations generator
  */
-Matrix4x4f initPositionTransformation(float x, float y, float z) pure nothrow
+SquareMatrix!(T, 4) initPositionTransformation (T) (T x, T y, T z) pure nothrow
 {
-   auto result = Matrix4x4f.identity;
+   auto result = SquareMatrix!(T, 4).identity;
    result.a14 = x;
    result.a24 = y;
    result.a34 = z;
@@ -405,7 +405,7 @@ Matrix4x4f initPositionTransformation(float x, float y, float z) pure nothrow
    return result;
 }
 
-Matrix4x4f initPositionTransformation(Vector3f data) pure nothrow
+SquareMatrix!(T, 4) initPositionTransformation (T) (Vector!(T, 3) data) pure nothrow
 {
     return initPositionTransformation(data.x, data.y, data.z);
 }
@@ -413,7 +413,7 @@ Matrix4x4f initPositionTransformation(Vector3f data) pure nothrow
 /**
  *  Camera transformations generator
  */
-Matrix4x4f initCameraTransformation (Vector3f target, Vector3f up) pure nothrow
+SquareMatrix!(T, 4) initCameraTransformation (T) (Vector!(T, 3) target, Vector!(T, 3) up) pure nothrow
 {
     auto N = target.normalized;
     auto U = up.normalized;
@@ -421,7 +421,7 @@ Matrix4x4f initCameraTransformation (Vector3f target, Vector3f up) pure nothrow
     U = cross(U, N);
     auto V = cross(N, U);
 
-    auto result = Matrix4x4f.identity;
+    auto result = SquareMatrix!(T, 4).identity;
     result.a11 = U.x;
     result.a12 = U.y;
     result.a13 = U.z;
@@ -441,15 +441,15 @@ Matrix4x4f initCameraTransformation (Vector3f target, Vector3f up) pure nothrow
  *  Perspective transformation generator
  *  Angle is measured in DEGREES
  */
-Matrix4x4f initPerspectiveTransformation (float angle, float width, float height, float nearestPlane, float farPlane)
+SquareMatrix!(T, 4) initPerspectiveTransformation (T) (T angle, T width, T height, T nearestPlane, T farPlane)
 {
-    float ratio = width / height;
-    float near = nearestPlane;
-    float far = farPlane;
-    float range = near - far;
-    float tangentHalf = tan (angle / 360.0f * PI);
+    T ratio = width / height;
+    T near = nearestPlane;
+    T far = farPlane;
+    T range = near - far;
+    T tangentHalf = tan (angle / 360.0f * PI);
 
-    auto result = Matrix4x4f().diagonal(1.0f / (ratio * tangentHalf), 1.0f / tangentHalf,
+    auto result = SquareMatrix!(T, 4)().diagonal(1.0f / (ratio * tangentHalf), 1.0f / tangentHalf,
                                       (-near - far) / range, 0.0f );
     result.a34 = 2.0f * far * near / range;
     result.a43 = 1.0f;
@@ -457,7 +457,7 @@ Matrix4x4f initPerspectiveTransformation (float angle, float width, float height
     return result;
 }
 
-Matrix4x4f initPerspectiveTransformation(float[] data)
+SquareMatrix!(T, 4) initPerspectiveTransformation (T) (T[] data)
 in
 {
     assert (data.length == 5, "initPerspectiveTransformation: wrong array length");
@@ -498,7 +498,7 @@ unittest
         0.0f, 0.0f, 0.0f, 1.0f
     ));
 
-    matrix = initRotationTransformation(45.0f / 180.0f * PI, 0.0f, 30.0f / 180.0f * PI);
+    matrix = initRotationTransformation(cast (float)( 45.0f / 180.0f * PI), 0.0f, cast (float) (30.0f / 180.0f * PI));
     assert(matrix[0, 0] < 0.866f + 0.001f && matrix[0, 0] > 0.866f - 0.001f);
     assert(matrix[1, 2] < -0.612f + 0.001f && matrix[1, 2] > -0.612f - 0.001f);
 
