@@ -1,5 +1,3 @@
-module lib.math.quaternion;
-
 private
 {
     import std.format;
@@ -7,8 +5,8 @@ private
     import std.range;
     import std.traits;
 }
-import lib.math.vector;
-import lib.math.squarematrix;
+import vector;
+import squarematrix;
 
 
 /**
@@ -191,7 +189,9 @@ public:
      */
     @property Quaternion!(T) normalized() const pure nothrow @safe
     {
-        return Quaternion!(T)(x / length, y / length, z / length, w / length);
+        auto result = Quaternion!(T)(this);
+        result.normalize();
+        return result;
     }
 
     /**
@@ -310,7 +310,11 @@ unittest
     Quaternionf q = Quaternionf(1.0f, 2.0f, 3.0f, 4.0f);
     q.normalize();
     assert(q.length < 1.0f + float.epsilon && q.length > 1.0f - float.epsilon);
-    assert (q.conjugate == Quaternionf(-q.x, -q.y, -q.z, q.w));
+    Quaternionf q1 = Quaternionf(1.0f, 2.0f, 3.0f, 4.0f);
+    auto q2 = q1.normalized;
+    assert(q1.x == 1.0f && q1.y == 2.0f && q1.z == 3.0f && q1.w == 4.0f);
+    assert(q2.length < 1.0f + float.epsilon && q2.length > 1.0f - float.epsilon);
+    assert(q.conjugate == Quaternionf(-q.x, -q.y, -q.z, q.w));
 }
 
 unittest
