@@ -143,9 +143,7 @@ public:
     Quaternion!(T) opBinary (string op) (Vector!(T, 3) v) const pure nothrow @safe
     if (op == "*")
     {
-        Quaternion!(T) result = this;
-        result *= v;
-        return result;// *= v;
+        return Quaternion!(T)(this) *= v;
     }
 
     /**
@@ -193,7 +191,6 @@ public:
      */
     @property Quaternion!(T) normalized() const pure nothrow @safe
     {
-        T length = this.length;
         return Quaternion!(T)(x / length, y / length, z / length, w / length);
     }
 
