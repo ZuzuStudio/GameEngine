@@ -191,6 +191,7 @@ public:
      */
     @property Quaternion!(T) normalized() const pure nothrow @safe
     {
+        auto length = this.length;
         return Quaternion!(T)(x / length, y / length, z / length, w / length);
     }
 
