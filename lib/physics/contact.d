@@ -1,5 +1,3 @@
-module lib.physics.contact.d;
-
 public import lib.physics.rigidbody;
 
 /**

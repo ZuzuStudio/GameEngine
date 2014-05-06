@@ -1,5 +1,3 @@
-module physics.rigidbody;
-
 public
 {
     import lib.math.vector;
