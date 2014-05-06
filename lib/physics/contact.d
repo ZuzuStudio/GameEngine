@@ -1,4 +1,4 @@
-module lib.physics.contact.d;
+module lib.physics.contact;
 
 public import lib.physics.rigidbody;
 

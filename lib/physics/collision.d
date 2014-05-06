@@ -1,4 +1,4 @@
-module lib.physics.collision.d;
+module lib.physics.collision;
 
 import lib.physics.contact;
 import lib.geometry.sphere;

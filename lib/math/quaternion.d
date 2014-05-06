@@ -1,3 +1,5 @@
+module lib.math.quaternion;
+
 private
 {
     import std.format;
@@ -5,8 +7,8 @@ private
     import std.range;
     import std.traits;
 }
-import vector;
-import squarematrix;
+import lib.math.vector;
+import lib.math.squarematrix;
 
 
 /**

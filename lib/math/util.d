@@ -1,3 +1,5 @@
+module lib.math.util;
+
 import std.math;
 import std.traits;
 

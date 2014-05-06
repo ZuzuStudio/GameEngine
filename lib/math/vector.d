@@ -1,3 +1,5 @@
+module lib.math.vector;
+
 private
 {
     import std.format;

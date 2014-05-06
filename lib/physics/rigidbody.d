@@ -1,4 +1,4 @@
-module physics.rigidbody;
+module lib.physics.rigidbody;
 
 public
 {

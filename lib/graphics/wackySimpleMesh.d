@@ -141,7 +141,7 @@ public:
             glUniform1i(samplerLocation, textureUnit);
 
         glBindVertexArray(VAO);
-        glDrawElementsBaseVertex(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, cast (void*) indices.ptr, 0);
+        glDrawElementsBaseVertex(GL_TRIANGLES, cast(uint)indices.length, GL_UNSIGNED_INT, cast (const(void)*) indices.ptr, 0);//
         glBindVertexArray(0);
     }
 
