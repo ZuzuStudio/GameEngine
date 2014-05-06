@@ -20,7 +20,7 @@ void main()
     // The resolution will be set by default
     WackyRender engine = new WackyRender("Models", WackyWindowMode.FULLSCREEN_MODE);
     WackyRenderInitializer.initialize(engine);
-    engine.observer.setStep(20.0f);
+    engine.observer.setStep(50.0f);
     engine.observer.setPosition(0.0f, 0.0f, -300.0f);
 
     WackyShaderProgram shader = new WackyShaderProgram;
@@ -82,7 +82,7 @@ void main()
 
         helicopter.render (shader.getUniformLocation("meshTransformation"),
                           shader.getUniformLocation("sampler"),
-                          initPositionTransformation(-30.0f, 0.0f, 0.0f)
+                          initPositionTransformation(-30.0f, cast (float) sin(step) * 50.0f, 0.0f)
                           * initRotationTransformation(0.0f, step, 0.0f)
                           * initScaleTransformation(0.07f, 0.07f, 0.07f));
 
