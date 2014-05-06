@@ -1,5 +1,3 @@
-module squarematrix;
-
 private
 {
     import std.conv;
@@ -9,7 +7,7 @@ private
     import std.algorithm;
     import std.math;
 }
-import lib.math.vector;
+import vector;
 
 
 alias Matrix2x2f = SquareMatrix!(float, 2);
