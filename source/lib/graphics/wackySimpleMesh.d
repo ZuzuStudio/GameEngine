@@ -10,9 +10,9 @@ private
     import derelict.assimp3.assimp;
     import derelict.opengl3.gl3;
 
-    import wackyEnums;
-    import wackyExceptions;
-    import wackyTexture;
+    import lib.graphics.wackyEnums;
+    import lib.graphics.wackyExceptions;
+    import lib.graphics.wackyTexture;
 
     import lib.math.squarematrix;
     import lib.math.vector;

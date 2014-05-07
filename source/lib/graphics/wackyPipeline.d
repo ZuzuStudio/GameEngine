@@ -1,10 +1,10 @@
-module wackyPipeline;
+module lib.graphics.wackyPipeline;
 
 private
 {
     import std.math: PI;
 
-    import wackyCamera: CameraData;
+    import lib.graphics.wackyCamera: CameraData;
 
     import lib.math.vector;
     import lib.math.squarematrix;

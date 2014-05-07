@@ -1,4 +1,4 @@
-module wackyExceptions;
+module lib.graphics.wackyExceptions;
 
 /**
  *  A common exception for the library

@@ -1,4 +1,4 @@
-module wackyCamera;
+module lib.graphics.wackyCamera;
 
 private
 {
@@ -6,7 +6,7 @@ private
 
     import derelict.glfw3.glfw3;
 
-    import wackyEnums;
+    import lib.graphics.wackyEnums;
 
     import lib.math.vector;
     import lib.math.quaternion;

@@ -1,4 +1,4 @@
-module wackyShaderProgram;
+module lib.graphics.wackyShaderProgram;
 
 private
 {
@@ -11,8 +11,8 @@ private
 
 public
 {
-    import wackyEnums;
-    import wackyExceptions;
+    import lib.graphics.wackyEnums;
+    import lib.graphics.wackyExceptions;
 }
 
 /**

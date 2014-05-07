@@ -1,4 +1,4 @@
-module wackyRender;
+module lib.graphics.wackyRender;
 
 private
 {
@@ -9,16 +9,16 @@ private
     import derelict.opengl3.gl3;
     import derelict.util.exception: DerelictException;
 
-    import wackyPipeline;
-    import wackyCamera;
+    import lib.graphics.wackyPipeline;
+    import lib.graphics.wackyCamera;
 
     import lib.math.vector;
 }
 
 public
 {
-    import wackyEnums;
-    import wackyExceptions;
+    import lib.graphics.wackyEnums;
+    import lib.graphics.wackyExceptions;
 }
 
 class WackyRender

@@ -1,4 +1,4 @@
-module wackyTexture;
+module lib.graphics.wackyTexture;
 
 private
 {
@@ -10,7 +10,7 @@ private
     import derelict.freeimage.freeimage;
     import derelict.opengl3.gl3;
 
-    import wackyExceptions;
+    import lib.graphics.wackyExceptions;
 }
 
 /**

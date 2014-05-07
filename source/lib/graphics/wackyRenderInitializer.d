@@ -1,6 +1,6 @@
-module wackyRenderInitializer;
+module lib.graphics.wackyRenderInitializer;
 
-private import wackyRender;
+private import lib.graphics.wackyRender;
 
 /**
  *  The class is designed for quick setup the WackyRender object.

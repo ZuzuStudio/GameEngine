@@ -1,4 +1,4 @@
-module wackyEnums;
+module lib.graphics.wackyEnums;
 
 private
 {
