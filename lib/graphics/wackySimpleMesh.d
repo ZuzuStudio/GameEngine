@@ -1,4 +1,4 @@
-module wackySimpleMesh;
+module lib.graphics.wackySimpleMesh;
 
 private
 {
@@ -19,7 +19,9 @@ private
 }
 
 /**
- *  A simplest mesh that supports single texture layer
+ *  A simplest mesh that supports single texture layer.
+ *  The class created just for demonstration
+ *  of the other engine's parts
  */
 class WackySimpleMesh
 {
@@ -135,6 +137,9 @@ public:
      */
     auto render(uint meshTransformationLocation, uint samplerLocation = WackyValues.DEFAULT_VALUE, Matrix4x4f transformation = Matrix4x4f.identity)
     {
+
+        bindTexture();
+
         glUniformMatrix4fv(meshTransformationLocation, 1, GL_TRUE, transformation.ptr);
 
         if (samplerLocation != WackyValues.DEFAULT_VALUE)
