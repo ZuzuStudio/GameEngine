@@ -1,0 +1,49 @@
+{
+	"name": "gameengine",
+	"description": "legendary physics and graphics engine write on D",
+	"authors": ["artemjackson", "HaraldZealot", "sanek95k"],
+	"homepage": "https://github.com/ZuzuStudio/GameEngine",
+	"license": "Apache-2.0",
+	"dependencies":
+	{
+		"derelict-gl3" : "~master",
+		"derelict-glfw3" : "~master",
+		"derelict-fi": "~master",
+		"derelict-assimp3": "~master"
+	},
+	"configurations": [
+		{
+			"name": "library",
+			"targetType": "library",
+			"targetPath": "build"
+		},
+		{
+			"name": "benchmarks",
+			"targetType": "executable",
+			"sourcePath": "applications/benchmarks",
+			"targetName": "simplebenchmark",
+			"targetPath": "build/benchmarks",
+		},
+		{
+			"name": "springphysics",
+			"targetType": "executable",
+			"sourcePath": "applications/springphysics",
+			"targetName": "springphysics",
+			"targetPath": "build/springphysics",
+		},
+		{
+			"name": "greensquare",
+			"targetType": "executable",
+			"sourcePath": "applications/graphicsTests/GreenSquare",
+			"targetName": "greensquare",
+			"targetPath": "build/greensquare",
+		},
+		{
+			"name": "md2models",
+			"targetType": "executable",
+			"sourcePath": "applications/MD2Models",
+			"targetName": "md2models",
+			"targetPath": "build/md2models",
+		}
+	]
+} 
