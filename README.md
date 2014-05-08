@@ -1,8 +1,8 @@
-#Game engine
+# Game engine
 
 Interrelated graphics and physics engines written on D.
 
-# License 
+## License
 
 Copyright (c) 2014 Aliaksand Kachurka, Aliaksei Stankevich, Artsiom Stsepanishchau
 
