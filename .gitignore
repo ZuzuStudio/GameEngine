@@ -11,3 +11,4 @@ obj/
 .dub/
 build/
 .directory
+.kateproject*
