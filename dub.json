@@ -23,28 +23,30 @@
 			"targetType": "executable",
 			"sourcePath": "applications/benchmarks",
 			"targetName": "simplebenchmark",
-			"targetPath": "build/benchmarks",
+			"targetPath": "build/benchmarks"
 		},
 		{
 			"name": "springphysics",
 			"targetType": "executable",
 			"sourcePath": "applications/springphysics",
 			"targetName": "springphysics",
-			"targetPath": "build/springphysics",
+			"targetPath": "build/springphysics"
 		},
 		{
 			"name": "greensquare",
 			"targetType": "executable",
 			"sourcePath": "applications/graphicsTests/GreenSquare",
 			"targetName": "greensquare",
-			"targetPath": "build/greensquare",
+			"targetPath": "applications/graphicsTests/GreenSquare",
+			"workingDirectory": "applications/graphicsTests/GreenSquare"
 		},
 		{
 			"name": "md2models",
 			"targetType": "executable",
 			"sourcePath": "applications/MD2Models",
 			"targetName": "md2models",
-			"targetPath": "build/md2models",
+			"targetPath": "applications/MD2Models",
+			"workingDirectory": "applications/MD2Models"
 		}
 	]
 } 
