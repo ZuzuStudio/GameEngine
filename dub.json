@@ -3,6 +3,7 @@
 	"description": "legendary physics and graphics engine write on D",
 	"authors": ["artemjackson", "HaraldZealot", "sanek95k"],
 	"homepage": "https://github.com/ZuzuStudio/GameEngine",
+	"copyright": "Copyright (c) 2014 Aliaksand Kachurka, Aliaksei Stankevich, Artsiom Stsepanishchau",
 	"license": "Apache-2.0",
 	"dependencies":
 	{
