@@ -137,8 +137,8 @@ public:
     }
 
     /**
-    *  Operator * for square matrix and vector
-    */
+     *  Operator * for square matrix and vector
+     */
     Vector!(T, size) opBinary(string op)(Vector!(T, size) right) const pure nothrow @safe
     if(op == "*")
     {
@@ -148,6 +148,23 @@ public:
         foreach(j; 0..size)
         {
             result[i] =  result[i] + matrix[i * size + j] * right[j];
+        }
+
+        return result;
+    }
+    
+    /**
+     *  Right sided operator * for square matrix and vector
+     */
+    Vector!(T, size) opBinaryRight(string op)(Vector!(T, size) left) const pure nothrow @safe
+    if(op == "*")
+    {
+        Vector!(T, size) result;
+
+        foreach(i; 0..size)
+        foreach(j; 0..size)
+        {
+            result[i] =  result[i] + left[i] * matrix[j * size + i];
         }
 
         return result;
