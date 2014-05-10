@@ -5,7 +5,7 @@ public {
     import lib.physics.rigidbody;
 }
 
-void solveContact(Contact c, float dt)
+void solveContact(Contact c, float dt) pure nothrow @safe
 {
     RigidBody body1 = c.body1;
     RigidBody body2 = c.body2;
