@@ -242,6 +242,47 @@ public:
         result.matrix[i * size + i] = values[i];
         return result;
     }
+    
+    /**
+     *  Horrible piece of crap, but it works.
+     *  Will be remade in better way in the nearest future 
+     */
+    static if (size == 3)
+    {  
+        /**
+         *  Returns inverse SquareMatrix 3x3
+         */
+        @property SquareMatrix!(T, size) inverse() pure nothrow @safe
+        {
+                T invDet = 1 / this.determinant;
+        
+                SquareMatrix!(T, size) result;
+        
+                result.a11 =  (a33 * a22 - a32 * a23) * invDet;
+                result.a12 = -(a33 * a12 - a32 * a13) * invDet;
+                result.a13 =  (a23 * a12 - a22 * a13) * invDet;
+            
+                result.a21 = -(a33 * a21 - a31 * a23) * invDet;
+                result.a22 =  (a33 * a11 - a31 * a13) * invDet;
+                result.a23 = -(a23 * a11 - a21 * a13) * invDet;
+        
+                result.a31 =  (a32 * a21 - a31 * a22) * invDet;
+                result.a32 = -(a32 * a11 - a31 * a12) * invDet;
+                result.a33 =  (a22 * a11 - a21 * a12) * invDet;
+        
+                return result;    
+         }
+        
+         /**
+          *  Returns determinant of SquareMatrix 3x3
+          */
+         @property T determinant() pure nothrow @safe
+         {  
+            return a11 * (a22 * a33 - a23 * a32)
+                 - a12 * (a21 * a33 - a23 * a31)
+                 + a13 * (a21 * a32 - a22 * a31);
+         }
+    } 
 
     @property string toString() const
     {
