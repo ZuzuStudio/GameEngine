@@ -18,10 +18,10 @@ public:
      *  Constructor with default parametrs.
      *  by default Vector3f, Quaternionf have zero values
      */
-    this(float mass = 0.0f, Vector3f position = Vector3f(), Quaternionf orientation = Quaternionf(), Geometry geometry = null) pure nothrow @safe
+    this(float mass, Vector3f position, Quaternionf orientation, Geometry geometry) pure nothrow @safe
     in
     {
-        assert(mass > float.epsilon, "RigidBody(float mass = 1.0f, Vector3f position = Vector3f(), Vector3f orientation = Vector3f(), Geometry geometry = null): Invalid mass vass value. Mass of rigib body should by more then float.epsilon");
+        assert(mass > float.epsilon, "RigidBody(float mass, Vector3f position, Vector3f orientation, Geometry geometry): Invalid mass vass value. Mass of rigib body should by more then float.epsilon");
     }
     body
     {
@@ -41,9 +41,8 @@ public:
          *  _torqueAccumulator;
          */
         _geometry = geometry;
-        
-        if(_geometry !is null)
-            setGeometry(_geometry);
+        _inertia = geometry.inertiaTensor(_mass);
+        _invInertia = _inertia.inverse;
     }
    
     void integrateForces(float dt) pure nothrow @safe
@@ -52,7 +51,7 @@ public:
         _linearVelocity += _linearAcceleration * dt;
 
 
-        _angularAcceleration = _inertia * _torqueAccumulator;
+        _angularAcceleration = _torqueAccumulator * _invInertia;
         _angularVelocity += _angularAcceleration * dt;
     }
 
@@ -64,17 +63,20 @@ public:
             _angularVelocity = Vector3f();  // by default it's a Vector3f(0, 0 , 0);
 
         _position += _linearVelocity * dt;
-        _orientation += 0.5f * Quaternionf(_angularVelocity, 0f) * _orientation * dt;
-        // orientation.normalize();
+        _orientation += 0.5f * Quaternionf(_angularVelocity, 0.0f) * _orientation * dt;
+        _orientation.normalize();
     }
-
-    void setGeometry(Geometry geometry) pure nothrow @safe
-    {
-        _geometry = geometry;
-
-        _inertia = geometry.inertiaTensor(_mass);
-        //  invInertia = inertia.inverse;
-    }
+    
+/*  Candidat for deletion
+*
+*    void setGeometry(Geometry geometry) pure nothrow @safe
+*    {
+*        _geometry = geometry;
+*
+*        _inertia = geometry.inertiaTensor(_mass);
+*        //  invInertia = inertia.inverse;
+*    }
+*/
 
     void applyForce(Vector3f force) pure nothrow @safe
     {
