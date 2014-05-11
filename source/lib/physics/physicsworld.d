@@ -1,7 +1,9 @@
 module lib.physics.physicsworld;
 public
 {
-    import lib.physics.rigidbody; 
+    import lib.physics.rigidbody;
+    import lib.physics.collision;
+    import lib.physics.solver; 
 }
 
 /**
@@ -23,9 +25,37 @@ public:
     {
         if (dynamicBodies.length == 0)
             return;
+        
+        findDynamicCollisions();
+        
+        solveContacts(dt);
+
+        foreach(dynamicBody; dynamicBodies)
+            dynamicBody.applyForce(gravitation * dynamicBody.mass);
+
+    
     }
 
 private:
+
+    void findDynamicCollisions() pure nothrow @safe
+    {
+        foreach(body1; dynamicBodies)
+            foreach(body2; dynamicBodies)
+            {
+                Contact c;
+                if(collided(body1.geometry, body2.geometry, c))
+                contacts ~= c;
+            }
+    }
+
+    void solveContacts(float dt) pure nothrow @safe
+    {
+        foreach(contact; contacts)
+            solveContact(contact, dt);
+    }
+    
+    Contact []contacts;
     RigidBody []dynamicBodies;
     Vector3f gravitation;
 }
