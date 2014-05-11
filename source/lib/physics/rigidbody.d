@@ -21,7 +21,7 @@ public:
     this(float mass, Vector3f position, Quaternionf orientation, Geometry geometry) pure nothrow @safe
     in
     {
-        assert(mass > float.epsilon, "RigidBody(float mass, Vector3f position, Vector3f orientation, Geometry geometry): Invalid mass vass value. Mass of rigib body should by more then float.epsilon");
+        assert(mass > float.epsilon, "RigidBody(float mass, Vector3f position, Vector3f orientation, Geometry geometry): Invalid mass value. Mass of rigib body should by more then float.epsilon");
     }
     body
     {
@@ -88,6 +88,11 @@ public:
         _torqueAccumulator += torque;
     }
     
+    void resetForces() pure nothrow @safe
+    {
+        _forceAccumulator = Vector3f(); // by default it's a Vector3f(0, 0 , 0);
+    }
+    
     /**
      *  Gettrs
      */
@@ -139,6 +144,11 @@ public:
     @property Vector3f angularAcceleration() pure nothrow @safe
     {
         return _angularAcceleration; 
+    }
+    
+    @property Geometry geometry() pure nothrow @safe
+    {
+        return _geometry; 
     }
     
 private:
