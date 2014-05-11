@@ -4,6 +4,21 @@ import lib.physics.contact;
 import lib.geometry.sphere;
 
 /**
+ *  I absolutly agree with your opinion:
+ *  it's horrible piece of crap.
+ *  But I need this wrapper 
+ */
+bool collided(Geometry geometry1, Geometry geometry2, ref Contact contact) pure nothrow @safe
+in
+{
+    assert(is (geometry1 : Sphere) && is (geometry2 : Sphere), "Unfortunatly function collided supports only spheres now");
+}
+body
+{
+    return CollisionSphereVsSphere(cast(Sphere)geometry1,cast(Sphere) geometry2, contact);
+}
+
+/**
  *  It's detects collisions beytween sphere vs sphere
  */
 bool CollisionSphereVsSphere(Sphere sphere1, Sphere sphere2, ref Contact contact) pure nothrow @safe
