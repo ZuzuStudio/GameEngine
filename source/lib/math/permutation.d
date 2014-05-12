@@ -29,10 +29,40 @@ public:
 		swap(newRepresentation, _cycleRepresentation);
 	}
 
-	ref Permutation opAssign(Permutation rhs)
+	/**
+	 *  Assign operator
+	 */
+	ref Permutation opAssign(Permutation rhs)pure nothrow @safe
 	{
 		swap(rhs, this);
 		return this;
+	}
+
+	/**
+	 *  Identity permutation of the size
+	 */
+	static Permutation identity(size_t size)pure nothrow @safe
+	{
+		return Permutation(size);
+	}
+
+	/**
+	 *  Transposition of the elements
+	 */
+	static Permutation transposition(size_t size, size_t a, size_t b)pure nothrow @safe
+	in
+	{
+		assert(0 <= a && a < size && 0 <= b && b < size, "transposed elements are out of bounds");
+	}
+	body
+	{
+		auto result = Permutation(size);
+		if(a != b)
+		{
+			++result._rank;
+			result._cycleRepresentation ~= [a, b];
+		}
+		return result;
 	}
 
 	@property size_t size()const pure nothrow @safe
@@ -114,6 +144,22 @@ public:
 		return result;
 	}
 
+	/**
+	 *  Composition of two permutation.
+	 */
+	Permutation opBinary(string op)(Permutation rhs)pure nothrow @safe
+	if(op == "*")
+	in
+	{
+		assert(size == rhs.size, "size of composed permutations missmatch");
+	}
+	body
+	{
+		auto result = Permutation(size);
+		// TODO
+		return result;
+	}
+
 private:
 	size_t[][] _cycleRepresentation;
 
@@ -154,8 +200,8 @@ private:
 Permutation invert(Permutation argument)pure nothrow @safe
 {
 	foreach(ref cycle; argument._cycleRepresentation)
-	for(auto i = 1; i < cycle.length; ++i)
-		swap(cycle[i], cycle[$-1]);
+	for(auto i = 1; i < cycle.length - i; ++i)
+		swap(cycle[i], cycle[$-i]);
 	return argument;
 }
 
@@ -168,16 +214,6 @@ unittest
 	p._cycleRepresentation ~= [0, 7, 5];
 	p._cycleRepresentation ~= [1, 3];
 	assert([7, 3, 2, 1, 4, 0, 6, 5] == p.arrayRepresentation);
-	import std.stdio;
-	writeln(p._cycleRepresentation);
-	writeln(p.cycleRepresentation);
-	auto m = p.matrixRepresentation;
-	foreach(const ref row; m)
-	{
-		foreach(e; row)
-		write(e?'1':'.');
-		writeln();
-	}
 }
 
 unittest
@@ -200,9 +236,8 @@ unittest
 	p._cycleRepresentation ~= [0, 7, 5];
 	p._cycleRepresentation ~= [1, 3];
 	p._cycleRepresentation ~= [2, 4, 6, 8, 9];
-
-	writeln(p.cycleRepresentation);
-	writeln(invert(p).cycleRepresentation);
+	assert([7, 3, 4, 1, 6, 0, 8, 5, 9, 2] == p.arrayRepresentation);
+	assert([5, 3, 9, 1, 2, 7, 4, 0, 6, 8] == invert(p).arrayRepresentation);
 }
 
 unittest
@@ -267,5 +302,23 @@ unittest
 	catch(AssertError ae)
 	{
 		assert(ae.msg == "cyclces hasn't ascending order");
+	}
+
+	try
+	{
+		auto p = Permutation.transposition(4, 2, 4);
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "transposed elements are out of bounds");
+	}
+
+	try
+	{
+		Permutation(3) * Permutation(2);
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "size of composed permutations missmatch");
 	}
 }
