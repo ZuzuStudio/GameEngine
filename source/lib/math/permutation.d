@@ -1,6 +1,7 @@
 module lib.math.permutation;
 
-import std.stdio;
+import std.stdio;// TODO <- delete
+import std.algorithm;
 
 struct Permutation
 {
@@ -24,14 +25,12 @@ public:
 	 */
 	this(this)pure nothrow @safe
 	{
-		import std.algorithm;
 		auto newRepresentation = selfCopy(_cycleRepresentation);
 		swap(newRepresentation, _cycleRepresentation);
 	}
 
 	ref Permutation opAssign(Permutation rhs)
 	{
-		import std.algorithm;
 		swap(rhs, this);
 		return this;
 	}
@@ -120,11 +119,21 @@ private:
 
 	pure nothrow @safe invariant()
 	{
-		size_t sum = 0;
+		auto distribution = new size_t[_size];
+		size_t previous = 0;
 		foreach(const ref cycle; _cycleRepresentation)
-		sum += cycle.length;
-		assert(sum <= _size);
-		// TODO
+		{
+			assert(previous <= cycle[0], "cyclces hasn't ascending order");
+			previous = cycle[0];
+			assert(cycle.length > 1, "fixed point cycle present");
+			foreach(e; cycle)
+			{
+				assert(e >= 0 && e < _size, "impossible member of permutation");
+				++distribution[e];
+				assert(distribution[e] == 1, "member of cycle isn't unique");
+				assert(cycle[0] <= e, "first element of cycle isn't minimal");
+			}
+		}
 	}
 
 	static size_t[][] selfCopy(const size_t[][] _cycleRepresentation)pure nothrow @safe
@@ -142,14 +151,22 @@ private:
 	}
 }
 
+Permutation invert(Permutation argument)pure nothrow @safe
+{
+	foreach(ref cycle; argument._cycleRepresentation)
+	for(auto i = 1; i < cycle.length; ++i)
+		swap(cycle[i], cycle[$-1]);
+	return argument;
+}
+
 unittest
 {
 	// Testing simple construction and inner representation
 	auto p = Permutation(8);
 	assert(p.size == 8);
 	assert([0, 1, 2, 3, 4, 5 ,6, 7] == p.arrayRepresentation);
-	p._cycleRepresentation ~= [1, 3];
 	p._cycleRepresentation ~= [0, 7, 5];
+	p._cycleRepresentation ~= [1, 3];
 	assert([7, 3, 2, 1, 4, 0, 6, 5] == p.arrayRepresentation);
 	import std.stdio;
 	writeln(p._cycleRepresentation);
@@ -165,6 +182,7 @@ unittest
 
 unittest
 {
+	// Testing postblit and assign
 	auto p = Permutation(3);
 	p._cycleRepresentation ~= [0, 1];
 	auto q = p;
@@ -173,4 +191,81 @@ unittest
 	assert(q != p);
 	p = q;
 	assert(q == p);
+}
+
+unittest
+{
+	// Testing inversion
+	auto p = Permutation(10);
+	p._cycleRepresentation ~= [0, 7, 5];
+	p._cycleRepresentation ~= [1, 3];
+	p._cycleRepresentation ~= [2, 4, 6, 8, 9];
+
+	writeln(p.cycleRepresentation);
+	writeln(invert(p).cycleRepresentation);
+}
+
+unittest
+{
+	// Testing contracts
+	import core.exception;
+
+	try
+	{
+		auto p = Permutation(3);
+		p._cycleRepresentation ~= [0, 2];
+		p._cycleRepresentation ~= [1];
+		p.arrayRepresentation;// for invariant call
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "fixed point cycle present");
+	}
+
+	try
+	{
+		auto p = Permutation(3);
+		p._cycleRepresentation ~= [0, 2, 3];
+		p.arrayRepresentation;// for invariant call
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "impossible member of permutation");
+	}
+
+	try
+	{
+		auto p = Permutation(4);
+		p._cycleRepresentation ~= [0, 2];
+		p._cycleRepresentation ~= [1, 2];
+		p.arrayRepresentation;// for invariant call
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "member of cycle isn't unique");
+	}
+
+	try
+	{
+		auto p = Permutation(5);
+		p._cycleRepresentation ~= [0, 2];
+		p._cycleRepresentation ~= [3, 1, 4];
+		p.arrayRepresentation;// for invariant call
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "first element of cycle isn't minimal");
+	}
+
+	try
+	{
+		auto p = Permutation(5);
+		p._cycleRepresentation ~= [1, 4, 3];
+		p._cycleRepresentation ~= [0, 2];
+		p.arrayRepresentation;// for invariant call
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "cyclces hasn't ascending order");
+	}
 }
