@@ -208,6 +208,8 @@ Permutation invert(Permutation argument)pure nothrow @safe
 unittest
 {
 	// Testing simple construction and inner representation
+	import std.traits;
+	assert(!__traits(compiles, {Permutation p;}));
 	auto p = Permutation(8);
 	assert(p.size == 8);
 	assert([0, 1, 2, 3, 4, 5 ,6, 7] == p.arrayRepresentation);
@@ -320,5 +322,107 @@ unittest
 	catch(AssertError ae)
 	{
 		assert(ae.msg == "size of composed permutations missmatch");
+	}
+}
+
+private struct FreeElementIterator
+{
+	@disable this();
+
+	this(size_t size)pure nothrow @safe
+	{
+		array = new bool[size];
+		current = 0;
+	}
+
+	void mark(size_t position)pure nothrow @safe
+	in
+	{
+		assert(position < array.length, "mark is out of bounds");
+	}
+	body
+	{
+		array[position] = true;
+	}
+
+	bool hasNext()pure nothrow @safe
+	{
+		while(current < array.length && array[current])
+			++current;
+		return current < array.length;
+	}
+
+	@property auto next()const pure nothrow @safe
+	in
+	{
+		assert(current < array.length, "calling next without checking hasNext");
+	}
+	body
+	{
+		return current;
+	}
+
+	bool[] array;
+	size_t current;
+}
+
+unittest
+{
+	// Testing simple constructor
+	import std.traits;
+	assert(!__traits(compiles, {FreeElementIterator it;}));
+	auto it = FreeElementIterator(4);
+	assert([0, 0, 0, 0] == it.array);
+	assert(0 == it.current);
+}
+
+unittest
+{
+	// Testing mark
+	auto it = FreeElementIterator(5);
+	it.mark(3);
+	assert([0, 0, 0, 1, 0] == it.array);
+}
+
+unittest
+{
+	// Testing hasNext
+	auto it = FreeElementIterator(5);
+	assert(it.hasNext() && it.current == 0);
+	it.mark(0);
+	it.mark(3);
+	it.mark(1);
+	assert(it.hasNext() && it.current == 2);
+	it.mark(2);
+	it.mark(4);
+	assert(!it.hasNext() && it.current == 5);
+}
+
+unittest
+{
+	// Testing contracts
+	import core.exception;
+
+	try
+	{
+		auto it = FreeElementIterator(4);
+		it.mark(4);
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "mark is out of bounds");
+	}
+
+	try
+	{
+		auto it = FreeElementIterator(2);
+		it.mark(0);
+		it.mark(1);
+		it.hasNext();
+		it.next;
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "calling next without checking hasNext");
 	}
 }
