@@ -60,7 +60,7 @@ public:
 		if(a != b)
 		{
 			++result._rank;
-			result._cycleRepresentation ~= [a, b];
+			result._cycleRepresentation ~= a < b ? [a, b] : [b, a];
 		}
 		return result;
 	}
@@ -147,7 +147,7 @@ public:
 	/**
 	 *  Composition of two permutation.
 	 */
-	Permutation opBinary(string op)(Permutation rhs)pure nothrow @safe
+	Permutation opBinary(string op)(Permutation rhs)const pure nothrow @safe
 	if(op == "*")
 	in
 	{
@@ -156,7 +156,27 @@ public:
 	body
 	{
 		auto result = Permutation(size);
-		// TODO
+		auto composedCycles = this._cycleRepresentation ~ rhs._cycleRepresentation;
+		auto it = FreeElementIterator(size);
+		while(it.hasNext())
+		{
+			size_t[] newCycle;
+			size_t element = it.next;
+
+			do
+			{
+				newCycle ~= element;
+				it.mark(element);
+				foreach(const ref cycle; composedCycles)
+				element = cycle.map(element);
+			}while(element != newCycle[0]);
+
+			if(newCycle.length > 1)
+			{
+				result._cycleRepresentation ~= newCycle;
+				result._rank += newCycle.length - 1;
+			}
+		}
 		return result;
 	}
 
@@ -233,6 +253,15 @@ unittest
 
 unittest
 {
+	// Testing identity and transposition
+	auto p = Permutation.identity(3);
+	assert([0, 1, 2] == p.arrayRepresentation);
+	auto q = Permutation.transposition(4, 2, 1);
+	assert([0, 2, 1, 3] == q.arrayRepresentation);
+}
+
+unittest
+{
 	// Testing inversion
 	auto p = Permutation(10);
 	p._cycleRepresentation ~= [0, 7, 5];
@@ -240,6 +269,51 @@ unittest
 	p._cycleRepresentation ~= [2, 4, 6, 8, 9];
 	assert([7, 3, 4, 1, 6, 0, 8, 5, 9, 2] == p.arrayRepresentation);
 	assert([5, 3, 9, 1, 2, 7, 4, 0, 6, 8] == invert(p).arrayRepresentation);
+}
+
+unittest
+{
+	// Testing composition
+	auto p = Permutation(9);
+	p._cycleRepresentation ~= [1, 4, 6, 3, 7];
+	p._cycleRepresentation ~= [2, 8];
+	auto q = Permutation(9);
+	q._cycleRepresentation ~= [1, 4, 7, 8];
+	q._cycleRepresentation ~= [2, 5, 3];
+	assert([[1, 7, 4, 6, 2], [3, 8, 5]] == (p * q)._cycleRepresentation);
+	assert([[1, 6, 3, 8, 4], [2, 5, 7]] == (q * p)._cycleRepresentation);
+}
+
+unittest
+{
+	// Testing representation
+	auto p = Permutation.transposition(4, 1, 2) * Permutation.transposition(4, 2, 3);
+	assert([0, 3, 1, 2] == p.arrayRepresentation);
+	assert([[1, 3, 2]] == p.cycleRepresentation);
+	assert([[1, 0, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0], [0, 0, 1, 0]] == p.matrixRepresentation);
+}
+
+unittest
+{
+	// Testing rank and determinant
+	assert(0 == Permutation.identity(27).rank);
+	assert(1 == Permutation.transposition(8, 2, 7).rank);
+	assert(3 == (Permutation.transposition(8, 2, 7) * Permutation.transposition(8, 3, 7) * Permutation.transposition(8, 4, 5)).rank);
+	assert(1 == (Permutation.transposition(8, 2, 7) * Permutation.transposition(8, 2, 7) * Permutation.transposition(8, 4, 5)).rank);
+	assert(1 == Permutation.identity(27).determinant);
+	assert(-1 == Permutation.transposition(8, 2, 7).determinant);
+	assert(-1 == (Permutation.transposition(8, 2, 7) * Permutation.transposition(8, 3, 7) * Permutation.transposition(8, 4, 5)).determinant);
+	assert(-1 == (Permutation.transposition(8, 2, 7) * Permutation.transposition(8, 2, 7) * Permutation.transposition(8, 4, 5)).determinant);
+}
+
+unittest
+{
+	// Some additional unittests
+	auto p = Permutation(9);
+	p._cycleRepresentation ~= [1, 4, 6, 3, 7];
+	p._cycleRepresentation ~= [2, 8];
+	assert(Permutation.identity(9) == p * invert(p));
+	assert(Permutation.identity(9) == invert(p) * p);
 }
 
 unittest
@@ -324,6 +398,8 @@ unittest
 		assert(ae.msg == "size of composed permutations missmatch");
 	}
 }
+
+///
 
 private struct FreeElementIterator
 {
@@ -425,4 +501,22 @@ unittest
 	{
 		assert(ae.msg == "calling next without checking hasNext");
 	}
+}
+
+///
+
+size_t map(const(size_t[]) cycle, size_t argument)pure nothrow @safe
+{
+	size_t current = 0;
+	while(current < cycle.length && cycle[current] != argument)
+		++current;
+	return current < cycle.length ? cycle[(current + 1) % cycle.length] : argument;
+}
+
+unittest
+{
+	assert(0 == [2, 3].map(0));
+	assert(3 == [2, 3].map(2));
+	assert(2 == [2, 3].map(3));
+	assert(4 == [1, 6, 0, 4, 9].map(0));
 }
