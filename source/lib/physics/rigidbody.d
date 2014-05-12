@@ -44,6 +44,16 @@ public:
         _inertia = geometry.inertiaTensor(_mass);
         _invInertia = _inertia.inverse;
     }
+    
+    @property Matrix4x4f transformation() pure nothrow @safe
+    {
+        Matrix4x4f composition;
+        
+        composition = position.toMatrix4x4();
+        composition = composition * orientation.toMatrix4x4();
+        
+        return composition;
+    }
    
     void integrateForces(float dt) pure nothrow @safe
     {
