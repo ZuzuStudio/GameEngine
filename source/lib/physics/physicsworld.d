@@ -26,18 +26,34 @@ public:
         if (dynamicBodies.length == 0)
             return;
         
+         foreach(dynamicBody; dynamicBodies){
+
+            dynamicBody.applyForce(gravitation * dynamicBody.mass);
+            dynamicBody.integrateForces(dt);
+            dynamicBody.resetForces();
+        }
+
         findDynamicCollisions();
         
         solveContacts(dt);
 
-        foreach(dynamicBody; dynamicBodies)
-            dynamicBody.applyForce(gravitation * dynamicBody.mass);
+        foreach(dynamicBodiy; dynamicBodies)
+        {
+            dynamicBodiy.integrateVelocities(dt);
+        }
+    }
 
-    
+    RigidBody getLinkToDynamicBody(size_t i) pure nothrow @safe
+    in
+    {
+        assert(i >= 0 && i < dynamicBodies.length, "RigidBody getBody(size_t i): out of bounds.");
+    }
+    body
+    {
+        return dynamicBodies[i];
     }
 
 private:
-
     void findDynamicCollisions() pure nothrow @safe
     {
         foreach(body1; dynamicBodies)
