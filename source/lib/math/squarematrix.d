@@ -138,7 +138,7 @@ public:
 
     /**
      *  Operator * for square matrix and vector
-     */
+     left[j]*/
     Vector!(T, size) opBinary(string op)(Vector!(T, size) right) const pure nothrow @safe
     if(op == "*")
     {
@@ -393,7 +393,7 @@ private:
          *   :   :   :   :      :
          *  aN1 aN2 aN3 aN4 .. aNN
          */
-        struct
+        public struct
         {
             mixin(elements("a"));
         }
