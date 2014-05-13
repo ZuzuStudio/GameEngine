@@ -392,7 +392,7 @@ private:
          *   :   :   :   :      :
          *  aN1 aN2 aN3 aN4 .. aNN
          */
-        public struct
+        public struct       // because one needs public access to elements
         {
             mixin(elements("a"));
         }
