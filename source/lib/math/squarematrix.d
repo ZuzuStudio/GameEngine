@@ -393,7 +393,7 @@ private:
          *   :   :   :   :      :
          *  aN1 aN2 aN3 aN4 .. aNN
          */
-        public struct
+        struct
         {
             mixin(elements("a"));
         }
