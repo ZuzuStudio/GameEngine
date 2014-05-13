@@ -328,7 +328,6 @@ public:
 
 
 private:
-
     /**
      *   Compile time identity matrix representation
      */
@@ -393,7 +392,7 @@ private:
          *   :   :   :   :      :
          *  aN1 aN2 aN3 aN4 .. aNN
          */
-        struct
+        public struct
         {
             mixin(elements("a"));
         }
