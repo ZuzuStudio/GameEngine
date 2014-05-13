@@ -3,6 +3,56 @@ module lib.math.permutation;
 import std.stdio;// TODO <- delete
 import std.algorithm;
 
+/**
+ * Mixin for implementation permutation of elements of some object
+ */
+mixin template CorePermute(alias object, alias set, alias get, alias cycles)
+{
+	foreach(const ref cycle; cycles)
+	{
+		auto temp = object.get(cycle[0]);
+		for(auto j = 0; j < cycle.length - 1; ++j)
+			object.set(cycle[j], object.get(cycle[j + 1]));
+		object.set(cycle[$-1], temp);
+	}
+}
+
+version(unittest)
+{
+int[4] getCluster(int[][] matrix, size_t index)
+{
+	auto rows = matrix.length, colls = matrix[0].length;
+	assert((rows & 1) == 0 && (colls & 1) == 0);
+	auto row = (index / (colls >> 1)) << 1, coll = (index % (colls >> 1)) << 1;
+	return [matrix[row][coll], matrix[row][coll + 1], matrix[row + 1][coll], matrix[row + 1][coll + 1]];
+}
+
+void setCluster(int[][] matrix, int[4] array, size_t index)
+{
+	auto rows = matrix.length, colls = matrix[0].length;
+	assert((rows & 1) == 0 && (colls & 1) == 0);
+	auto row = (index / (colls >> 1)) << 1, coll = (index % (colls >> 1)) << 1;
+	matrix[row][coll] = array[0];
+	matrix[row][coll + 1] = array[1];
+	matrix[row + 1][coll] = array[2];
+	matrix[row + 1][coll + 1] = array[3];
+}
+}
+
+unittest
+{
+
+
+	int[][] matrix = [[0, 1, 2, 3, 4, 5], [6, 7, 8, 9, 10, 11],
+	                  [12, 13, 14, 15, 16, 17], [18, 19, 20, 21, 22, 23]];
+	writeln(matrix.getCluster(2));
+	matrix.setCluster([4, 3, 2, 1], 3);
+	writeln(matrix);
+}
+
+/**
+ *  Calssical algebraic permutation
+ */
 struct Permutation
 {
 public:
