@@ -8,12 +8,15 @@ import std.algorithm;
  */
 mixin template CorePermute(alias object, alias set, alias get, alias cycles)
 {
-	foreach(const ref cycle; cycles)
+	void permute()
 	{
-		auto temp = object.get(cycle[0]);
-		for(auto j = 0; j < cycle.length - 1; ++j)
-			object.set(cycle[j], object.get(cycle[j + 1]));
-		object.set(cycle[$-1], temp);
+		foreach(const ref cycle; cycles)
+		{
+			auto temp = get(object, cycle[$-1]);
+			for(auto j = 0; j < cycle.length - 1; ++j)
+				set(object, cycle[j+1], get(object, cycle[j]));
+			set(object, cycle[0], temp);
+		}
 	}
 }
 
@@ -27,7 +30,7 @@ int[4] getCluster(int[][] matrix, size_t index)
 	return [matrix[row][coll], matrix[row][coll + 1], matrix[row + 1][coll], matrix[row + 1][coll + 1]];
 }
 
-void setCluster(int[][] matrix, int[4] array, size_t index)
+void setCluster(int[][] matrix, size_t index, int[4] array)
 {
 	auto rows = matrix.length, colls = matrix[0].length;
 	assert((rows & 1) == 0 && (colls & 1) == 0);
@@ -37,17 +40,39 @@ void setCluster(int[][] matrix, int[4] array, size_t index)
 	matrix[row + 1][coll] = array[2];
 	matrix[row + 1][coll + 1] = array[3];
 }
+
+int[][] permutationClusterBy(int[][] matrix, Permutation permutation)
+{
+	typeof(return) result;
+	result = matrix.dup;
+	foreach(i; 0..result.length)
+	result[i] = matrix[i].dup;
+	auto cycles = permutation.cycleRepresentation;
+	mixin CorePermute!(result, setCluster, getCluster, cycles);
+	permute();
+	return result;
+}
 }
 
 unittest
 {
+	auto p = Permutation(6);
+	p._cycleRepresentation ~= [0, 4];
+	p._cycleRepresentation ~= [2, 3, 5];
 
+	/*assert(
+	[[14, 15,  2,  3, 16, 17],
+	 [20, 21,  8,  9, 22, 23],
+	 [ 4,  5,  0,  1, 12, 13],
+	 [10, 11,  6,  7, 18, 19]]
 
-	int[][] matrix = [[0, 1, 2, 3, 4, 5], [6, 7, 8, 9, 10, 11],
-	                  [12, 13, 14, 15, 16, 17], [18, 19, 20, 21, 22, 23]];
-	writeln(matrix.getCluster(2));
-	matrix.setCluster([4, 3, 2, 1], 3);
-	writeln(matrix);
+	          ==*/
+	writeln(
+	[[ 0,  1,  2,  3,  4,  5],
+	 [ 6,  7,  8,  9, 10, 11],
+	 [12, 13, 14, 15, 16, 17],
+	 [18, 19, 20, 21, 22, 23]].permutationClusterBy(p)
+	);
 }
 
 /**
