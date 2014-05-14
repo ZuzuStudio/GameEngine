@@ -4,17 +4,35 @@ import std.stdio;// TODO <- delete
 import std.algorithm;
 
 /**
- * Mixin for implementation permutation of elements of some object
+ *  Mixin for implementation permutation of elements of some object in situ.
+ *
+ *  Object is any kind of set with order and elements are disjoint subsets
+ *  of the set which have position.
+ *
+ *  Objects has to provide two function: set(object, position, value) and
+ *  get(object, position) returns value.
+ *
+ *  Particulary implementation of permuttion has to follow next pattern:
+ *
+ *  (void | Object) permute(Object object, Permutation permutation)pure @safe
+ *  {
+ *      // possible checks
+ *      // prepare object (e.g. copy original for nonmutable version)
+ *      mixin CorePermute!(result, setElement, getElement, permutation);
+ *      permute();
+ *      return result; // if needed
+ *  }
  */
-mixin template CorePermute(alias object, alias set, alias get, alias cycles)
+mixin template CorePermute(alias object, alias set, alias get, alias permutation)
 {
-	void permute()
+	void permute()@safe
 	{
+		auto cycles = permutation.cycleRepresentation;
 		foreach(const ref cycle; cycles)
 		{
-			auto temp = get(object, cycle[$-1]);
-			for(auto j = 0; j < cycle.length - 1; ++j)
-				set(object, cycle[j+1], get(object, cycle[j]));
+			auto temp = get(object, cycle[$ - 1]);
+			for(auto j = cycle.length - 1; j > 0; --j)
+				set(object, cycle[j], get(object, cycle[j - 1]));
 			set(object, cycle[0], temp);
 		}
 	}
@@ -22,7 +40,7 @@ mixin template CorePermute(alias object, alias set, alias get, alias cycles)
 
 version(unittest)
 {
-int[4] getCluster(int[][] matrix, size_t index)
+int[4] getCluster(int[][] matrix, size_t index)pure nothrow @safe
 {
 	auto rows = matrix.length, colls = matrix[0].length;
 	assert((rows & 1) == 0 && (colls & 1) == 0);
@@ -30,7 +48,7 @@ int[4] getCluster(int[][] matrix, size_t index)
 	return [matrix[row][coll], matrix[row][coll + 1], matrix[row + 1][coll], matrix[row + 1][coll + 1]];
 }
 
-void setCluster(int[][] matrix, size_t index, int[4] array)
+void setCluster(int[][] matrix, size_t index, int[4] array)pure nothrow @safe
 {
 	auto rows = matrix.length, colls = matrix[0].length;
 	assert((rows & 1) == 0 && (colls & 1) == 0);
@@ -41,14 +59,13 @@ void setCluster(int[][] matrix, size_t index, int[4] array)
 	matrix[row + 1][coll + 1] = array[3];
 }
 
-int[][] permutationClusterBy(int[][] matrix, Permutation permutation)
+int[][] permutationClusterBy(int[][] matrix, Permutation permutation)pure @safe
 {
 	typeof(return) result;
 	result = matrix.dup;
 	foreach(i; 0..result.length)
 	result[i] = matrix[i].dup;
-	auto cycles = permutation.cycleRepresentation;
-	mixin CorePermute!(result, setCluster, getCluster, cycles);
+	mixin CorePermute!(result, setCluster, getCluster, permutation);
 	permute();
 	return result;
 }
@@ -60,14 +77,14 @@ unittest
 	p._cycleRepresentation ~= [0, 4];
 	p._cycleRepresentation ~= [2, 3, 5];
 
-	/*assert(
+	assert(
 	[[14, 15,  2,  3, 16, 17],
 	 [20, 21,  8,  9, 22, 23],
 	 [ 4,  5,  0,  1, 12, 13],
 	 [10, 11,  6,  7, 18, 19]]
 
-	          ==*/
-	writeln(
+	          ==
+
 	[[ 0,  1,  2,  3,  4,  5],
 	 [ 6,  7,  8,  9, 10, 11],
 	 [12, 13, 14, 15, 16, 17],
@@ -175,9 +192,9 @@ public:
 		foreach(const ref cycle; _cycleRepresentation)
 		{
 			auto temp = array[cycle[0]];
-			for(auto j = 0; j < cycle.length - 1; ++j)
+			for(auto j = 0; j < cycle.length - 1 ; ++j)
 				array[cycle[j]] = array[cycle[j + 1]];
-			array[cycle[$-1]] = temp;
+			array[cycle[$ - 1]] = temp;
 		}
 
 		return array;
@@ -198,12 +215,12 @@ public:
 	 *        [0, 1, 0, 0],
 	 *        [0, 0, 1, 0]]
 	 */
-	@property byte[][] matrixRepresentation()const pure nothrow @safe
+	@property ubyte[][] matrixRepresentation()const pure nothrow @safe
 	{
-		typeof(return) result = new byte[][size];
+		typeof(return) result = new ubyte[][size];
 		foreach(i; 0..result.length)
 		{
-			result[i] = new byte[size];
+			result[i] = new ubyte[size];
 			result[i][i] = 1;
 		}
 
@@ -212,7 +229,7 @@ public:
 			foreach(i; 0..cycle.length)
 			{
 				result[cycle[i]][cycle[i]] = 0;
-				result[cycle[i]][cycle[(i +1) %cycle.length]] = 1;
+				result[cycle[(i +1) %cycle.length]][cycle[i]] = 1;
 			}
 		}
 
@@ -221,6 +238,11 @@ public:
 
 	/**
 	 *  Composition of two permutation.
+	 *
+	 *  By convention of permutation analyse the composition is left-associative,
+	 *  i.e. in p*q*r the 'p' makes the first and the 'r' makes the last.
+	 *  N.B! The corresponding permutation matrices (P, Q and so on) are right-associative,
+	 *  as usual in math.
 	 */
 	Permutation opBinary(string op)(Permutation rhs)const pure nothrow @safe
 	if(op == "*")
@@ -253,6 +275,16 @@ public:
 			}
 		}
 		return result;
+	}
+
+	/**
+	 *  Composition of self and other permutations saved in self. Left associative.
+	 */
+	ref Permutation opOpAssign(string op)(Permutation rhs)
+	if(op == "*")
+	{
+		this = this * rhs;
+		return this;
 	}
 
 private:
@@ -292,6 +324,9 @@ private:
 	}
 }
 
+/**
+ *  Inversion of permutation
+ */
 Permutation invert(Permutation argument)pure nothrow @safe
 {
 	foreach(ref cycle; argument._cycleRepresentation)
@@ -361,11 +396,22 @@ unittest
 
 unittest
 {
+	// Testing '*=' operator
+	auto p = Permutation.transposition(4, 1, 2);
+	auto q = Permutation.transposition(4, 2, 3);
+
+	auto r = p;
+	r *= q;
+	assert(r == p * q);
+}
+
+unittest
+{
 	// Testing representation
 	auto p = Permutation.transposition(4, 1, 2) * Permutation.transposition(4, 2, 3);
 	assert([0, 3, 1, 2] == p.arrayRepresentation);
 	assert([[1, 3, 2]] == p.cycleRepresentation);
-	assert([[1, 0, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0], [0, 0, 1, 0]] == p.matrixRepresentation);
+	assert([[1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [0, 1, 0, 0]] == p.matrixRepresentation);
 }
 
 unittest
@@ -389,6 +435,60 @@ unittest
 	p._cycleRepresentation ~= [2, 8];
 	assert(Permutation.identity(9) == p * invert(p));
 	assert(Permutation.identity(9) == invert(p) * p);
+}
+
+unittest
+{
+	// Testing permute as process
+	int[] mul(const ubyte[][] matrix, int[] vector)pure nothrow @safe
+	{
+		assert(matrix[0].length == vector.length);
+		auto result = new int[matrix.length];
+		foreach(i; 0..result.length)
+		foreach(j; 0..vector.length)
+		result[i] += matrix[i][j] * vector[j];
+		return result;
+	}
+
+	int[] map(const size_t[] mapper, int[] vector)pure nothrow @safe
+	{
+		assert(mapper.length == vector.length);
+		int[] result = new int[vector.length];
+		for(auto i = 0; i < mapper.length; ++i)
+			result[mapper[i]] = vector[i];
+		return result;
+	}
+
+	int[] permuteBy(int[] vector, Permutation permutation)pure @safe
+	{
+		auto result = vector.dup;
+
+		void set(int[] vector, size_t position, int value)
+		{
+			vector[position] = value;
+		}
+
+		int get(int[] vector, size_t position)
+		{
+			return vector[position];
+		}
+
+		mixin CorePermute!(result, set, get, permutation);
+		permute();
+		return result;
+	}
+
+	auto p = Permutation.transposition(4, 1, 2);
+	auto q = Permutation.transposition(4, 2, 3);
+	auto r = p * q; //left associative
+
+	int[] vector = [-1, 2, 4, 9];
+	assert([-1, 4, 9, 2] == map(r.arrayRepresentation, vector));
+	assert([-1, 4, 9, 2] == mul(r.matrixRepresentation, vector));
+	assert([-1, 4, 9, 2] == permuteBy(vector, r));
+
+	auto P = p.matrixRepresentation, Q = q.matrixRepresentation;
+	assert([-1, 4, 9, 2] == mul(Q, mul(P, vector)));// right-associative
 }
 
 unittest
@@ -467,6 +567,16 @@ unittest
 	try
 	{
 		Permutation(3) * Permutation(2);
+	}
+	catch(AssertError ae)
+	{
+		assert(ae.msg == "size of composed permutations missmatch");
+	}
+
+	try
+	{
+		auto p = Permutation(3);
+		p *= Permutation(2);
 	}
 	catch(AssertError ae)
 	{
