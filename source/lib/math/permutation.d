@@ -1,6 +1,5 @@
 module lib.math.permutation;
 
-import std.stdio;// TODO <- delete
 import std.algorithm;
 
 /**
@@ -237,6 +236,15 @@ public:
 	}
 
 	/**
+	 *  Tanspose current permutation
+	 */
+	void transpose(size_t a, size_t b)pure nothrow @safe
+	{
+		// TODO more optimal algorithm for such case
+		this *= Permutation.transposition(size, a, b);
+	}
+
+	/**
 	 *  Composition of two permutation.
 	 *
 	 *  By convention of permutation analyse the composition is left-associative,
@@ -368,6 +376,9 @@ unittest
 	assert([0, 1, 2] == p.arrayRepresentation);
 	auto q = Permutation.transposition(4, 2, 1);
 	assert([0, 2, 1, 3] == q.arrayRepresentation);
+	auto r = Permutation(4);
+	r.transpose(2, 1);
+	assert(r == q);
 }
 
 unittest
