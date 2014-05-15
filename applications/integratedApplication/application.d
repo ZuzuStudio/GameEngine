@@ -52,7 +52,7 @@ void main()
     world.addDynamicBody(new RigidBody(    // id = 0
                              1.0f,  // mass
                              Vector3f(0f, 0f, 0f),   // position
-                             Quaternionf(0f, 0f, 0f, 0f), // orientation
+                             Quaternionf(0f, 0f, 0f, 1.0f), // orientation
                              new Sphere(Vector3f(0,0,0), 19.0f), 0.5f  // geometry
                             )
               );
@@ -60,7 +60,7 @@ void main()
     world.addDynamicBody(new RigidBody(    // id = 1
                              1.0f,  // mass
                              Vector3f(500,50,0),   // position
-                             Quaternionf(0,0,0,0), // orientation
+                             Quaternionf(0,0,0,1.0), // orientation
                              new Sphere(Vector3f(0,0,0),19.0f), 0.3f  // geometry
                             )
                          );
@@ -68,19 +68,19 @@ void main()
      world.addDynamicBody(new RigidBody(    // id = 2
                              1.0f,  // mass
                              Vector3f(-1000,-80,0),   // position
-                             Quaternionf(0,0,0,0), // orientation
+                             Quaternionf(0,0,0,1.0), // orientation
                              new Sphere(Vector3f(0,0,0),19f/2f), 0.3f  // geometry
                             )
                         );
 
     world.getDynamicBody(0).applyForce(Vector3f(0,0,0));
-    world.getDynamicBody(0).applyTorque(Vector3f(0,0,0));
+    world.getDynamicBody(0).applyTorque(Vector3f(5000,0,0));
 
     world.getDynamicBody(1).applyForce(Vector3f(-11000,-1200,0));
-    world.getDynamicBody(1).applyTorque(Vector3f(0,0,0));
+    world.getDynamicBody(1).applyTorque(Vector3f(2000,0,0));
 
     world.getDynamicBody(2).applyForce(Vector3f(16500,1000,0));
-    world.getDynamicBody(2).applyTorque(Vector3f(0,0,0));
+    world.getDynamicBody(2).applyTorque(Vector3f(-3000,0,0));
 
 
     auto scene = delegate()
