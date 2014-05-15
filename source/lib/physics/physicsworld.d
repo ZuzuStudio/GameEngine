@@ -3,7 +3,7 @@ public
 {
     import lib.physics.rigidbody;
     import lib.physics.collision;
-    import lib.physics.solver; 
+    import lib.physics.solver;
 }
 
 /**
@@ -25,7 +25,7 @@ public:
     {
         if (dynamicBodies.length == 0)
             return;
-        
+
          foreach(dynamicBody; dynamicBodies){
 
             dynamicBody.applyForce(gravitation * dynamicBody.mass);
@@ -34,7 +34,7 @@ public:
         }
 
         findDynamicCollisions();
-        
+
         solveContacts(dt);
 
         foreach(dynamicBodiy; dynamicBodies)
@@ -43,7 +43,7 @@ public:
         }
     }
 
-    RigidBody getLinkToDynamicBody(size_t i) pure nothrow @safe
+    RigidBody getDynamicBody(size_t i) pure nothrow @safe
     in
     {
         assert(i >= 0 && i < dynamicBodies.length, "RigidBody getBody(size_t i): out of bounds.");
@@ -70,7 +70,7 @@ private:
         foreach(contact; contacts)
             solveContact(contact, dt);
     }
-    
+
     Contact []contacts;
     RigidBody []dynamicBodies;
     Vector3f gravitation;
