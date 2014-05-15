@@ -72,7 +72,7 @@ public:
         Matrix4x4f composition;
 
         composition = position.toMatrix4x4();
-        composition = composition * orientation.toMatrix4x4();
+        composition = composition;// * orientation.toMatrix4x4();
 
         return composition;
     }
