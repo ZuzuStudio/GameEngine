@@ -7,6 +7,11 @@ public import lib.math.squarematrix;
  */
 abstract class Geometry
 {
+    this(Geometry original) pure nothrow @safe
+    {
+            transformation = original.transformation;
+    }
+
     Matrix4x4f transformation;
 
     this() pure nothrow @safe
