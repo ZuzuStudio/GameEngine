@@ -47,6 +47,15 @@
 			"targetName": "md2models",
 			"targetPath": "applications/MD2Models",
 			"workingDirectory": "applications/MD2Models"
-		}
+		},
+        {
+
+            "name": "intApp",
+            "targetType": "executable",
+            "sourcePath": "applications/integratedApplication",
+            "targetName": "integratedApplication",
+            "targetPath": "applications/integratedApplication",
+            "workingDirectory": "applications/integratedApplication"
+        }
 	]
 } 
