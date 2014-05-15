@@ -13,7 +13,7 @@ class PhysicsWorld{
 public:
     this(float gravitation = 9.81f) pure nothrow @safe
     {
-        this.gravitation = gravitation;
+        this.gravitation = Vector3f(0, -gravitation, 0);
     }
 
     void addDynamicBody(RigidBody dynamicBody) pure nothrow @safe
@@ -26,7 +26,7 @@ public:
         if (dynamicBodies.length == 0)
             return;
 
-         foreach(dynamicBody; dynamicBodies){
+        foreach(dynamicBody; dynamicBodies){
 
             dynamicBody.applyForce(gravitation * dynamicBody.mass);
             dynamicBody.integrateForces(dt);
@@ -34,7 +34,6 @@ public:
         }
 
         findDynamicCollisions();
-
         solveContacts(dt);
 
         foreach(dynamicBodiy; dynamicBodies)
@@ -56,12 +55,16 @@ public:
 private:
     void findDynamicCollisions() pure nothrow @safe
     {
-        foreach(body1; dynamicBodies)
-            foreach(body2; dynamicBodies)
+        for(int i = 0; i < dynamicBodies.length; ++i)
+            for(int j = i+1; j < dynamicBodies.length; ++j)
             {
                 Contact c;
-                if(collided(body1.geometry, body2.geometry, c))
-                contacts ~= c;
+                if(CollisionSphereVsSphere(dynamicBodies[i].geometry, dynamicBodies[j].geometry, c))
+                {
+                    c.body1 = dynamicBodies[i];
+                    c.body2 = dynamicBodies[j];
+                    contacts ~= c;
+                }
             }
     }
 
@@ -69,6 +72,7 @@ private:
     {
         foreach(contact; contacts)
             solveContact(contact, dt);
+        contacts.length = 0;
     }
 
     Contact []contacts;

@@ -6,6 +6,7 @@ public
     import lib.math.quaternion;
     import lib.math.squarematrix;
     import lib.geometry.geometry;
+    import lib.geometry.sphere;
 }
 
 /**
@@ -13,12 +14,13 @@ public
  */
 class RigidBody
 {
-public: 
+public:
+    //this(){}
     /**
      *  Constructor with default parametrs.
      *  by default Vector3f, Quaternionf have zero values
      */
-    this(float mass, Vector3f position, Quaternionf orientation, Geometry geometry) pure nothrow @safe
+    this(float mass, Vector3f position, Quaternionf orientation, Sphere /*Geometry*/ geometry, float bounce = 1.0f ) pure nothrow @safe
     in
     {
         assert(mass > float.epsilon, "RigidBody(float mass, Vector3f position, Vector3f orientation, Geometry geometry): Invalid mass value. Mass of rigib body should by more then float.epsilon");
@@ -29,7 +31,7 @@ public:
         _invMass = 1.0f / mass;
         _position = position;
         _orientation = orientation;
-        
+
         /*  Default zero initialization for:
          *
          *  _linearVelocity;
@@ -43,18 +45,38 @@ public:
         _geometry = geometry;
         _inertia = geometry.inertiaTensor(_mass);
         _invInertia = _inertia.inverse;
+        _bounce = bounce;
     }
-    
+
+    this(RigidBody original) pure nothrow @safe
+    in
+    {
+        assert(original !is null, "RigidBody(RigidBody original): originalequals to null!");
+
+    }
+    body
+    {
+        _mass = original._mass;
+        _invMass = original._invMass;
+        _position = original._position;
+        _orientation = original._orientation;
+
+        //TO DO
+        _geometry = new Sphere(original._geometry);
+        _inertia = original._inertia;
+        _invInertia = original._invInertia;
+    }
+
     @property Matrix4x4f transformation() pure nothrow @safe
     {
         Matrix4x4f composition;
-        
+
         composition = position.toMatrix4x4();
         composition = composition * orientation.toMatrix4x4();
-        
+
         return composition;
     }
-   
+
     void integrateForces(float dt) pure nothrow @safe
     {
         _linearAcceleration = _forceAccumulator * _invMass;
@@ -75,8 +97,10 @@ public:
         _position += _linearVelocity * dt;
         _orientation += 0.5f * Quaternionf(_angularVelocity, 0.0f) * _orientation * dt;
         _orientation.normalize();
+
+        this.updateGeometry();
     }
-    
+
 /*  Candidat for deletion
 *
 *    void setGeometry(Geometry geometry) pure nothrow @safe
@@ -97,12 +121,17 @@ public:
     {
         _torqueAccumulator += torque;
     }
-    
+
+    void updateGeometry() pure nothrow @safe
+    {
+        _geometry.center = this.position;
+    }
+
     void resetForces() pure nothrow @safe
     {
         _forceAccumulator = Vector3f(); // by default it's a Vector3f(0, 0 , 0);
     }
-    
+
     /**
      *  Gettrs
      */
@@ -110,57 +139,74 @@ public:
     {
         return _mass;
     }
-    
+
     @property float invMass() pure nothrow @safe
     {
         return _invMass;
     }
-    
+
     @property Vector3f position() pure nothrow @safe
     {
         return _position;
     }
-    
+
     @property Vector3f linearVelocity() pure nothrow @safe
     {
         return _linearVelocity;
     }
-    
+
     @property Vector3f linearAcceleration() pure nothrow @safe
     {
         return _linearAcceleration;
     }
-    
+
     @property Matrix3x3f inertia() pure nothrow @safe
     {
-        return _inertia; 
+        return _inertia;
     }
-    
+
     @property Matrix3x3f invInertia() pure nothrow @safe
     {
-        return _invInertia; 
+        return _invInertia;
     }
-    
+
     @property Quaternionf orientation() pure nothrow @safe
     {
-        return _orientation; 
+        return _orientation;
     }
-    
+
     @property Vector3f angularVelocity() pure nothrow @safe
     {
-        return _angularVelocity; 
+        return _angularVelocity;
     }
-    
+
     @property Vector3f angularAcceleration() pure nothrow @safe
     {
-        return _angularAcceleration; 
+        return _angularAcceleration;
     }
-    
-    @property Geometry geometry() pure nothrow @safe
+
+    @property float bounce() pure nothrow @safe
     {
-        return _geometry; 
+        return _bounce;
     }
-    
+
+    void applyLinearVelocity(Vector3f velocity) pure nothrow @safe
+    {
+        _linearVelocity += velocity;
+    }
+
+    void applyAngularVelocity(Vector3f velocity) pure nothrow @safe
+    {
+        _angularVelocity += velocity;
+    }
+
+
+    //TODO Fix it
+    @property Sphere geometry() pure nothrow @safe
+    {
+        return _geometry;
+    }
+
 private:
     float _mass;
     float _invMass;
@@ -179,5 +225,8 @@ private:
     Vector3f _angularAcceleration;
     Vector3f _torqueAccumulator;
 
-    Geometry _geometry;
+    Sphere _geometry;
+    //Geometry _geometry;
+
+    float _bounce;
 }
