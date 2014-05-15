@@ -72,7 +72,7 @@ public:
         Matrix4x4f composition;
 
         composition = position.toMatrix4x4();
-        composition = composition;// * orientation.toMatrix4x4();
+        composition = composition * orientation.toMatrix4x4();
 
         return composition;
     }
@@ -130,6 +130,7 @@ public:
     void resetForces() pure nothrow @safe
     {
         _forceAccumulator = Vector3f(); // by default it's a Vector3f(0, 0 , 0);
+        _torqueAccumulator = Vector3f(); // by default it's a Vector3f(0, 0 , 0);
     }
 
     /**
