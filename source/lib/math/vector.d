@@ -6,6 +6,7 @@ private
     import std.math;
     import std.range;
     import std.traits;
+    import lib.math.permutation;
 }
 
 /**
@@ -317,6 +318,39 @@ T distancesqr(T) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
     return difference.lengthsqr;
 }
 
+/**
+ *  Permutated copy (e.g. for solve equation)
+ */
+Vector!(T, size) permutationBy(T, size_t size)(Vector!(T, size) original, Permutation permutation)
+{
+	assert(size == permutation.size, "permutation size missmatch");
+	typeof(return) result = original;
+
+	void set(Vector!(T, size) object, size_t position, T value)
+	in
+	{
+		assert(position < size);
+	}
+	body
+	{
+		object.coordinates[position] = value;
+	}
+
+	T get(Vector!(T, size) object, size_t position)
+	in
+	{
+		assert(position < size);
+	}
+	body
+	{
+		return object.coordinates[position];
+	}
+
+	mixin CorePermute!(result, set, get, permutation);
+	permute();
+	return result;
+}
+
 unittest
 {
     // Testing default zero initialization
@@ -457,6 +491,11 @@ unittest
     assert(5.0 == Vector4f(3.0f, 0.0f, 4.0f, 0.0f).length);
     assert(0 == Vector!(int, 4)(3, 0, 4, 0).length);//TODO change semantics
     assert(Vector3f(0.6f, 0.0f, 0.8f) == Vector3f(3.0f, 0.0f, 4.0f).normalized);
+}
+
+unittest
+{
+	// Testing permuteBy;
 }
 
 unittest
