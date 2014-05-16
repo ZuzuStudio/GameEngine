@@ -201,7 +201,6 @@ public:
         _angularVelocity += velocity;
     }
 
-
     //TODO Fix it
     @property Sphere geometry() pure nothrow @safe
     {
