@@ -137,13 +137,14 @@ public:
      */
     auto render(uint meshTransformationLocation, uint samplerLocation = WackyValues.DEFAULT_VALUE, Matrix4x4f transformation = Matrix4x4f.identity)
     {
-
-        bindTexture();
-
+        if (textureUnit != -1)
+        {
+            bindTexture();
+            if (samplerLocation != WackyValues.DEFAULT_VALUE)
+                glUniform1i(samplerLocation, textureUnit);
+        }
         glUniformMatrix4fv(meshTransformationLocation, 1, GL_TRUE, transformation.ptr);
 
-        if (samplerLocation != WackyValues.DEFAULT_VALUE)
-            glUniform1i(samplerLocation, textureUnit);
 
         glBindVertexArray(VAO);
         glDrawElementsBaseVertex(GL_TRIANGLES, cast(uint)indices.length, GL_UNSIGNED_INT, cast (const(void)*) indices.ptr, 0);//

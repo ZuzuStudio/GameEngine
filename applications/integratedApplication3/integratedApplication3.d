@@ -23,7 +23,7 @@ void main()
     /**
      * Graphics settings
      */
-    WackyRender engine = new WackyRender("Collision", WackyWindowMode.FULLSCREEN_MODE);
+    WackyRender engine = new WackyRender("Collision", WackyWindowMode.WINDOW_MODE, 400, 400);
     WackyRenderInitializer.initialize(engine);
     engine.observer.setStep(50.0f);
     engine.observer.setPosition(0.0f, 0.0f, -300.0f);
@@ -33,12 +33,12 @@ void main()
     shader.attachShader("shaders/fragmentShader.glsl", WackyShaderTypes.FRAGMENT_SHADER);
     shader.linkShaderProgram();
     shader.useShaderProgram();
-    
+
     engine.observer.setPosition(-200, 100, -2000);
-    
-    /* container of speres meshses */
-    WackySimpleMesh []spheries;
-    
+
+    /* container of spheres meshses */
+    WackySimpleMesh []spheres;
+
     /* lenght of edge of cube concist of spheres */
 /*-----------------------------------------------*/
     int size = 8;
@@ -46,32 +46,30 @@ void main()
 
     foreach(i; 0..size * size * size ){
         WackySimpleMesh sphere = new WackySimpleMesh("models/sphere.md2");
-        sphere.setTexture("textures/wood.jpg");
-        spheries ~= sphere;
+        spheres ~= sphere;
     }
 
-    /* The Distroyers*/
-    WackySimpleMesh distroyers[];
-    
+    /* The Destroyers*/
+    WackySimpleMesh destroyers[];
+
 /*-----------------------------------------------*/
-    int distrNumber = 10; // number of destroyres
+    int destrNumber = 8; // number of destroyers
 /*-----------------------------------------------*/
-    foreach(i; 0..distrNumber){
-        WackySimpleMesh distroyer = new WackySimpleMesh("models/sphere.md2");
-        distroyer.setTexture("textures/metal.jpg");
-        distroyers ~= distroyer;
+    foreach(i; 0..destrNumber){
+        WackySimpleMesh destroyer = new WackySimpleMesh("models/sphere.md2");
+        destroyers ~= destroyer;
     }
 
-    spheries ~= distroyers;
-    
+    spheres ~= destroyers;
+
     engine.enableVSync();
-    
+
     /**
      *   Physics settings
      */
 
     PhysicsWorld world = new PhysicsWorld(0.0f);  // gravitation
-    
+
     foreach(x; 0..size)
     foreach(y; 0..size)
     foreach(z; 0..size)
@@ -80,48 +78,48 @@ void main()
                                            Vector3f(x*50, y*50, z*50),        // position
                                            Quaternionf(0,0,0,1),            // orientation
                                            new Sphere(Vector3f(), 19),    // sphere with radius 19
-                                           0.8);                              // bounce 
+                                           0.8);                              // bounce
 
             rb.applyTorque(Vector3f(x*10_000, y*10_000, z*10_000));
             world.addDynamicBody(rb);
     }
-     
-    /* The distroyers */
-    float k = 3;        // size koeff of big sphere (of Distroyers)
-    foreach(i; 0..distrNumber){
+
+    /* The destroyers */
+    float k = 3;        // size koeff of big sphere (of Destroyers)
+    foreach(i; 0..destrNumber){
         RigidBody rb = new RigidBody(10.0f, // mass
                                        Vector3f(size* i * 5, size * i * 5, -10_000 - i * 5_00),        // position
                                        Quaternionf(0,0,0,1),            // orientation
                                        new Sphere(Vector3f(), 19 * k),    // sphere with radius 19.0
-                                       1.0);                              // bounce 
-        
+                                       1.0);                              // bounce
+
         rb.applyForce(Vector3f(0,0,2_000_000));
         rb.applyTorque(Vector3f(i*10_000, i*10_000, i*10_000));
         world.addDynamicBody(rb);
     }
 
     auto scene = delegate()
-    {   
+    {
         foreach(i; 0..size * size * size)
         {
-            spheries[i].render (shader.getUniformLocation("meshTransformation"),
+            spheres[i].render (shader.getUniformLocation("meshTransformation"),
                             shader.getUniformLocation("sampler"),
                             world.getDynamicBody(i).transformation
                            );
-        }   
-        
-         foreach(i; size * size * size..size * size *size + distrNumber)
-        {
-            spheries[i].render (shader.getUniformLocation("meshTransformation"),
-                            shader.getUniformLocation("sampler"),
-                            world.getDynamicBody(i).transformation * initScaleTransformation(k, k, k) 
-                           );
-        }   
+        }
 
-  
+         foreach(i; size * size * size..size * size *size + destrNumber)
+        {
+            spheres[i].render (shader.getUniformLocation("meshTransformation"),
+                            shader.getUniformLocation("sampler"),
+                            world.getDynamicBody(i).transformation * initScaleTransformation(k, k, k)
+                           );
+        }
+
+
         world.update(engine.SPF);
     };
 
-    engine.execute(scene, shader.getUniformLocation("WVPTransformation"));
+    engine.execute(false, scene, shader.getUniformLocation("WVPTransformation"));
 
 }

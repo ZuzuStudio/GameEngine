@@ -84,9 +84,17 @@ public:
     *   The parameter action() should contain all the objects to be rendered
     */
 
-    auto execute(void delegate() action, uint WVPTransformationLocation)
+    auto execute(bool WAS_THE_TEXTURE_SET, void delegate() action, uint WVPTransformationLocation)
     {
-
+        ///// temporary texture
+        if (!WAS_THE_TEXTURE_SET)
+        {
+            import lib.graphics.wackyTexture;
+            WackyTexture texture = new WackyTexture("textures/wood.jpg", GL_TEXTURE_2D);
+            texture.load();
+            texture.bind(GL_TEXTURE0);
+        }
+        /////
         float mainTime = glfwGetTime();
 
         if (isVSyncEnabled)
