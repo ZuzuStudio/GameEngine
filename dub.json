@@ -65,6 +65,15 @@
             "targetName": "integratedApplication2",
             "targetPath": "applications/integratedApplication2",
             "workingDirectory": "applications/integratedApplication2"
+        },
+        {
+
+            "name": "intApp3",
+            "targetType": "executable",
+            "sourcePath": "applications/integratedApplication3",
+            "targetName": "integratedApplication3",
+            "targetPath": "applications/integratedApplication3",
+            "workingDirectory": "applications/integratedApplication3"
         }
 	]
 } 
