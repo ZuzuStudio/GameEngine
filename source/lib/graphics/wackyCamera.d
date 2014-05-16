@@ -1,10 +1,12 @@
+module lib.graphics.WackyCamera;
+
 private
 {
     import std.math;
 
     import derelict.glfw3.glfw3;
 
-    import wackyEnums;
+    import lib.graphics.wackyEnums;
 
     import lib.math.vector;
     import lib.math.quaternion;
