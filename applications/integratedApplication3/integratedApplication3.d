@@ -102,13 +102,22 @@ void main()
 
     auto scene = delegate()
     {   
-        foreach(i; 0..size * size * size + distrNumber )
+        foreach(i; 0..size * size * size)
         {
             spheries[i].render (shader.getUniformLocation("meshTransformation"),
                             shader.getUniformLocation("sampler"),
                             world.getDynamicBody(i).transformation
                            );
         }   
+        
+         foreach(i; size * size * size..size * size *size + distrNumber)
+        {
+            spheries[i].render (shader.getUniformLocation("meshTransformation"),
+                            shader.getUniformLocation("sampler"),
+                            world.getDynamicBody(i).transformation * initScaleTransformation(k, k, k) 
+                           );
+        }   
+
   
         world.update(engine.SPF);
     };
