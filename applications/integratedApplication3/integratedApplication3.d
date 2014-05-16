@@ -35,33 +35,14 @@ void main()
     shader.useShaderProgram();
 
     engine.observer.setPosition(-200, 100, -2000);
+	
+	// even 1 model would be enough, there are 2 only for different textures
+    WackySimpleMesh woodSphere = new WackySimpleMesh("models/sphere.md2");
+    woodSphere.setTexture("textures/wood.jpg");
+    WackySimpleMesh metalSphere = new WackySimpleMesh("models/sphere.md2");
+    metalSphere.setTexture("textures/metal.jpg");
 
-    /* container of spheres meshses */
-    WackySimpleMesh []spheres;
-
-    /* lenght of edge of cube concist of spheres */
-/*-----------------------------------------------*/
-    int size = 8;
-/*-----------------------------------------------*/
-
-    foreach(i; 0..size * size * size ){
-        WackySimpleMesh sphere = new WackySimpleMesh("models/sphere.md2");
-        spheres ~= sphere;
-    }
-
-    /* The Destroyers*/
-    WackySimpleMesh destroyers[];
-
-/*-----------------------------------------------*/
-    int destrNumber = 8; // number of destroyers
-/*-----------------------------------------------*/
-    foreach(i; 0..destrNumber){
-        WackySimpleMesh destroyer = new WackySimpleMesh("models/sphere.md2");
-        destroyers ~= destroyer;
-    }
-
-    spheres ~= destroyers;
-
+    int size = 8, destrNumber = 8; // number of destroyres
     engine.enableVSync();
 
     /**
@@ -102,7 +83,7 @@ void main()
     {
         foreach(i; 0..size * size * size)
         {
-            spheres[i].render (shader.getUniformLocation("meshTransformation"),
+            woodSphere.render (shader.getUniformLocation("meshTransformation"),
                             shader.getUniformLocation("sampler"),
                             world.getDynamicBody(i).transformation
                            );
@@ -110,7 +91,7 @@ void main()
 
          foreach(i; size * size * size..size * size *size + destrNumber)
         {
-            spheres[i].render (shader.getUniformLocation("meshTransformation"),
+            metalSphere.render (shader.getUniformLocation("meshTransformation"),
                             shader.getUniformLocation("sampler"),
                             world.getDynamicBody(i).transformation * initScaleTransformation(k, k, k)
                            );
@@ -120,6 +101,6 @@ void main()
         world.update(engine.SPF);
     };
 
-    engine.execute(false, scene, shader.getUniformLocation("WVPTransformation"));
+    engine.execute(scene, shader.getUniformLocation("WVPTransformation"));
 
 }
