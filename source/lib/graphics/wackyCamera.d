@@ -1,4 +1,4 @@
-module lib.graphics.WackyCamera;
+module lib.graphics.wackyCamera;
 
 private
 {
