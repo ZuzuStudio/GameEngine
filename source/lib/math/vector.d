@@ -326,7 +326,7 @@ Vector!(T, size) permutationBy(T, size_t size)(Vector!(T, size) original, Permut
 	assert(size == permutation.size, "permutation size missmatch");
 	typeof(return) result = original;
 
-	void set(Vector!(T, size) object, size_t position, T value)
+	void set(ref Vector!(T, size) object, size_t position, T value)
 	in
 	{
 		assert(position < size);
@@ -336,7 +336,7 @@ Vector!(T, size) permutationBy(T, size_t size)(Vector!(T, size) original, Permut
 		object.coordinates[position] = value;
 	}
 
-	T get(Vector!(T, size) object, size_t position)
+	T get(ref Vector!(T, size) object, size_t position)
 	in
 	{
 		assert(position < size);
@@ -495,7 +495,12 @@ unittest
 
 unittest
 {
-	// Testing permuteBy;
+	// Testing permutationBy
+	auto v = Vector4f(1.0f, 2.0f, 3.0f, 4.0f);
+	auto p = Permutation(4);
+	p.transpose(1,2);
+	p.transpose(2,3);
+	assert(Vector4f(1.0f, 3.0f, 4.0f, 2.0f) == v.permutationBy(p));
 }
 
 unittest
