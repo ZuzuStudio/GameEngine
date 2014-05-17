@@ -322,8 +322,12 @@ T distancesqr(T) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
  *  Permutated copy (e.g. for solve equation)
  */
 Vector!(T, size) permutationBy(T, size_t size)(Vector!(T, size) original, Permutation permutation)
+in
 {
 	assert(size == permutation.size, "permutation size missmatch");
+}
+body
+{
 	typeof(return) result = original;
 
 	void set(ref Vector!(T, size) object, size_t position, T value)
