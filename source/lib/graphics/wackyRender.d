@@ -86,7 +86,6 @@ public:
 
     auto execute(void delegate() action, uint WVPTransformationLocation)
     {
-
         float mainTime = glfwGetTime();
 
         if (isVSyncEnabled)

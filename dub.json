@@ -50,30 +50,30 @@
 		},
         {
 
-            "name": "intApp",
+            "name": "simplecollision",
             "targetType": "executable",
-            "sourcePath": "applications/integratedApplication",
-            "targetName": "integratedApplication",
-            "targetPath": "applications/integratedApplication",
-            "workingDirectory": "applications/integratedApplication"
+            "sourcePath": "applications/SimpleCollision",
+            "targetName": "simplecollision",
+            "targetPath": "applications/SimpleCollision",
+            "workingDirectory": "applications/SimpleCollision"
         },
         {
 
-            "name": "intApp2",
+            "name": "complexcollision",
             "targetType": "executable",
-            "sourcePath": "applications/integratedApplication2",
-            "targetName": "integratedApplication2",
-            "targetPath": "applications/integratedApplication2",
-            "workingDirectory": "applications/integratedApplication2"
+            "sourcePath": "applications/ComplexCollision",
+            "targetName": "complexcollision",
+            "targetPath": "applications/ComplexCollision",
+            "workingDirectory": "applications/ComplexCollision"
         },
         {
 
-            "name": "intApp3",
+            "name": "wedge",
             "targetType": "executable",
-            "sourcePath": "applications/integratedApplication3",
-            "targetName": "integratedApplication3",
-            "targetPath": "applications/integratedApplication3",
-            "workingDirectory": "applications/integratedApplication3"
+            "sourcePath": "applications/Wedge",
+            "targetName": "wedge",
+            "targetPath": "applications/Wedge",
+            "workingDirectory": "applications/Wedge"
         }
 	]
 } 
