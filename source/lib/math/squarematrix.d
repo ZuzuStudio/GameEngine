@@ -24,14 +24,16 @@ alias Matrix4x4d = SquareMatrix!(double, 4);
  *   Square matrix with row-column order of storing
  *   with size varying from 1 to 4
  */
-struct SquareMatrix(T, size_t size)
-if(isNumeric!T && size > 1 && size <= 4)
+struct SquareMatrix(T, size_t sizeCTA)// CTA is 'compile time argument'
+if(isNumeric!T && sizeCTA > 1 && sizeCTA <= 4)
 {
 public:
     /**
      *   Compile time calculation linear size of matrix
      */
     private enum linearSize = size * size;
+    alias size = sizeCTA;
+    alias Type = T;
 
     /**
      *  Constructor with variable number of arguments
@@ -153,7 +155,7 @@ public:
 
         return result;
     }
-    
+
     /**
      *  Right sided operator * for square matrix and vector
      */
@@ -404,7 +406,19 @@ private:
          */
         T[linearSize] matrix;
     }
-};
+}
+
+/**
+ *  Predicate for SquareMatrix
+ */
+template isLibMathSquareMatrix(T)
+{
+	import std.traits;
+	static if(__traits(compiles, {T.Type a;}) && __traits(compiles, {auto a = T.size;}))
+		enum bool isLibMathSquareMatrix = is(T == SquareMatrix!(T.Type, T.size));
+	else
+		enum bool isLibMathSquareMatrix = false;
+}
 
 /**
  *  Scale transformations generator
@@ -526,36 +540,47 @@ body
     return initPerspectiveTransformation(data[0], data[1], data[2], data[3], data[4]);
 }
 
-SquareMatrix!(T, size) permutationRowsBy(T, size_t size)(SquareMatrix!(T, size) matrix, Permutation permutation)
+enum MatrixLines{rows, collumns};
+alias rows = MatrixLines.rows;
+alias collumns = MatrixLines.collumns;
+
+T permutation(T, MatrixLines kind)(T matrix, Permutation permutation)
+if(isLibMathSquareMatrix!T)
 in
 {
-	assert(size == permutation.size, "permutation size mismatch");
+	assert(T.size == permutation.size, "permutation size mismatch");
 }
 body
 {
 	typeof(return) result = matrix;
 
-	void set(ref SquareMatrix!(T, size) object, size_t position, T[size] value)
+	void set(ref T object, size_t position, T.Type[T.size] value)
 	in
 	{
-		assert(position < size);
+		assert(position < T.size);
 	}
 	body
 	{
 		foreach(i, e; value)
-		object.matrix[position * size + i] = value[i];
+		static if(rows == kind)
+			object.matrix[position * T.size + i] = value[i];
+		else static if(collumns == kind)
+			object.matrix[i * T.size + position] = value[i];
 	}
 
-	T[size] get(ref SquareMatrix!(T, size) object, size_t position)
+	T.Type[T.size] get(const ref T object, size_t position)
 	in
 	{
-		assert(position < size);
+		assert(position < T.size);
 	}
 	body
 	{
-		typeof(return) value = new T[size];
+		typeof(return) value = new T.Type[T.size];
 		foreach(i, e; value)
-		value[i] = object.matrix[position * size + i];
+		static if(rows == kind)
+			value[i] = object.matrix[position * T.size + i];
+		else static if(collumns == kind)
+			value[i] = object.matrix[i * T.size + position];
 		return value;
 	}
 
@@ -564,42 +589,16 @@ body
 	return result;
 }
 
-SquareMatrix!(T, size) permutationCollumnsBy(T, size_t size)(SquareMatrix!(T, size) matrix, Permutation permutation)
-in
+unittest
 {
-	assert(size == permutation.size, "permutation size mismatch");
-}
-body
-{
-	typeof(return) result = matrix;
-
-	void set(ref SquareMatrix!(T, size) object, size_t position, T[size] value)
-	in
-	{
-		assert(position < size);
-	}
-	body
-	{
-		foreach(i, e; value)
-		object.matrix[i * size + position] = value[i];
-	}
-
-	T[size] get(ref SquareMatrix!(T, size) object, size_t position)
-	in
-	{
-		assert(position < size);
-	}
-	body
-	{
-		typeof(return) value = new T[size];
-		foreach(i, e; value)
-		value[i] = object.matrix[i * size + position];
-		return value;
-	}
-
-	mixin CorePermute!(result, set, get, permutation);
-	permute();
-	return result;
+	// Testing predicate
+	assert(isLibMathSquareMatrix!Matrix2x2f);
+	assert(isLibMathSquareMatrix!Matrix3x3f);
+	assert(isLibMathSquareMatrix!Matrix4x4f);
+	assert(isLibMathSquareMatrix!(SquareMatrix!(int, 3)));
+	assert(!isLibMathSquareMatrix!int);
+	assert(!isLibMathSquareMatrix!float);
+	assert(!isLibMathSquareMatrix!Vector3f);
 }
 
 unittest
@@ -734,10 +733,10 @@ unittest
 	assert(Matrix4x4f(   1.0f,  2.0f,  3.0f,  4.0f,
 	                     9.0f, 10.0f, 11.0f, 12.0f,
 	                    13.0f, 14.0f, 15.0f, 16.0f,
-	                     5.0f,  6.0f,  7.0f,  8.0f) == m.permutationRowsBy(p));
+	                     5.0f,  6.0f,  7.0f,  8.0f) == m.permutation!(Matrix4x4f, rows)(p));
 
 	assert(Matrix4x4f(   1.0f,  3.0f,  4.0f,  2.0f,
 	                     5.0f,  7.0f,  8.0f,  6.0f,
 	                     9.0f, 11.0f, 12.0f, 10.0f,
-	                    13.0f, 15.0f, 16.0f, 14.0f) == m.permutationCollumnsBy(p));
+	                    13.0f, 15.0f, 16.0f, 14.0f) == m.permutation!(Matrix4x4f, collumns)(p));
 }

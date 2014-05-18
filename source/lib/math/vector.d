@@ -20,10 +20,13 @@ alias Vector2d = Vector!(double, 2);
 alias Vector3d = Vector!(double, 3);
 alias Vector4d = Vector!(double, 4);
 
-struct Vector(T, size_t size)
-if(isNumeric!T && size > 0 && size <= 4)
+struct Vector(T, size_t sizeCTA)
+if(isNumeric!T && sizeCTA > 0 && sizeCTA <= 4) // CTA is compile time argument
 {
 public:
+
+	alias size = sizeCTA;
+	alias Type = T;
 
     /**
      *  Constructor with variable number of arguments
