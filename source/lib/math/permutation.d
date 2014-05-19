@@ -24,7 +24,7 @@ import std.algorithm;
  */
 mixin template CorePermute(alias object, alias set, alias get, alias permutation)
 {
-	void permute()//@safe
+	void permute()@safe
 	{
 		auto cycles = permutation.cycleRepresentation;
 		foreach(const ref cycle; cycles)

@@ -465,6 +465,7 @@ SquareMatrix!(T, 4) initRotationTransformation (T) (Vector!(T, 3) data) pure not
 {
     return initRotationTransformation(data.x, data.y, data.z);
 }
+
 /**
  *  Position transformations generator
  */
@@ -544,7 +545,7 @@ enum MatrixLines{rows, collumns};
 alias rows = MatrixLines.rows;
 alias collumns = MatrixLines.collumns;
 
-T permutation(T, MatrixLines kind)(T matrix, Permutation permutation)
+T permutation(MatrixLines kind, T)(T matrix, Permutation permutation)@safe
 if(isLibMathSquareMatrix!T)
 in
 {
@@ -733,10 +734,10 @@ unittest
 	assert(Matrix4x4f(   1.0f,  2.0f,  3.0f,  4.0f,
 	                     9.0f, 10.0f, 11.0f, 12.0f,
 	                    13.0f, 14.0f, 15.0f, 16.0f,
-	                     5.0f,  6.0f,  7.0f,  8.0f) == m.permutation!(Matrix4x4f, rows)(p));
+	                     5.0f,  6.0f,  7.0f,  8.0f) == m.permutation!rows(p));
 
 	assert(Matrix4x4f(   1.0f,  3.0f,  4.0f,  2.0f,
 	                     5.0f,  7.0f,  8.0f,  6.0f,
 	                     9.0f, 11.0f, 12.0f, 10.0f,
-	                    13.0f, 15.0f, 16.0f, 14.0f) == m.permutation!(Matrix4x4f, collumns)(p));
+	                    13.0f, 15.0f, 16.0f, 14.0f) == m.permutation!collumns(p));
 }
