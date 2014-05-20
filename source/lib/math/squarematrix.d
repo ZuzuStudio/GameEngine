@@ -219,6 +219,21 @@ public:
     }
 
     /**
+     *   Assign index operator SquareMatrix!(T, size)[i, j] <op>= T
+     *   Indices start with 0
+     */
+    T opIndexOpAssign(string op)(T t, size_t i, size_t j) pure nothrow @safe
+    if(op == "+" || op == "-" || op == "*" || op == "/" || op == "^^")
+    in
+    {
+        assert (0 <= i && 0<= j && i < size && j < size, "SquareMatrix!(T, size).opIndexAssign(T t, size_t i, size_t j): array index out of bounds");
+    }
+    body
+    {
+        mixin("return matrix[i * size + j] " ~ op ~ "= t;");
+    }
+
+    /**
      *  Assign index operator SquareMatrix!(T, size)[index] = T
      *  Indices start with 0
      */
@@ -557,7 +572,7 @@ if(isLibMathSquareMatrix!T)
 		if(sign)
 			dSquare = -dSquare;
 		L[i, i] = sqrt(dSquare);
-		U[i, i] = sign ? -L[i,i] : L[i, i];
+		U[i, i] = sign ? -L[i, i] : L[i, i];
 
 		foreach(j; i+1..T.size)
 		{
@@ -574,9 +589,9 @@ if(isLibMathSquareMatrix!T)
 			U[i, j] = matrix[i, j];
 
 			foreach(k; 0..i)
-			U[j, i] -= L[j, k] * U[k, i];
+			U[i, j] -= L[i, k] * U[k, j];
 
-			U[j, i] /= L[i, i];
+			U[i, j] /= L[i, i];
 		}
 	}
 
@@ -761,6 +776,17 @@ unittest
         0f, 0f, 0f
     )
           );
+}
+
+unittest
+{
+	// Testing LU decomposition
+	import std.stdio;
+	auto m = Matrix4x4f( -1.0f,   4.0f,   5.0f,   6.0f,
+	                      1.0f,   5.0f,   7.0f,   3.0f,
+	                      2.0f,  10.0f, -11.0f,   1.0f,
+	                      3.0f,   0.0f,   6.0f,  -1.0f);
+	writeln(LUdecomposition(m));
 }
 
 unittest
