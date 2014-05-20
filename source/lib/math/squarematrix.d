@@ -8,6 +8,7 @@ private
     import std.traits;
     import std.algorithm;
     import std.math;
+    import std.typecons;
 }
 import lib.math.vector;
 import lib.math.permutation;
@@ -539,6 +540,47 @@ in
 body
 {
     return initPerspectiveTransformation(data[0], data[1], data[2], data[3], data[4]);
+}
+
+auto LUdecomposition(T)(T matrix)
+if(isLibMathSquareMatrix!T)
+{
+	T L;
+	T U;
+	foreach(i;0..T.size)
+	{
+		auto dSquare = matrix[i, i];
+		foreach(j;0..i)
+		dSquare -= L[i, j] * U[j, i];
+
+		bool sign = dSquare < cast(T.Type)0;
+		if(sign)
+			dSquare = -dSquare;
+		L[i, i] = sqrt(dSquare);
+		U[i, i] = sign ? -L[i,i] : L[i, i];
+
+		foreach(j; i+1..T.size)
+		{
+			L[j, i] = matrix[j, i];
+
+			foreach(k; 0..i)
+			L[j, i] -= L[j, k] * U[k, i];
+
+			L[j, i] /= U[i, i];
+		}
+
+		foreach(j; i+1..T.size)
+		{
+			U[i, j] = matrix[i, j];
+
+			foreach(k; 0..i)
+			U[j, i] -= L[j, k] * U[k, i];
+
+			U[j, i] /= L[i, i];
+		}
+	}
+
+	return tuple(L, U);
 }
 
 enum MatrixLines{rows, collumns};
