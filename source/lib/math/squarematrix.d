@@ -557,6 +557,21 @@ body
     return initPerspectiveTransformation(data[0], data[1], data[2], data[3], data[4]);
 }
 
+@property T.Type determinant(T)(T matrix)pure nothrow @safe
+if(isLibMathSquareMatrix!T)
+{
+	static assert(false, typeof(LUdecomposition(matrix)).stringof);
+	//return determinant(LUdecomposition(matrix));
+	return cast(T.Type)0;
+}
+
+//T.Type determinant()
+
+unittest
+{
+	(Matrix3x3f.identity).determinant;
+}
+
 auto LUdecomposition(T)(T matrix)pure nothrow @safe
 if(isLibMathSquareMatrix!T)
 {
