@@ -295,6 +295,22 @@ public:
 		return this;
 	}
 
+	string toString()
+	{
+		if(_cycleRepresentation.length == 0)
+			return "(0)";
+
+		string result;
+		foreach(const ref cycle; _cycleRepresentation)
+		{
+			result ~= "(";
+			foreach(i;0..cycle.length - 1)
+			result ~= std.conv.to!string(cycle[i]) ~ ", ";
+			result ~= std.conv.to!string(cycle[$ - 1]) ~ ")";
+		}
+		return result;
+	}
+
 private:
 	size_t[][] _cycleRepresentation;
 

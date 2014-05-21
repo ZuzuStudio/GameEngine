@@ -557,16 +557,49 @@ body
     return initPerspectiveTransformation(data[0], data[1], data[2], data[3], data[4]);
 }
 
-auto LUdecomposition(T)(T matrix)
+auto LUdecomposition(T)(T matrix)pure nothrow @safe
 if(isLibMathSquareMatrix!T)
 {
+	size_t indexOfMaxAbs(const ref T matrix, size_t collumn, T.Type sub)pure nothrow @safe
+	in
+	{
+		assert(collumn < matrix.size);
+	}
+	body
+	{
+		auto result = collumn;
+		foreach(i;collumn + 1..matrix.size)
+		if(abs(matrix[result, collumn] - sub) < abs(matrix[i, collumn] - sub))
+			result = i;
+		return result;
+	}
+
 	T L;
 	T U;
+	auto p = Permutation(matrix.size);
+
 	foreach(i;0..T.size)
 	{
-		auto dSquare = matrix[i, i];
+		auto sub = cast(T.Type)0;
 		foreach(j;0..i)
-		dSquare -= L[i, j] * U[j, i];
+		sub += L[i, j] * U[j, i];
+
+		auto pivot = indexOfMaxAbs(matrix, i, sub);
+		if(pivot != i)
+		{
+			p.transpose(i, pivot);
+			auto t = Permutation.transposition(matrix.size, i, pivot);
+			matrix.permute!rows(t);
+			L.permute!rows(t);
+		}
+
+		auto dSquare = matrix[i, i] - sub;
+
+		if(abs(dSquare)<=T.Type.epsilon)
+		{
+			L[i, i] = U[i, i] = cast(T.Type)0;
+			return tuple(L, U, p);
+		}
 
 		bool sign = dSquare < cast(T.Type)0;
 		if(sign)
@@ -595,23 +628,34 @@ if(isLibMathSquareMatrix!T)
 		}
 	}
 
-	return tuple(L, U);
+	return tuple(L, U, p);
 }
 
 enum MatrixLines{rows, collumns};
 alias rows = MatrixLines.rows;
 alias collumns = MatrixLines.collumns;
 
-T permutation(MatrixLines kind, T)(T matrix, Permutation permutation)@safe
+T permutation(MatrixLines kind, T)(T matrix, Permutation p)@safe
 if(isLibMathSquareMatrix!T)
 in
 {
-	assert(T.size == permutation.size, "permutation size mismatch");
+	// Why this don't compile? //assert(T.size == permutation.size, "permutation size mismatch");
 }
 body
 {
 	typeof(return) result = matrix;
+	result.permute!kind(p);
+	return result;
+}
 
+void permute(MatrixLines kind, T)(ref T matrix, Permutation p)@safe
+if(isLibMathSquareMatrix!T)
+in
+{
+	// Why this don't compile? //assert(matrix.size == permutation.size, "permutation size mismatch");
+}
+body
+{
 	void set(ref T object, size_t position, T.Type[T.size] value)
 	in
 	{
@@ -642,9 +686,8 @@ body
 		return value;
 	}
 
-	mixin CorePermute!(result, set, get, permutation);
+	mixin CorePermute!(matrix, set, get, p);
 	permute();
-	return result;
 }
 
 unittest
@@ -781,12 +824,12 @@ unittest
 unittest
 {
 	// Testing LU decomposition
-	import std.stdio;
 	auto m = Matrix4x4f( -1.0f,   4.0f,   5.0f,   6.0f,
 	                      1.0f,   5.0f,   7.0f,   3.0f,
 	                      2.0f,  10.0f, -11.0f,   1.0f,
 	                      3.0f,   0.0f,   6.0f,  -1.0f);
-	writeln(LUdecomposition(m));
+	auto lup = LUdecomposition(m);
+	// TODO better example //assert(m.permutation!rows(lup[2]) == lup[0]*lup[1]);
 }
 
 unittest
