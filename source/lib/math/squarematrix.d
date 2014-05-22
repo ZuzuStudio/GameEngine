@@ -283,7 +283,7 @@ public:
      *  Horrible piece of crap, but it works.
      *  Will be remade in better way in the nearest future 
      */
-    static if (size == 3)
+    static if (false)//(size == 3)
     {  
         /**
          *  Returns inverse SquareMatrix 3x3
@@ -560,16 +560,17 @@ body
 @property T.Type determinant(T)(T matrix)pure nothrow @safe
 if(isLibMathSquareMatrix!T)
 {
-	static assert(false, typeof(LUdecomposition(matrix)).stringof);
-	//return determinant(LUdecomposition(matrix));
-	return cast(T.Type)0;
+	//static assert(false, typeof(LUdecomposition(matrix)).stringof);
+	return determinant(LUdecomposition(matrix));
 }
 
-//T.Type determinant()
-
-unittest
+T.Type determinant(T)(Tuple!(T, T, Permutation) lup)
+if(isLibMathSquareMatrix!T)
 {
-	(Matrix3x3f.identity).determinant;
+	typeof(return) det = cast(T.Type)lup[2].determinant;
+	foreach(i;0..lup[0].size)
+	det *= lup[0][i, i] * lup[1][i, i];
+	return det;
 }
 
 auto LUdecomposition(T)(T matrix)pure nothrow @safe
@@ -834,6 +835,19 @@ unittest
         0f, 0f, 0f
     )
           );
+}
+
+unittest
+{
+	assert(1.0f == (Matrix2x2f.identity).determinant);
+	assert(1.0f == (Matrix3x3f.identity).determinant);
+	assert(1.0f == (Matrix4x4f.identity).determinant);
+	auto m = Matrix4x4f( -1.0f,   4.0f,   5.0f,   6.0f,
+	                      1.0f,   5.0f,   7.0f,   3.0f,
+	                      2.0f,  10.0f, -11.0f,   1.0f,
+	                      3.0f,   0.0f,   6.0f,  -1.0f);
+	assert(abs((cast(m.Type)900 - m.determinant)/cast(m.Type)900) <= m.Type.epsilon);
+
 }
 
 unittest
