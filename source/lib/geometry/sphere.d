@@ -11,6 +11,12 @@ public
  */
 class Sphere : Geometry
 {
+    this(Sphere original) pure nothrow @safe
+    {
+            center = original.center;
+            radius = original.radius;
+    }
+
     this(Vector3f center, float r) pure nothrow @safe
     {
         this.center = center;

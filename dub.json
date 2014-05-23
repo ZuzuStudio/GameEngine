@@ -47,6 +47,33 @@
 			"targetName": "md2models",
 			"targetPath": "applications/MD2Models",
 			"workingDirectory": "applications/MD2Models"
-		}
+		},
+        {
+
+            "name": "simplecollision",
+            "targetType": "executable",
+            "sourcePath": "applications/SimpleCollision",
+            "targetName": "simplecollision",
+            "targetPath": "applications/SimpleCollision",
+            "workingDirectory": "applications/SimpleCollision"
+        },
+        {
+
+            "name": "complexcollision",
+            "targetType": "executable",
+            "sourcePath": "applications/ComplexCollision",
+            "targetName": "complexcollision",
+            "targetPath": "applications/ComplexCollision",
+            "workingDirectory": "applications/ComplexCollision"
+        },
+        {
+
+            "name": "wedge",
+            "targetType": "executable",
+            "sourcePath": "applications/Wedge",
+            "targetName": "wedge",
+            "targetPath": "applications/Wedge",
+            "workingDirectory": "applications/Wedge"
+        }
 	]
 } 

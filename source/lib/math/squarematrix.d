@@ -142,7 +142,7 @@ public:
 
     /**
      *  Operator * for square matrix and vector
-     */
+     left[j]*/
     Vector!(T, size) opBinary(string op)(Vector!(T, size) right) const pure nothrow @safe
     if(op == "*")
     {
@@ -358,7 +358,6 @@ public:
 
 
 private:
-
     /**
      *   Compile time identity matrix representation
      */
@@ -442,7 +441,7 @@ private:
          *   :   :   :   :      :
          *  aN1 aN2 aN3 aN4 .. aNN
          */
-        struct
+        public struct       // because one needs public access to elements
         {
             mixin(elements("a"));
         }

@@ -9,6 +9,9 @@ private
     import lib.math.permutation;
 }
 
+import lib.math.squarematrix;
+
+
 /**
  * Predefined vector types
  */
@@ -238,6 +241,24 @@ public:
         auto writer = appender!string();
         formattedWrite(writer, "%s", coordinates);
         return writer.data;
+    }
+    
+    
+    /**
+     *  Is already used in rigidbody to represent transformation
+     */
+    static if(size == 3)
+    {
+        @property SquareMatrix!(T, 4) toMatrix4x4() pure nothrow @safe
+        {
+            SquareMatrix!(T, 4) result = SquareMatrix!(T, 4).identity;
+        
+            result.a14 = this.x;
+            result.a24 = this.y;
+            result.a34 = this.z;
+        
+            return result;
+        }
     }
 
     /**

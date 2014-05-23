@@ -185,7 +185,37 @@ public:
         formattedWrite(writer, "%s", components);
         return writer.data;
     }
+    
+    /**
+     *  Is already used in rigidbody to represent transformation
+     */
+    @property SquareMatrix!(T, 4) toMatrix4x4() pure nothrow @safe 
+    {
+        SquareMatrix!(T, 4) matrix;  //  by default it's zero matrix
 
+        matrix.a11 = 1 - 2 * (y * y + z * z);
+        matrix.a12 = 2 * (x * y + z * w);
+        matrix.a13 = 2 * (x * z - y * w);
+        //  matrix.a14  = 0;    //  by default it's zero value
+
+        matrix.a21 = 2 * (x * y - z * w);
+        matrix.a22 = 1 - 2 * (x * x + z * z);
+        matrix.a23 = 2 * (z * y + x * w);
+        //  matrix.a24  = 0;    //  by default it's zero value
+
+        matrix.a31 = 2 * (x * z + y * w);
+        matrix.a32 = 2 * (y * z - x * w);
+        matrix.a33 = 1 - 2 * (x * x + y * y);
+        //  matrix.a34 = 0;     //  by default it's zero value
+
+        //  matrix.a41 = 0;     //  by default it's zero value
+        //  matrix.a42 = 0;     //  by default it's zero value
+        //  matrix.a43 = 0;     //  by default it's zero value
+        matrix.a44 = 1;
+
+        return matrix;
+    }
+    
     /**
      *  Get normalized copy
      */

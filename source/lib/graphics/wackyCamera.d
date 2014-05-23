@@ -161,26 +161,6 @@ public:
         cameraData.position = Vector3f(x, y, z);
     }
 
-    auto setTarget(Vector3f target) nothrow
-    {
-        cameraData.target = target;
-    }
-
-    auto setTarget(float x, float y, float z) nothrow
-    {
-        cameraData.target = Vector3f(x, y, z);
-    }
-
-    auto setUp(Vector3f up) nothrow
-    {
-        cameraData.up = up;
-    }
-
-    auto setUp(float x, float y, float z) nothrow
-    {
-        cameraData.up = Vector3f(x, y, z);
-    }
-
     /**
      *  Getters
      */
