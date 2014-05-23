@@ -358,6 +358,31 @@ body
 	return result;
 }
 
+enum OperatorNorm{one=1, two, infinity};
+alias one = OperatorNorm.one;
+alias two = OperatorNorm.two;
+alias infinity = OperatorNorm.infinity;
+
+T operatorNorm(OperatorNorm kind, T, size_t size)(Vector!(T,size) vector)
+{
+	static if(one == kind)
+	{
+		auto sum = cast(T)0;
+		foreach(x; vector.coordinates)
+		sum += abs(x);
+		return sum;
+	}
+	else static if(two == kind)
+		return vector.length;
+	else static if(infinity == kind)
+	{
+		auto max = cast(T) - 1;
+		foreach(x; vector.coordinates)
+		max = std.algorithm.max(max, abs(x));
+		return max;
+	}
+}
+
 unittest
 {
     // Testing default zero initialization
@@ -508,6 +533,14 @@ unittest
 	p.transpose(1,2);
 	p.transpose(2,3);
 	assert(Vector4f(1.0f, 3.0f, 4.0f, 2.0f) == v.permutation(p));
+}
+
+unittest
+{
+	// Testing operator norm
+	assert(7.0f == operatorNorm!one(Vector2f(3.0f, -4.0f)));
+	assert(5.0f == operatorNorm!two(Vector2f(3.0f, -4.0f)));
+	assert(4.0f == operatorNorm!infinity(Vector2f(3.0f, -4.0f)));
 }
 
 unittest

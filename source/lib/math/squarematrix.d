@@ -263,6 +263,17 @@ public:
         return SquareMatrix!(T, size)(identityRepresentation);
     }
 
+	static if(isFloatingPoint!T)
+	{
+	/**
+	 *   Returns nan square matrix
+	 */
+	@property static SquareMatrix!(T, size) nan() pure nothrow @safe
+	{
+		return SquareMatrix!(T, size)(nanRepresentation);
+	}
+	}
+
     /**
      *   Returns diagonal square matrix
      */
@@ -368,6 +379,25 @@ private:
         return result ~ "1];";
     }
 
+	static if(isFloatingPoint!T)
+	{
+	/**
+	 *   Compile time nan matrix representation
+	 */
+	mixin(makeNanEnum());
+
+	/**
+	 *   Build compile time nan matrix representation
+	 */
+	static string makeNanEnum() pure nothrow @safe
+	{
+		string result = "enum T[linearSize] nanRepresentation = [";
+		foreach(i; 0..linearSize)
+		result ~= "T.nan, ";
+		return result ~ "];";
+	}
+	}
+
     /**
      *  Constructor that uses array of values for compiling time creating identity matrix
      */
@@ -434,6 +464,19 @@ template isLibMathSquareMatrix(T)
 		enum bool isLibMathSquareMatrix = is(T == SquareMatrix!(T.Type, T.size));
 	else
 		enum bool isLibMathSquareMatrix = false;
+}
+
+alias isNaN = std.math.isNaN;
+/**
+ *  The property is true if any element is NaN
+ */
+bool isNaN(T)(T matrix)pure nothrow @safe
+if(isLibMathSquareMatrix!T)
+{
+	auto result = false;
+	for(auto i = 0; !result && i < matrix.linearSize; ++i)
+		result = result || isNaN(matrix.matrix[i]);
+	return result;
 }
 
 /**
@@ -557,14 +600,50 @@ body
     return initPerspectiveTransformation(data[0], data[1], data[2], data[3], data[4]);
 }
 
+@property T inverse(T)(T matrix)pure nothrow @safe
+if(isLibMathSquareMatrix!T)
+{
+	if(isNaN(matrix))
+		return T.nan;
+	auto lup = LUdecomposition(matrix);
+	if(abs(determinant(lup)) > sqrt((T.Type).epsilon))
+	{
+		auto result = T.identity;
+		result.permute!rows(lup[2]);
+
+		// L solve
+		foreach(i;0..matrix.size)
+		foreach(j;0..matrix.size)
+		{
+			foreach(k;0..i)
+			result[i, j] -= lup[0][i, k] * result[k, j];
+			result[i, j] /= lup[0][i, i];
+		}
+
+		// U solve
+		foreach_reverse(i;0..matrix.size)
+		foreach(j;0..matrix.size)
+		{
+			foreach(k;i + 1..matrix.size)
+			result[i, j] -= lup[1][i, k] * result[k, j];
+			result[i, j] /= lup[1][i, i];
+		}
+
+		return result;
+	}
+	else
+	{
+		return T.nan;
+	}
+}
+
 @property T.Type determinant(T)(T matrix)pure nothrow @safe
 if(isLibMathSquareMatrix!T)
 {
-	//static assert(false, typeof(LUdecomposition(matrix)).stringof);
 	return determinant(LUdecomposition(matrix));
 }
 
-T.Type determinant(T)(Tuple!(T, T, Permutation) lup)
+private T.Type determinant(T)(Tuple!(T, T, Permutation) lup)pure nothrow @safe
 if(isLibMathSquareMatrix!T)
 {
 	typeof(return) det = cast(T.Type)lup[2].determinant;
@@ -576,7 +655,9 @@ if(isLibMathSquareMatrix!T)
 auto LUdecomposition(T)(T matrix)pure nothrow @safe
 if(isLibMathSquareMatrix!T)
 {
-	size_t indexOfMaxAbs(const ref T matrix, size_t collumn, T.Type sub)pure nothrow @safe
+	size_t indexOfMaxAbs(const ref T matrix, size_t collumn, T.Type[T.size
+
+	] sub)pure nothrow @safe
 	in
 	{
 		assert(collumn < matrix.size);
@@ -585,7 +666,7 @@ if(isLibMathSquareMatrix!T)
 	{
 		auto result = collumn;
 		foreach(i;collumn + 1..matrix.size)
-		if(abs(matrix[result, collumn] - sub) < abs(matrix[i, collumn] - sub))
+		if(abs(matrix[result, collumn] - sub[collumn]) < abs(matrix[i, collumn] - sub[i]))
 			result = i;
 		return result;
 	}
@@ -596,9 +677,15 @@ if(isLibMathSquareMatrix!T)
 
 	foreach(i;0..T.size)
 	{
-		auto sub = cast(T.Type)0;
-		foreach(j;0..i)
-		sub += L[i, j] * U[j, i];
+
+
+		T.Type[T.size] sub;
+		foreach(k;i..T.size)
+		{
+			sub[k] = cast(T.Type)0;
+			foreach(j;0..i)
+			sub[k] += L[k, j] * U[j, i];
+		}
 
 		auto pivot = indexOfMaxAbs(matrix, i, sub);
 		if(pivot != i)
@@ -607,9 +694,11 @@ if(isLibMathSquareMatrix!T)
 			auto t = Permutation.transposition(matrix.size, i, pivot);
 			matrix.permute!rows(t);
 			L.permute!rows(t);
+			std.algorithm.swap(sub[i], sub[pivot]);
 		}
 
-		auto dSquare = matrix[i, i] - sub;
+
+		auto dSquare = matrix[i, i] - sub[i];
 
 		if(abs(dSquare)<=T.Type.epsilon)
 		{
@@ -704,6 +793,30 @@ body
 
 	mixin CorePermute!(matrix, set, get, p);
 	permute();
+}
+
+T.Type operatorNorm(OperatorNorm kind, T)(T matrix)
+if(isLibMathSquareMatrix!T)
+{
+	static if(two == kind)
+	{
+		static assert(false, "Euclidian operator norm not implemented yet");
+	}
+	else
+	{
+		auto max = cast(T.Type)-1; // There are only nonnegative value valid
+		foreach(i;0..matrix.size)
+		{
+			auto sum = cast(T.Type)0;
+			foreach(j;0..matrix.size)
+			static if(infinity == kind)
+				sum += abs(matrix[i, j]);
+			else
+				sum += abs(matrix[j, i]);
+			max = std.algorithm.max(max, sum);
+		}
+		return max;
+	}
 }
 
 unittest
@@ -833,12 +946,39 @@ unittest
         1.5f, 0f, 0f,
         0f, 0f, 0f,
         0f, 0f, 0f
-    )
-          );
+    ));
 }
 
 unittest
 {
+	// Testing nan
+	assert(!isNaN(Matrix4x4f.identity));
+	assert(isNaN(Matrix2x2f(0.0f, 2.0f, float.nan, 4.0f)));
+	assert(isNaN(Matrix3x3f.nan));
+	auto m = Matrix4x4f.nan;
+	foreach(i;0..m.size)
+	foreach(j;0..m.size)
+	assert(isNaN(m[i, j]));
+}
+
+unittest
+{
+	// Testing inverse
+	auto m = Matrix4x4f(
+	 1f, 1f, 1f, 6f,
+	 4f, 1f, 1f, -2f,
+	-1f, -1, 1f, -1f,
+	 1f, -1f, 1f, -1f);
+	assert(operatorNorm!one(m * m.inverse - m.identity) / operatorNorm!one(m) < float.epsilon);
+	assert(isNaN(Matrix3x3f(1f, 2f, 3f, 2f, 4f, 6f, 1f, 0f, 1f).inverse));
+	assert(isNaN(Matrix2x2f(float.nan, 1, -1, 2).inverse));
+	assert(isNaN(Matrix4x4f.nan));
+
+}
+
+unittest
+{
+	// Testing determinant
 	assert(1.0f == (Matrix2x2f.identity).determinant);
 	assert(1.0f == (Matrix3x3f.identity).determinant);
 	assert(1.0f == (Matrix4x4f.identity).determinant);
@@ -847,7 +987,6 @@ unittest
 	                      2.0f,  10.0f, -11.0f,   1.0f,
 	                      3.0f,   0.0f,   6.0f,  -1.0f);
 	assert(abs((cast(m.Type)900 - m.determinant)/cast(m.Type)900) <= m.Type.epsilon);
-
 }
 
 unittest
@@ -858,7 +997,7 @@ unittest
 	                      2.0f,  10.0f, -11.0f,   1.0f,
 	                      3.0f,   0.0f,   6.0f,  -1.0f);
 	auto lup = LUdecomposition(m);
-	// TODO better example //assert(m.permutation!rows(lup[2]) == lup[0]*lup[1]);
+	assert(operatorNorm!one(m.permutation!rows(lup[2]) - lup[0] * lup[1]) / operatorNorm!one(m) <= (m.Type).epsilon);
 }
 
 unittest
@@ -880,4 +1019,14 @@ unittest
 	                     5.0f,  7.0f,  8.0f,  6.0f,
 	                     9.0f, 11.0f, 12.0f, 10.0f,
 	                    13.0f, 15.0f, 16.0f, 14.0f) == m.permutation!collumns(p));
+}
+
+unittest
+{
+	// Testing operatorNorm
+	assert(0.0f == operatorNorm!one(Matrix2x2f.zero));
+	assert(1.0f == operatorNorm!one(Matrix3x3f.identity));
+	assert(1.0f == operatorNorm!infinity(Matrix4x4f.identity));
+	assert(7.0f == operatorNorm!one(Matrix2x2f(2.0f, -3.0f, 0.0f, 4.0f)));
+	assert(5.0f == operatorNorm!infinity(Matrix2x2f(2.0f, -3.0f, 0.0f, 4.0f)));
 }

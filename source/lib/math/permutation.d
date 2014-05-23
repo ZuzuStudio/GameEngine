@@ -520,6 +520,15 @@ unittest
 
 unittest
 {
+	// Testing toString
+	assert("(0)" == (Permutation(4)).toString);
+	auto p = Permutation.transposition(4, 1, 2);
+	auto q = Permutation.transposition(4, 2, 3);
+	assert("(1, 3, 2)" == (p * q).toString);
+}
+
+unittest
+{
 	// Testing contracts
 	import core.exception;
 
