@@ -8,8 +8,10 @@ private
     import std.traits;
     import std.algorithm;
     import std.math;
+    import std.typecons;
 }
 import lib.math.vector;
+import lib.math.permutation;
 
 
 alias Matrix2x2f = SquareMatrix!(float, 2);
@@ -23,14 +25,16 @@ alias Matrix4x4d = SquareMatrix!(double, 4);
  *   Square matrix with row-column order of storing
  *   with size varying from 1 to 4
  */
-struct SquareMatrix(T, size_t size)
-if(isNumeric!T && size > 1 && size <= 4)
+struct SquareMatrix(T, size_t sizeCTA)// CTA is 'compile time argument'
+if(isNumeric!T && sizeCTA > 1 && sizeCTA <= 4)
 {
 public:
     /**
      *   Compile time calculation linear size of matrix
      */
     private enum linearSize = size * size;
+    alias size = sizeCTA;
+    alias Type = T;
 
     /**
      *  Constructor with variable number of arguments
@@ -152,7 +156,7 @@ public:
 
         return result;
     }
-    
+
     /**
      *  Right sided operator * for square matrix and vector
      */
@@ -215,6 +219,21 @@ public:
     }
 
     /**
+     *   Assign index operator SquareMatrix!(T, size)[i, j] <op>= T
+     *   Indices start with 0
+     */
+    T opIndexOpAssign(string op)(T t, size_t i, size_t j) pure nothrow @safe
+    if(op == "+" || op == "-" || op == "*" || op == "/" || op == "^^")
+    in
+    {
+        assert (0 <= i && 0<= j && i < size && j < size, "SquareMatrix!(T, size).opIndexAssign(T t, size_t i, size_t j): array index out of bounds");
+    }
+    body
+    {
+        mixin("return matrix[i * size + j] " ~ op ~ "= t;");
+    }
+
+    /**
      *  Assign index operator SquareMatrix!(T, size)[index] = T
      *  Indices start with 0
      */
@@ -244,6 +263,17 @@ public:
         return SquareMatrix!(T, size)(identityRepresentation);
     }
 
+	static if(isFloatingPoint!T)
+	{
+	/**
+	 *   Returns nan square matrix
+	 */
+	@property static SquareMatrix!(T, size) nan() pure nothrow @safe
+	{
+		return SquareMatrix!(T, size)(nanRepresentation);
+	}
+	}
+
     /**
      *   Returns diagonal square matrix
      */
@@ -264,7 +294,7 @@ public:
      *  Horrible piece of crap, but it works.
      *  Will be remade in better way in the nearest future 
      */
-    static if (size == 3)
+    static if (false)//(size == 3)
     {  
         /**
          *  Returns inverse SquareMatrix 3x3
@@ -348,6 +378,25 @@ private:
         return result ~ "1];";
     }
 
+	static if(isFloatingPoint!T)
+	{
+	/**
+	 *   Compile time nan matrix representation
+	 */
+	mixin(makeNanEnum());
+
+	/**
+	 *   Build compile time nan matrix representation
+	 */
+	static string makeNanEnum() pure nothrow @safe
+	{
+		string result = "enum T[linearSize] nanRepresentation = [";
+		foreach(i; 0..linearSize)
+		result ~= "T.nan, ";
+		return result ~ "];";
+	}
+	}
+
     /**
      *  Constructor that uses array of values for compiling time creating identity matrix
      */
@@ -402,7 +451,32 @@ private:
          */
         T[linearSize] matrix;
     }
-};
+}
+
+/**
+ *  Predicate for SquareMatrix
+ */
+template isLibMathSquareMatrix(T)
+{
+	import std.traits;
+	static if(__traits(compiles, {T.Type a;}) && __traits(compiles, {auto a = T.size;}))
+		enum bool isLibMathSquareMatrix = is(T == SquareMatrix!(T.Type, T.size));
+	else
+		enum bool isLibMathSquareMatrix = false;
+}
+
+alias isNaN = std.math.isNaN;
+/**
+ *  The property is true if any element is NaN
+ */
+bool isNaN(T)(T matrix)pure nothrow @safe
+if(isLibMathSquareMatrix!T)
+{
+	auto result = false;
+	for(auto i = 0; !result && i < matrix.linearSize; ++i)
+		result = result || isNaN(matrix.matrix[i]);
+	return result;
+}
 
 /**
  *  Scale transformations generator
@@ -449,6 +523,7 @@ SquareMatrix!(T, 4) initRotationTransformation (T) (Vector!(T, 3) data) pure not
 {
     return initRotationTransformation(data.x, data.y, data.z);
 }
+
 /**
  *  Position transformations generator
  */
@@ -522,6 +597,237 @@ in
 body
 {
     return initPerspectiveTransformation(data[0], data[1], data[2], data[3], data[4]);
+}
+
+@property T inverse(T)(T matrix)pure nothrow @safe
+if(isLibMathSquareMatrix!T)
+{
+	if(isNaN(matrix))
+		return T.nan;
+	auto lup = LUdecomposition(matrix);
+	if(abs(determinant(lup)) > sqrt((T.Type).epsilon))
+	{
+		auto result = T.identity;
+		result.permute!rows(lup[2]);
+
+		// L solve
+		foreach(i;0..matrix.size)
+		foreach(j;0..matrix.size)
+		{
+			foreach(k;0..i)
+			result[i, j] -= lup[0][i, k] * result[k, j];
+			result[i, j] /= lup[0][i, i];
+		}
+
+		// U solve
+		foreach_reverse(i;0..matrix.size)
+		foreach(j;0..matrix.size)
+		{
+			foreach(k;i + 1..matrix.size)
+			result[i, j] -= lup[1][i, k] * result[k, j];
+			result[i, j] /= lup[1][i, i];
+		}
+
+		return result;
+	}
+	else
+	{
+		return T.nan;
+	}
+}
+
+@property T.Type determinant(T)(T matrix)pure nothrow @safe
+if(isLibMathSquareMatrix!T)
+{
+	return determinant(LUdecomposition(matrix));
+}
+
+private T.Type determinant(T)(Tuple!(T, T, Permutation) lup)pure nothrow @safe
+if(isLibMathSquareMatrix!T)
+{
+	typeof(return) det = cast(T.Type)lup[2].determinant;
+	foreach(i;0..lup[0].size)
+	det *= lup[0][i, i] * lup[1][i, i];
+	return det;
+}
+
+auto LUdecomposition(T)(T matrix)pure nothrow @safe
+if(isLibMathSquareMatrix!T)
+{
+	size_t indexOfMaxAbs(const ref T matrix, size_t collumn, T.Type[T.size
+
+	] sub)pure nothrow @safe
+	in
+	{
+		assert(collumn < matrix.size);
+	}
+	body
+	{
+		auto result = collumn;
+		foreach(i;collumn + 1..matrix.size)
+		if(abs(matrix[result, collumn] - sub[collumn]) < abs(matrix[i, collumn] - sub[i]))
+			result = i;
+		return result;
+	}
+
+	T L;
+	T U;
+	auto p = Permutation(matrix.size);
+
+	foreach(i;0..T.size)
+	{
+
+
+		T.Type[T.size] sub;
+		foreach(k;i..T.size)
+		{
+			sub[k] = cast(T.Type)0;
+			foreach(j;0..i)
+			sub[k] += L[k, j] * U[j, i];
+		}
+
+		auto pivot = indexOfMaxAbs(matrix, i, sub);
+		if(pivot != i)
+		{
+			p.transpose(i, pivot);
+			auto t = Permutation.transposition(matrix.size, i, pivot);
+			matrix.permute!rows(t);
+			L.permute!rows(t);
+			std.algorithm.swap(sub[i], sub[pivot]);
+		}
+
+
+		auto dSquare = matrix[i, i] - sub[i];
+
+		if(abs(dSquare)<=T.Type.epsilon)
+		{
+			L[i, i] = U[i, i] = cast(T.Type)0;
+			return tuple(L, U, p);
+		}
+
+		bool sign = dSquare < cast(T.Type)0;
+		if(sign)
+			dSquare = -dSquare;
+		L[i, i] = sqrt(dSquare);
+		U[i, i] = sign ? -L[i, i] : L[i, i];
+
+		foreach(j; i+1..T.size)
+		{
+			L[j, i] = matrix[j, i];
+
+			foreach(k; 0..i)
+			L[j, i] -= L[j, k] * U[k, i];
+
+			L[j, i] /= U[i, i];
+		}
+
+		foreach(j; i+1..T.size)
+		{
+			U[i, j] = matrix[i, j];
+
+			foreach(k; 0..i)
+			U[i, j] -= L[i, k] * U[k, j];
+
+			U[i, j] /= L[i, i];
+		}
+	}
+
+	return tuple(L, U, p);
+}
+
+enum MatrixLines{rows, collumns};
+alias rows = MatrixLines.rows;
+alias collumns = MatrixLines.collumns;
+
+T permutation(MatrixLines kind, T)(T matrix, Permutation p)@safe
+if(isLibMathSquareMatrix!T)
+in
+{
+	// Why this don't compile? //assert(T.size == permutation.size, "permutation size mismatch");
+}
+body
+{
+	typeof(return) result = matrix;
+	result.permute!kind(p);
+	return result;
+}
+
+void permute(MatrixLines kind, T)(ref T matrix, Permutation p)@safe
+if(isLibMathSquareMatrix!T)
+in
+{
+	// Why this don't compile? //assert(matrix.size == permutation.size, "permutation size mismatch");
+}
+body
+{
+	void set(ref T object, size_t position, T.Type[T.size] value)
+	in
+	{
+		assert(position < T.size);
+	}
+	body
+	{
+		foreach(i, e; value)
+		static if(rows == kind)
+			object.matrix[position * T.size + i] = value[i];
+		else static if(collumns == kind)
+			object.matrix[i * T.size + position] = value[i];
+	}
+
+	T.Type[T.size] get(const ref T object, size_t position)
+	in
+	{
+		assert(position < T.size);
+	}
+	body
+	{
+		typeof(return) value = new T.Type[T.size];
+		foreach(i, e; value)
+		static if(rows == kind)
+			value[i] = object.matrix[position * T.size + i];
+		else static if(collumns == kind)
+			value[i] = object.matrix[i * T.size + position];
+		return value;
+	}
+
+	mixin CorePermute!(matrix, set, get, p);
+	permute();
+}
+
+T.Type operatorNorm(OperatorNorm kind, T)(T matrix)
+if(isLibMathSquareMatrix!T)
+{
+	static if(two == kind)
+	{
+		static assert(false, "Euclidian operator norm not implemented yet");
+	}
+	else
+	{
+		auto max = cast(T.Type)-1; // There are only nonnegative value valid
+		foreach(i;0..matrix.size)
+		{
+			auto sum = cast(T.Type)0;
+			foreach(j;0..matrix.size)
+			static if(infinity == kind)
+				sum += abs(matrix[i, j]);
+			else
+				sum += abs(matrix[j, i]);
+			max = std.algorithm.max(max, sum);
+		}
+		return max;
+	}
+}
+
+unittest
+{
+	// Testing predicate
+	assert(isLibMathSquareMatrix!Matrix2x2f);
+	assert(isLibMathSquareMatrix!Matrix3x3f);
+	assert(isLibMathSquareMatrix!Matrix4x4f);
+	assert(isLibMathSquareMatrix!(SquareMatrix!(int, 3)));
+	assert(!isLibMathSquareMatrix!int);
+	assert(!isLibMathSquareMatrix!float);
+	assert(!isLibMathSquareMatrix!Vector3f);
 }
 
 unittest
@@ -639,6 +945,87 @@ unittest
         1.5f, 0f, 0f,
         0f, 0f, 0f,
         0f, 0f, 0f
-    )
-          );
+    ));
+}
+
+unittest
+{
+	// Testing nan
+	assert(!isNaN(Matrix4x4f.identity));
+	assert(isNaN(Matrix2x2f(0.0f, 2.0f, float.nan, 4.0f)));
+	assert(isNaN(Matrix3x3f.nan));
+	auto m = Matrix4x4f.nan;
+	foreach(i;0..m.size)
+	foreach(j;0..m.size)
+	assert(isNaN(m[i, j]));
+}
+
+unittest
+{
+	// Testing inverse
+	auto m = Matrix4x4f(
+	 1f, 1f, 1f, 6f,
+	 4f, 1f, 1f, -2f,
+	-1f, -1, 1f, -1f,
+	 1f, -1f, 1f, -1f);
+	assert(operatorNorm!one(m * m.inverse - m.identity) / operatorNorm!one(m) < float.epsilon);
+	assert(isNaN(Matrix3x3f(1f, 2f, 3f, 2f, 4f, 6f, 1f, 0f, 1f).inverse));
+	assert(isNaN(Matrix2x2f(float.nan, 1, -1, 2).inverse));
+	assert(isNaN(Matrix4x4f.nan));
+
+}
+
+unittest
+{
+	// Testing determinant
+	assert(1.0f == (Matrix2x2f.identity).determinant);
+	assert(1.0f == (Matrix3x3f.identity).determinant);
+	assert(1.0f == (Matrix4x4f.identity).determinant);
+	auto m = Matrix4x4f( -1.0f,   4.0f,   5.0f,   6.0f,
+	                      1.0f,   5.0f,   7.0f,   3.0f,
+	                      2.0f,  10.0f, -11.0f,   1.0f,
+	                      3.0f,   0.0f,   6.0f,  -1.0f);
+	assert(abs((cast(m.Type)900 - m.determinant)/cast(m.Type)900) <= m.Type.epsilon);
+}
+
+unittest
+{
+	// Testing LU decomposition
+	auto m = Matrix4x4f( -1.0f,   4.0f,   5.0f,   6.0f,
+	                      1.0f,   5.0f,   7.0f,   3.0f,
+	                      2.0f,  10.0f, -11.0f,   1.0f,
+	                      3.0f,   0.0f,   6.0f,  -1.0f);
+	auto lup = LUdecomposition(m);
+	assert(operatorNorm!one(m.permutation!rows(lup[2]) - lup[0] * lup[1]) / operatorNorm!one(m) <= (m.Type).epsilon);
+}
+
+unittest
+{
+	// Testing permutation
+	auto m = Matrix4x4f( 1.0f,  2.0f,  3.0f,  4.0f,
+	                     5.0f,  6.0f,  7.0f,  8.0f,
+	                     9.0f, 10.0f, 11.0f, 12.0f,
+	                    13.0f, 14.0f, 15.0f, 16.0f);
+	auto p = Permutation(4);
+	p.transpose(1,2);
+	p.transpose(2,3);
+	assert(Matrix4x4f(   1.0f,  2.0f,  3.0f,  4.0f,
+	                     9.0f, 10.0f, 11.0f, 12.0f,
+	                    13.0f, 14.0f, 15.0f, 16.0f,
+	                     5.0f,  6.0f,  7.0f,  8.0f) == m.permutation!rows(p));
+
+	assert(Matrix4x4f(   1.0f,  3.0f,  4.0f,  2.0f,
+	                     5.0f,  7.0f,  8.0f,  6.0f,
+	                     9.0f, 11.0f, 12.0f, 10.0f,
+	                    13.0f, 15.0f, 16.0f, 14.0f) == m.permutation!collumns(p));
+}
+
+unittest
+{
+	// Testing operatorNorm
+	assert(0.0f == operatorNorm!one(Matrix2x2f.zero));
+	assert(1.0f == operatorNorm!one(Matrix3x3f.identity));
+	assert(1.0f == operatorNorm!infinity(Matrix4x4f.identity));
+	assert(7.0f == operatorNorm!one(Matrix2x2f(2.0f, -3.0f, 0.0f, 4.0f)));
+	assert(5.0f == operatorNorm!infinity(Matrix2x2f(2.0f, -3.0f, 0.0f, 4.0f)));
 }

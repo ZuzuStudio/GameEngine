@@ -6,6 +6,7 @@ private
     import std.math;
     import std.range;
     import std.traits;
+    import lib.math.permutation;
 }
 
 import lib.math.squarematrix;
@@ -22,10 +23,14 @@ alias Vector2d = Vector!(double, 2);
 alias Vector3d = Vector!(double, 3);
 alias Vector4d = Vector!(double, 4);
 
-struct Vector(T, size_t size)
-if(isNumeric!T && size > 0 && size <= 4)
+struct Vector(T, size_t sizeCTA)
+if(isNumeric!T && sizeCTA > 0 && sizeCTA <= 4) // CTA is compile time argument
 {
 public:
+
+	alias size = sizeCTA;
+	alias Type = T;
+
     /**
      *  Constructor with variable number of arguments
      */
@@ -337,6 +342,68 @@ T distancesqr(T) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
     return difference.lengthsqr;
 }
 
+/**
+ *  Permutated copy (e.g. for solve equation)
+ */
+Vector!(T, size) permutation(T, size_t size)(Vector!(T, size) original, Permutation permutation)@safe
+in
+{
+	assert(size == permutation.size, "permutation size missmatch");
+}
+body
+{
+	typeof(return) result = original;
+
+	void set(ref Vector!(T, size) object, size_t position, T value)
+	in
+	{
+		assert(position < size);
+	}
+	body
+	{
+		object.coordinates[position] = value;
+	}
+
+	T get(ref Vector!(T, size) object, size_t position)
+	in
+	{
+		assert(position < size);
+	}
+	body
+	{
+		return object.coordinates[position];
+	}
+
+	mixin CorePermute!(result, set, get, permutation);
+	permute();
+	return result;
+}
+
+enum OperatorNorm{one=1, two, infinity};
+alias one = OperatorNorm.one;
+alias two = OperatorNorm.two;
+alias infinity = OperatorNorm.infinity;
+
+T operatorNorm(OperatorNorm kind, T, size_t size)(Vector!(T,size) vector)
+{
+	static if(one == kind)
+	{
+		auto sum = cast(T)0;
+		foreach(x; vector.coordinates)
+		sum += abs(x);
+		return sum;
+	}
+	else static if(two == kind)
+		return vector.length;
+	else static if(infinity == kind)
+	{
+		auto max = cast(T) - 1;
+		foreach(x; vector.coordinates)
+		max = std.algorithm.max(max, abs(x));
+		return max;
+	}
+}
+
 unittest
 {
     // Testing default zero initialization
@@ -477,6 +544,24 @@ unittest
     assert(5.0 == Vector4f(3.0f, 0.0f, 4.0f, 0.0f).length);
     assert(0 == Vector!(int, 4)(3, 0, 4, 0).length);//TODO change semantics
     assert(Vector3f(0.6f, 0.0f, 0.8f) == Vector3f(3.0f, 0.0f, 4.0f).normalized);
+}
+
+unittest
+{
+	// Testing permutationBy
+	auto v = Vector4f(1.0f, 2.0f, 3.0f, 4.0f);
+	auto p = Permutation(4);
+	p.transpose(1,2);
+	p.transpose(2,3);
+	assert(Vector4f(1.0f, 3.0f, 4.0f, 2.0f) == v.permutation(p));
+}
+
+unittest
+{
+	// Testing operator norm
+	assert(7.0f == operatorNorm!one(Vector2f(3.0f, -4.0f)));
+	assert(5.0f == operatorNorm!two(Vector2f(3.0f, -4.0f)));
+	assert(4.0f == operatorNorm!infinity(Vector2f(3.0f, -4.0f)));
 }
 
 unittest
