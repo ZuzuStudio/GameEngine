@@ -22,6 +22,7 @@ limitations under the License.
 
 Use this command to execute the project disired:
 `dub --config=<project_name>`
+
 __N.B!__ On linux with nvdia optimus you should use bumblebee.
 Write `primusrun` or `optirun` before.
 
@@ -29,8 +30,11 @@ For example:
 `dub --config=complexcollision`
 
 Current interesting projects:
+
 "simplecollision"
+
 "complexcollision"
+
 "wedge"
 
 
