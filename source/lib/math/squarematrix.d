@@ -636,6 +636,26 @@ if(isLibMathSquareMatrix!T)
 	}
 }
 
+Vector!(T.Type, T.size) solve(T)(T matrix, Vector!(T.Type, T.size)vector)pure nothrow @safe
+if(isLibMathSquareMatrix!T)
+{
+
+	if(isNaN(matrix))
+		return typeof(return).nan;
+
+	auto lup = LUdecomposition(matrix);
+	if(abs(determinant(lup)) > sqrt((T.Type).epsilon))
+	{
+		typeof(return) result;
+		return result;
+	}
+	else
+	{
+		return typeof(return).nan;
+	}
+
+}
+
 @property T.Type determinant(T)(T matrix)pure nothrow @safe
 if(isLibMathSquareMatrix!T)
 {

@@ -163,6 +163,18 @@ public:
         return Vector!(T, size).init;
     }
 
+	/**
+	 *  NaN property
+	 */
+	static if(isFloatingPoint!T)
+	{
+		@property static Vector nan() pure nothrow @safe
+		{
+			return Vector(nanRepresentation);
+		}
+
+	}
+
     /**
      *  Get vector length squared
      */
@@ -192,37 +204,33 @@ public:
         }
     }
 
-    /**
-     *  Set vector length to 1
-     */
-    void normalize() pure nothrow @safe
-    {
-        static if (isFloatingPoint!T)
-        {
-            T lensqr = lengthsqr();
-            if (lensqr > T.epsilon)
-            {
-                T coef = 1.0 / sqrt(lensqr);
-                foreach (ref component; coordinates)
-                component *= coef;
-            }
-        }
-        else
-        {
-            // TODO
-            // behavior in case of integer vectors
-        }
-    }
+	static if (isFloatingPoint!T)
+	{
 
-    /**
-     *  Return normalized copy
-     */
-    @property Vector!(T, size) normalized() const pure nothrow @safe
-    {
-        Vector!(T, size) result = this;
-        result.normalize();
-        return result;
-    }
+		/**
+		 *  Set vector length to 1
+		 */
+		void normalize() pure nothrow @safe
+		{
+			T lensqr = lengthsqr();
+			if (lensqr > T.epsilon)
+			{
+				T coef = 1.0 / sqrt(lensqr);
+				foreach (ref component; coordinates)
+				component *= coef;
+			}
+		}
+
+		/**
+		 *  Return normalized copy
+		 */
+		@property Vector!(T, size) normalized() const pure nothrow @safe
+		{
+			Vector!(T, size) result = this;
+			result.normalize();
+			return result;
+		}
+	}
 
     /**
      *  Return true if all components are zero
@@ -282,6 +290,13 @@ private:
      */
     mixin(declaration());
 
+	/**
+	 *  Declaration nan representation
+	 */
+	static if(isFloatingPoint!T){
+		mixin(nanEnum());
+	}
+
     /**
      *   Build compile time zerovector representation
      */
@@ -292,6 +307,39 @@ private:
         result ~= "0, ";
         return result ~ "];";
     }
+
+	static string nanEnum()pure nothrow @safe
+	{
+		string result = "enum T[size] nanRepresentation = [";
+		foreach(unused; 0..size)
+		result ~= "T.nan, ";
+		return result ~ "];";
+	}
+}
+
+/**
+ *  Predicate for Vector
+ */
+template isLibMathVector(T)
+{
+	import std.traits;
+	static if(__traits(compiles, {T.Type a;}) && __traits(compiles, {auto a = T.size;}))
+		enum bool isLibMathVector = is(T == Vector!(T.Type, T.size));
+	else
+		enum bool isLibMathVector = false;
+}
+
+alias isNaN = std.math.isNaN;
+/**
+ *  The property is true if any element is NaN
+ */
+bool isNaN(T)(T vector)pure nothrow @safe
+if(isLibMathVector!T)
+{
+	auto result = false;
+	for(auto i = 0; !result && i < vector.size; ++i)
+		result = result || isNaN(vector.coordinates[i]);
+	return result;
 }
 
 /**
@@ -406,6 +454,15 @@ T operatorNorm(OperatorNorm kind, T, size_t size)(Vector!(T,size) vector)
 
 unittest
 {
+	// Testing isLibMathVector
+	assert(isLibMathVector!Vector2f);
+	assert(isLibMathVector!Vector2i);
+	assert(isLibMathVector!Vector4f);
+	assert(!isLibMathVector!float);
+}
+
+unittest
+{
     // Testing default zero initialization
     Vector3f a = Vector3f();
     assert([0.0f, 0.0f, 0.0f] == a.coordinates);
@@ -420,6 +477,14 @@ unittest
     assert([0.0, 0.0] == (Vector2d.init).coordinates);
     assert([0.0, 0.0, 0.0] == (Vector3d.init).coordinates);
     assert([0.0, 0.0, 0.0, 0.0] == (Vector4d.init).coordinates);
+}
+
+unittest
+{
+	// Testing nan
+	assert(isNaN(Vector2f.nan));
+	assert(isNaN(Vector4f(float.nan, 0.0f, 0.0f, 2.0f)));
+	assert("[nan, nan, nan]" == (Vector3f.nan).toString());
 }
 
 unittest
