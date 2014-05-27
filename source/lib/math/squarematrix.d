@@ -647,6 +647,7 @@ if(isLibMathSquareMatrix!T)
 	if(abs(determinant(lup)) > sqrt((T.Type).epsilon))
 	{
 		typeof(return) result;
+		vector.permute(lup[2]);
 		return result;
 	}
 	else
