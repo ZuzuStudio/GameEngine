@@ -648,6 +648,23 @@ if(isLibMathSquareMatrix!T)
 	{
 		typeof(return) result;
 		vector.permute(lup[2]);
+
+		// L solve
+		foreach(i;0..vector.size)
+		{
+			result[i] = vector[i];
+			foreach(j;0..i)
+			result[i] -= lup[0][i, j] * result[j];
+			result[i] /= lup[0][i, i];
+		}
+
+		// U solve
+		foreach_reverse(i;0..vector.size)
+		{
+			foreach(j;i + 1..vector.size)
+			result[i] -= lup[1][i, j] * result[j];
+			result[i] /= lup[1][i, i];
+		}
 		return result;
 	}
 	else

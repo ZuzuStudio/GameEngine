@@ -393,38 +393,50 @@ T distancesqr(T) (Vector!(T, size) a, Vector!(T, size) b) pure nothrow @safe
 /**
  *  Permutated copy (e.g. for solve equation)
  */
-Vector!(T, size) permutation(T, size_t size)(Vector!(T, size) original, Permutation permutation)@safe
+T permutation(T)(T vector, Permutation p)@safe
+if(isLibMathVector!T)
 in
 {
-	assert(size == permutation.size, "permutation size missmatch");
+	// Why this don't compile? //assert(T.size == permutation.size, "permutation size mismatch");
 }
 body
 {
-	typeof(return) result = original;
+	typeof(return) result = vector;
+	result.permute(p);
+	return result;
+}
 
-	void set(ref Vector!(T, size) object, size_t position, T value)
+
+void permute(T)(ref T vector, Permutation permutation)@safe
+if(isLibMathVector!T)
+in
+{
+	assert(vector.size == permutation.size, "permutation size missmatch");
+}
+body
+{
+	void set(ref T object, size_t position, T.Type value)
 	in
 	{
-		assert(position < size);
+		assert(position < object.size);
 	}
 	body
 	{
 		object.coordinates[position] = value;
 	}
 
-	T get(ref Vector!(T, size) object, size_t position)
+	T.Type get(ref T object, size_t position)
 	in
 	{
-		assert(position < size);
+		assert(position < object.size);
 	}
 	body
 	{
 		return object.coordinates[position];
 	}
 
-	mixin CorePermute!(result, set, get, permutation);
+	mixin CorePermute!(vector, set, get, permutation);
 	permute();
-	return result;
 }
 
 enum OperatorNorm{one=1, two, infinity};
