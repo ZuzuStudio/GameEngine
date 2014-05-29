@@ -155,6 +155,22 @@ public:
         return coordinates[index] = value;
     }
 
+	/**
+	 *   Assign index operator Vector!(T, size)[i] <op>= T
+	 *   Indices start with 0
+	 */
+	T opIndexOpAssign(string op)(T value, size_t index) pure nothrow @safe
+	if(op == "+" || op == "-" || op == "*" || op == "/" || op == "^^")
+	in
+	{
+		assert ((0 <= index) && (index < size),
+		"Vector!(T,size).opIndexOpAssign(size_t index): array index out of bounds");
+	}
+	body
+	{
+		mixin("return coordinates[index] " ~ op ~ "= value;");
+	}
+
     /**
      *  Zero property, for more sweet usability
      */

@@ -636,18 +636,17 @@ if(isLibMathSquareMatrix!T)
 	}
 }
 
-Vector!(T.Type, T.size) solve(T)(T matrix, Vector!(T.Type, T.size)vector)pure nothrow @safe
-if(isLibMathSquareMatrix!T)
+Vector!(T, size) solve(T, size_t size)(SquareMatrix!(T, size) matrix, Vector!(T, size)vector)pure nothrow @safe
 {
 
 	if(isNaN(matrix))
 		return typeof(return).nan;
 
 	auto lup = LUdecomposition(matrix);
-	if(abs(determinant(lup)) > sqrt((T.Type).epsilon))
+	if(abs(determinant(lup)) > sqrt(T.epsilon))
 	{
 		typeof(return) result;
-		vector.permute(lup[2]);
+		lib.math.vector.permute(vector, lup[2]);
 
 		// L solve
 		foreach(i;0..vector.size)
@@ -1006,11 +1005,25 @@ unittest
 	 4f, 1f, 1f, -2f,
 	-1f, -1, 1f, -1f,
 	 1f, -1f, 1f, -1f);
-	assert(operatorNorm!one(m * m.inverse - m.identity) / operatorNorm!one(m) < float.epsilon);
+	assert(operatorNorm!one(m * m.inverse - m.identity) / operatorNorm!one(m) <= float.epsilon);
 	assert(isNaN(Matrix3x3f(1f, 2f, 3f, 2f, 4f, 6f, 1f, 0f, 1f).inverse));
 	assert(isNaN(Matrix2x2f(float.nan, 1, -1, 2).inverse));
 	assert(isNaN(Matrix4x4f.nan));
 
+}
+
+unittest
+{
+	// Testing solve
+	auto v = Vector4f(12f, -1f, -4f, -2);
+	auto m = Matrix4x4f(
+	 1f, 1f, 1f, 6f,
+	 4f, 1f, 1f, -2f,
+	-1f, -1, 1f, -1f,
+	 1f, -1f, 1f, -1f);
+	alias operatorNorm = lib.math.vector.operatorNorm;
+	assert(operatorNorm!one(solve(m, v) - Vector4f(1f, 0f, -1f, 2f)) /
+	      operatorNorm!one(Vector4f(1f, 0f, -1f, 2f)) <= 2f * (v.Type).epsilon);
 }
 
 unittest
