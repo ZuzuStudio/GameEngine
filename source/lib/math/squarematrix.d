@@ -1015,15 +1015,15 @@ unittest
 unittest
 {
 	// Testing solve
-	auto v = Vector4f(12f, -1f, -4f, -2);
+	auto v = Vector4f(5f, -91f, 272f, 93f);
 	auto m = Matrix4x4f(
-	 1f, 1f, 1f, 6f,
-	 4f, 1f, 1f, -2f,
-	-1f, -1, 1f, -1f,
-	 1f, -1f, 1f, -1f);
+	 16f, -14f,  13f,   1f,
+	-32f, -16f,  71f,   6f,
+	256f,  32f,  16f,  16f,
+	 80f,  10f,  -3f,   5f);
 	alias operatorNorm = lib.math.vector.operatorNorm;
 	assert(operatorNorm!one(solve(m, v) - Vector4f(1f, 0f, -1f, 2f)) /
-	      operatorNorm!one(Vector4f(1f, 0f, -1f, 2f)) <= 2f * (v.Type).epsilon);
+	      operatorNorm!one(Vector4f(1f, 0f, -1f, 2f)) <= (v.Type).epsilon);
 }
 
 unittest
