@@ -688,6 +688,21 @@ if(isLibMathSquareMatrix!T)
 	return det;
 }
 
+/**
+ *  Calculate LU decomposition of matrix.
+ *
+ *  Each nonsingular matrix A can be represented as P * A = L * U, where P is permutation matrix,
+ *  which permutes rows, L is low triangle matrix and U is upper triangle matrix. Diagonal elements can be calculated
+ *  in different ways, e.g. often L diagonal consits of ones, then U diagonal is
+ *  determined in the unique way. The decomposition is used for calculate the determinant, the inverse matrix
+ *  and solve a linear sytem of equations.
+ *
+ *  This function returns tuple of two matrices and permutation as examplar of corresponding structure
+ *  from lib.math.permutation module. The lup[0] is L, lup[1] is U and lup[2] is permutation.
+ *  L and U providing by this implementation have equal in absolute value elements and possible negative
+ *  sign only in U matrix. This kind of LU decomposition matches with Cholesky decomposition
+ *  for the symmetric positive determined matrix A.
+ */
 auto LUdecomposition(T)(T matrix)pure nothrow @safe
 if(isLibMathSquareMatrix!T)
 {
@@ -869,7 +884,7 @@ unittest
 
 unittest
 {
-// Testing constructors
+	// Testing constructors
     float ar[9] = [1,2,3,4,5,6,7,8,9];
     Matrix3x3f m1 = Matrix3x3f(ar);
     Matrix3x3f m2 = Matrix3x3f(1,2,3,4,5,6,7,8,9);
@@ -881,7 +896,7 @@ unittest
 
 unittest
 {
-// Testing special functions
+	// Testing special functions
     auto matrix = initScaleTransformation(1.4f, 3.0f, 2.0f);
     assert(matrix == Matrix4x4f(
         1.4f, 0.0f, 0.0f, 0.0f,
