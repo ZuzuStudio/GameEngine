@@ -35,37 +35,16 @@ void main()
     shader.useShaderProgram();
     
     engine.observer.setPosition(-200, 100, -2000);
+	
+	// even 1 model would be enough, there are 2 only for different textures
+    WackySimpleMesh woodSphere = new WackySimpleMesh("models/sphere.md2");
+    woodSphere.setTexture("textures/wood.jpg");
+    WackySimpleMesh metalSphere = new WackySimpleMesh("models/sphere.md2");
+    metalSphere.setTexture("textures/metal.jpg");
 
-    /* container of speres meshses */
-    WackySimpleMesh []spheries;
-    
-    /* lenght of edge of cube concist of spheres */
-/*-----------------------------------------------*/
-    int size = 7;
-/*-----------------------------------------------*/
-
-    foreach(i; 0..size * size * size ){
-        WackySimpleMesh sphere = new WackySimpleMesh("models/sphere.md2");
-        sphere.setTexture("textures/wood.jpg");
-        spheries ~= sphere;
-    }
-
-    /* The Distroyers*/
-    WackySimpleMesh distroyers[];
-    
-/*-----------------------------------------------*/
-    int distrNumber = 7; // number of destroyres
-/*-----------------------------------------------*/
-    foreach(i; 0..distrNumber){
-        WackySimpleMesh distroyer = new WackySimpleMesh("models/sphere.md2");
-        distroyer.setTexture("textures/metal.jpg");
-        distroyers ~= distroyer;
-    }
-
-    spheries ~= distroyers;
-    
+    int size = 8, destrNumber = 8; // number of destroyres
     engine.enableVSync();
-    
+
     /**
      *   Physics settings
      */
@@ -85,10 +64,10 @@ void main()
             rb.applyTorque(Vector3f(x*10_000, y*10_000, z*10_000));
             world.addDynamicBody(rb);
     }
-     
-    /* The distroyers */
-    float k = 3;        // size koeff of big sphere (of Distroyers)
-    foreach(i; 0..distrNumber/2){
+
+    /* The destroyers */
+    float k = 3;        // size koeff of big sphere (of Destroyers)
+    foreach(i; 0..destrNumber){
         RigidBody rb = new RigidBody(10.0f, // mass
                                        Vector3f(size* i * 10, size * i * 10, -10_000 + i * 2_00),        // position
                                        Quaternionf(0,0,0,1),            // orientation
@@ -99,32 +78,20 @@ void main()
         rb.applyTorque(Vector3f(i*10_000, i*10_000, i*10_000));
         world.addDynamicBody(rb);
     }
-    
-    foreach(i; (distrNumber/2)..distrNumber){
-        RigidBody rb = new RigidBody(10.0f, // mass
-                                       Vector3f(size* i * 10, size * i * 10, -10_000 + (distrNumber - i) * 2_00),        // position
-                                       Quaternionf(0,0,0,1),            // orientation
-                                       new Sphere(Vector3f(), 19 * k),    // sphere with radius 19.0
-                                       1.0);                              // bounce 
-        
-        rb.applyForce(Vector3f(0,0,1_000_000));
-        rb.applyTorque(Vector3f(i*10_000, i*10_000, i*10_000));
-        world.addDynamicBody(rb);
-    }
-        
+
     auto scene = delegate()
     {   
         foreach(i; 0..size * size * size)
         {
-            spheries[i].render (shader.getUniformLocation("meshTransformation"),
+            woodSphere.render (shader.getUniformLocation("meshTransformation"),
                             shader.getUniformLocation("sampler"),
                             world.getDynamicBody(i).transformation
                            );
-        }   
-        
-         foreach(i; size * size * size..size * size *size + distrNumber)
+        }
+
+         foreach(i; size * size * size..size * size *size + destrNumber)
         {
-            spheries[i].render (shader.getUniformLocation("meshTransformation"),
+            metalSphere.render (shader.getUniformLocation("meshTransformation"),
                             shader.getUniformLocation("sampler"),
                             world.getDynamicBody(i).transformation * initScaleTransformation(k, k, k) 
                            );
