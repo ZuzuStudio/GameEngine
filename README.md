@@ -2,6 +2,10 @@
 
 Interrelated graphics and physics engines written on D.
 
+## Attention
+
+1 VI 2014 repository was rebased (clean unexpected binaries) please reclone.
+
 ## License
 
 Copyright (c) 2014 Aliaksand Kachurka, Aliaksei Stankevich, Artsiom Stsepanishchau
