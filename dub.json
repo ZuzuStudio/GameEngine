@@ -16,7 +16,7 @@
 		{
 			"name": "library",
 			"targetType": "library",
-			"targetPath": "build"
+			"targetPath": "build/lib"
 		},
 		{
 			"name": "benchmarks",
@@ -37,16 +37,16 @@
 			"targetType": "executable",
 			"sourcePath": "applications/graphicsTests/GreenSquare",
 			"targetName": "greensquare",
-			"targetPath": "applications/graphicsTests/GreenSquare",
-			"workingDirectory": "applications/graphicsTests/GreenSquare"
+			"targetPath": "build/graphicsTests/GreenSquare",
+			"workingDirectory": "build/graphicsTests/GreenSquare"
 		},
 		{
 			"name": "md2models",
 			"targetType": "executable",
 			"sourcePath": "applications/MD2Models",
 			"targetName": "md2models",
-			"targetPath": "applications/MD2Models",
-			"workingDirectory": "applications/MD2Models"
+			"targetPath": "build/MD2Models",
+			"workingDirectory": "build/MD2Models"
 		},
         {
 
@@ -54,8 +54,8 @@
             "targetType": "executable",
             "sourcePath": "applications/SimpleCollision",
             "targetName": "simplecollision",
-            "targetPath": "applications/SimpleCollision",
-            "workingDirectory": "applications/SimpleCollision"
+            "targetPath": "build/SimpleCollision",
+            "workingDirectory": "build/SimpleCollision"
         },
         {
 
@@ -63,8 +63,8 @@
             "targetType": "executable",
             "sourcePath": "applications/ComplexCollision",
             "targetName": "complexcollision",
-            "targetPath": "applications/ComplexCollision",
-            "workingDirectory": "applications/ComplexCollision"
+            "targetPath": "build/ComplexCollision",
+            "workingDirectory": "build/ComplexCollision"
         },
         {
 
@@ -72,8 +72,8 @@
             "targetType": "executable",
             "sourcePath": "applications/Wedge",
             "targetName": "wedge",
-            "targetPath": "applications/Wedge",
-            "workingDirectory": "applications/Wedge"
+            "targetPath": "build/Wedge",
+            "workingDirectory": "build/Wedge"
         }
 	]
 } 

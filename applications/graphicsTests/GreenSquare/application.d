@@ -25,8 +25,8 @@ void main()
     WackyShaderProgram shader = new WackyShaderProgram;
 
     // Attaches our source code files
-    shader.attachShader("shaders/vertexShader.glsl", WackyShaderTypes.VERTEX_SHADER);
-    shader.attachShader("shaders/fragmentShader.glsl", WackyShaderTypes.FRAGMENT_SHADER);
+    shader.attachShader("../../../resources/shaders/greenSquareVS.glsl", WackyShaderTypes.VERTEX_SHADER);
+    shader.attachShader("../../../resources/shaders/greenSquareFS.glsl", WackyShaderTypes.FRAGMENT_SHADER);
 
     // Links the program
     shader.linkShaderProgram();

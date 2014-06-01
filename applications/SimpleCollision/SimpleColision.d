@@ -25,19 +25,19 @@ void main()
     engine.observer.setPosition(0.0f, 0.0f, -300.0f);
 
     WackyShaderProgram shader = new WackyShaderProgram;
-    shader.attachShader("shaders/vertexShader.glsl", WackyShaderTypes.VERTEX_SHADER);
-    shader.attachShader("shaders/fragmentShader.glsl", WackyShaderTypes.FRAGMENT_SHADER);
+    shader.attachShader("../../resources/shaders/advanceVS.glsl", WackyShaderTypes.VERTEX_SHADER);
+    shader.attachShader("../../resources/shaders/advanceFS.glsl", WackyShaderTypes.FRAGMENT_SHADER);
     shader.linkShaderProgram();
     shader.useShaderProgram();
 
-    WackySimpleMesh firstSphere = new WackySimpleMesh("models/sphere.md2");
-    firstSphere.setTexture("textures/metal.jpg");
+    WackySimpleMesh firstSphere = new WackySimpleMesh("../../resources/models/sphere.md2");
+    firstSphere.setTexture("../../resources/textures/metal.jpg");
 
-    WackySimpleMesh secondSphere = new WackySimpleMesh("models/sphere.md2");
-    secondSphere.setTexture("textures/wood.jpg");
+    WackySimpleMesh secondSphere = new WackySimpleMesh("../../resources/models/sphere.md2");
+    secondSphere.setTexture("../../resources/textures/wood.jpg");
 
-    WackySimpleMesh thirdSphere = new WackySimpleMesh("models/sphere.md2");
-    thirdSphere.setTexture("textures/wood.jpg");
+    WackySimpleMesh thirdSphere = new WackySimpleMesh("../../resources/models/sphere.md2");
+    thirdSphere.setTexture("../../resources/textures/wood.jpg");
 
     engine.enableVSync();
     auto step = 0.0f;

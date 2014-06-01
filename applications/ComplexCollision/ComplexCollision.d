@@ -25,45 +25,45 @@ void main()
     engine.observer.setPosition(0.0f, 0.0f, -300.0f);
 
     WackyShaderProgram shader = new WackyShaderProgram;
-    shader.attachShader("shaders/vertexShader.glsl", WackyShaderTypes.VERTEX_SHADER);
-    shader.attachShader("shaders/fragmentShader.glsl", WackyShaderTypes.FRAGMENT_SHADER);
+    shader.attachShader("../../resources/shaders/advanceVS.glsl", WackyShaderTypes.VERTEX_SHADER);
+    shader.attachShader("../../resources/shaders/advanceFS.glsl", WackyShaderTypes.FRAGMENT_SHADER);
     shader.linkShaderProgram();
     shader.useShaderProgram();
 
-    WackySimpleMesh Sphere1 = new WackySimpleMesh("models/sphere.md2");
-    Sphere1.setTexture("textures/wood.jpg");
+    WackySimpleMesh Sphere1 = new WackySimpleMesh("../../resources/models/sphere.md2");
+    Sphere1.setTexture("../../resources/textures/wood.jpg");
 
-    WackySimpleMesh Sphere2 = new WackySimpleMesh("models/sphere.md2");
-    Sphere2.setTexture("textures/wood.jpg");
+    WackySimpleMesh Sphere2 = new WackySimpleMesh("../../resources/models/sphere.md2");
+    Sphere2.setTexture("../../resources/textures/wood.jpg");
 
-    WackySimpleMesh Sphere3 = new WackySimpleMesh("models/sphere.md2");
-    Sphere3.setTexture("textures/wood.jpg");
+    WackySimpleMesh Sphere3 = new WackySimpleMesh("../../resources/models/sphere.md2");
+    Sphere3.setTexture("../../resources/textures/wood.jpg");
 
-    WackySimpleMesh Sphere4 = new WackySimpleMesh("models/sphere.md2");
-    Sphere4.setTexture("textures/wood.jpg");
+    WackySimpleMesh Sphere4 = new WackySimpleMesh("../../resources/models/sphere.md2");
+    Sphere4.setTexture("../../resources/textures/wood.jpg");
 
-    WackySimpleMesh Sphere5 = new WackySimpleMesh("models/sphere.md2");
-    Sphere5.setTexture("textures/wood.jpg");
+    WackySimpleMesh Sphere5 = new WackySimpleMesh("../../resources/models/sphere.md2");
+    Sphere5.setTexture("../../resources/textures/wood.jpg");
 
-    WackySimpleMesh Sphere6 = new WackySimpleMesh("models/sphere.md2");
-    Sphere6.setTexture("textures/metal.jpg");
-    
-    WackySimpleMesh Sphere7 = new WackySimpleMesh("models/sphere.md2");
-    Sphere7.setTexture("textures/metal.jpg");
+    WackySimpleMesh Sphere6 = new WackySimpleMesh("../../resources/models/sphere.md2");
+    Sphere6.setTexture("../../resources/textures/metal.jpg");
 
-    WackySimpleMesh Sphere8 = new WackySimpleMesh("models/sphere.md2");
-    Sphere8.setTexture("textures/metal.jpg");
+    WackySimpleMesh Sphere7 = new WackySimpleMesh("../../resources/models/sphere.md2");
+    Sphere7.setTexture("../../resources/textures/metal.jpg");
 
-    WackySimpleMesh Sphere9 = new WackySimpleMesh("models/sphere.md2");
-    Sphere9.setTexture("textures/metal.jpg");
+    WackySimpleMesh Sphere8 = new WackySimpleMesh("../../resources/models/sphere.md2");
+    Sphere8.setTexture("../../resources/textures/metal.jpg");
 
-    WackySimpleMesh Sphere10 = new WackySimpleMesh("models/sphere.md2");
-    Sphere10.setTexture("textures/wood.jpg");
+    WackySimpleMesh Sphere9 = new WackySimpleMesh("../../resources/models/sphere.md2");
+    Sphere9.setTexture("../../resources/textures/metal.jpg");
+
+    WackySimpleMesh Sphere10 = new WackySimpleMesh("../../resources/models/sphere.md2");
+    Sphere10.setTexture("../../resources/textures/wood.jpg");
 
 
     //engine.observer.setPosition(-450,0,-450);
     //engine.observer.setTarget(3,0,4);
-    
+
 
     //engine.enableVSync();
     auto step = 0.0f;
@@ -117,7 +117,7 @@ void main()
                          )
                         );
 
-    
+
     world.addDynamicBody(new RigidBody(    // id = 5
                              9.0f,  // mass
                              Vector3f(20, 20f, 250f),   // position
@@ -159,7 +159,7 @@ void main()
                          )
                         );
 
- 
+
     for(int i = 0; i < 9; ++ i)
         world.getDynamicBody(i).applyTorque(Vector3f(-i*20000+100000,i*40000,-i*15500));
 

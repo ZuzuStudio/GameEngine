@@ -24,20 +24,20 @@ void main()
     engine.observer.setPosition(0.0f, 0.0f, -300.0f);
 
     WackyShaderProgram shader = new WackyShaderProgram;
-    shader.attachShader("shaders/vertexShader.glsl", WackyShaderTypes.VERTEX_SHADER);
-    shader.attachShader("shaders/fragmentShader.glsl", WackyShaderTypes.FRAGMENT_SHADER);
+    shader.attachShader("../../resources/shaders/advanceVS.glsl", WackyShaderTypes.VERTEX_SHADER);
+    shader.attachShader("../../resources/shaders/advanceFS.glsl", WackyShaderTypes.FRAGMENT_SHADER);
     shader.linkShaderProgram();
     shader.useShaderProgram();
 
     // Loading models
-    WackySimpleMesh car = new WackySimpleMesh("models/car.md2");
-    car.setTexture("textures/car.jpeg");
+    WackySimpleMesh car = new WackySimpleMesh("../../resources/models/car.md2");
+    car.setTexture("../../resources/textures/car.jpeg");
 
-    WackySimpleMesh vehicle = new WackySimpleMesh("models/phoenix.md2");
-    vehicle.setTexture("textures/phoenix.pcx");
+    WackySimpleMesh vehicle = new WackySimpleMesh("../../resources/models/phoenix.md2");
+    vehicle.setTexture("../../resources/textures/phoenix.pcx");
 
-    WackySimpleMesh helicopter = new WackySimpleMesh("models/helicopter.md2");
-    helicopter.setTexture("textures/helicopter.png");
+    WackySimpleMesh helicopter = new WackySimpleMesh("../../resources/models/helicopter.md2");
+    helicopter.setTexture("../../resources/textures/helicopter.png");
 
     // Background
     WackySimpleMesh welcome = new WackySimpleMesh ([-75.0f, -30.0f, 150.0f,
@@ -53,7 +53,7 @@ void main()
                                   1.0f, 0.0f],
                                  );
 
-    welcome.setTexture("textures/welcome.png");
+    welcome.setTexture("../../resources/textures/welcome.png");
 
     engine.enableVSync();
 

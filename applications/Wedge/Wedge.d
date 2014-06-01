@@ -29,18 +29,18 @@ void main()
     engine.observer.setPosition(0.0f, 0.0f, -300.0f);
 
     WackyShaderProgram shader = new WackyShaderProgram;
-    shader.attachShader("shaders/vertexShader.glsl", WackyShaderTypes.VERTEX_SHADER);
-    shader.attachShader("shaders/fragmentShader.glsl", WackyShaderTypes.FRAGMENT_SHADER);
+    shader.attachShader("../../resources/shaders/advanceVS.glsl", WackyShaderTypes.VERTEX_SHADER);
+    shader.attachShader("../../resources/shaders/advanceFS.glsl", WackyShaderTypes.FRAGMENT_SHADER);
     shader.linkShaderProgram();
     shader.useShaderProgram();
     
     engine.observer.setPosition(-200, 100, -2000);
 	
 	// even 1 model would be enough, there are 2 only for different textures
-    WackySimpleMesh woodSphere = new WackySimpleMesh("models/sphere.md2");
-    woodSphere.setTexture("textures/wood.jpg");
-    WackySimpleMesh metalSphere = new WackySimpleMesh("models/sphere.md2");
-    metalSphere.setTexture("textures/metal.jpg");
+    WackySimpleMesh woodSphere = new WackySimpleMesh("../../resources/models/sphere.md2");
+    woodSphere.setTexture("../../resources/textures/wood.jpg");
+    WackySimpleMesh metalSphere = new WackySimpleMesh("../../resources/models/sphere.md2");
+    metalSphere.setTexture("../../resources/textures/metal.jpg");
 
     int size = 8, destrNumber = 8; // number of destroyres
     engine.enableVSync();
