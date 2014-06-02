@@ -266,8 +266,7 @@ public:
         formattedWrite(writer, "%s", coordinates);
         return writer.data;
     }
-    
-    
+
     /**
      *  Is already used in rigidbody to represent transformation
      */
@@ -276,11 +275,11 @@ public:
         @property SquareMatrix!(T, 4) toMatrix4x4() pure nothrow @safe
         {
             SquareMatrix!(T, 4) result = SquareMatrix!(T, 4).identity;
-        
+
             result.a14 = this.x;
             result.a24 = this.y;
             result.a34 = this.z;
-        
+
             return result;
         }
     }
@@ -301,10 +300,10 @@ public:
 
 private:
 
-    /**
-     *   Declaration zero initialized vector
-     */
-    mixin(declaration());
+	/**
+	 *   Declaration zero initialized vector
+	 */
+	mixin(declaration());
 
 	/**
 	 *  Declaration nan representation
@@ -313,16 +312,16 @@ private:
 		mixin(nanEnum());
 	}
 
-    /**
-     *   Build compile time zerovector representation
-     */
-    static string declaration() pure nothrow @safe
-    {
-        string result = "T[size] coordinates = [cast(T)";
-        foreach(unused; 0..size)
-        result ~= "0, ";
-        return result ~ "];";
-    }
+	/**
+	 *   Build compile time zerovector representation
+	 */
+	static string declaration() pure nothrow @safe
+	{
+		string result = "T[size] coordinates = [cast(T)";
+		foreach(unused; 0..size)
+		result ~= "0, ";
+		return result ~ "];";
+	}
 
 	static string nanEnum()pure nothrow @safe
 	{
@@ -641,6 +640,18 @@ unittest
 
 unittest
 {
+	// Testing toMatrix4x4
+	assert(
+	  Matrix4x4f(
+	   1f, 0f, 0f, 5f,
+	   0f, 1f, 0f, 6f,
+	   0f, 0f, 1f, 7f,
+	   0f, 0f, 0f, 1f)
+	     == Vector3f(5f, 6f, 7f).toMatrix4x4);
+}
+
+unittest
+{
 	// Testing permutationBy
 	auto v = Vector4f(1.0f, 2.0f, 3.0f, 4.0f);
 	auto p = Permutation(4);
@@ -655,6 +666,13 @@ unittest
 	assert(7.0f == operatorNorm!one(Vector2f(3.0f, -4.0f)));
 	assert(5.0f == operatorNorm!two(Vector2f(3.0f, -4.0f)));
 	assert(4.0f == operatorNorm!infinity(Vector2f(3.0f, -4.0f)));
+}
+
+unittest
+{
+	// Testing nanEnum()
+	assert("enum T[size] nanRepresentation = [T.nan, T.nan, ];" == Vector2f.nanEnum());
+	assert("enum T[size] nanRepresentation = [T.nan, T.nan, T.nan, T.nan, ];" == Vector4f.nanEnum());
 }
 
 unittest
