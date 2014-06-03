@@ -331,6 +331,9 @@ public:
          }
     } 
 
+    /**
+     *  Return string representation of matrix
+     */
     @property string toString() const
     {
         auto writer = appender!string();
