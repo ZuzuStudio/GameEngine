@@ -1042,6 +1042,9 @@ unittest
 	alias operatorNorm = lib.math.vector.operatorNorm;
 	assert(operatorNorm!one(solve(m, v) - Vector4f(1f, 0f, -1f, 2f)) /
 	      operatorNorm!one(Vector4f(1f, 0f, -1f, 2f)) <= (v.Type).epsilon);
+	alias isNaN = lib.math.vector.isNaN;
+	assert(isNaN(solve(Matrix2x2f(float.nan, 2f, 3f, 4f), Vector2f(3f, 4f))));
+	assert(isNaN(solve(Matrix2x2f(1f, 2f, 2f, 4f), Vector2f(3f, 4f))));
 }
 
 unittest
