@@ -849,6 +849,9 @@ body
 	permute();
 }
 
+/**
+ *  Operator norm.
+ */
 T.Type operatorNorm(OperatorNorm kind, T)(T matrix)
 if(isLibMathSquareMatrix!T)
 {
