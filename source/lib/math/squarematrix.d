@@ -902,6 +902,37 @@ unittest
 
 unittest
 {
+	// Testing index operators
+	auto m = Matrix3x3f(1, 2, 3, 4, 5, 6, 7, 8, 9);
+	assert(4 == m[3]);
+	m[2] = 0;
+	assert(Matrix3x3f(1, 2, 0, 4, 5, 6, 7, 8, 9) == m);
+}
+
+unittest
+{
+	// Testing toString
+	import std.conv;
+	assert("[1, 2, 3]\n[4, 5, 6]\n[7, 8, 9]\n" == to!string(Matrix3x3f(1, 2, 3, 4, 5, 6, 7, 8, 9)));
+}
+
+unittest
+{
+	// Testing string for mixins
+	assert("enum T[linearSize] identityRepresentation =" ~
+	   " [cast(T)1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];" ==
+	   Matrix4x4f.makeIdentityEnum());
+	assert("enum T[linearSize] nanRepresentation ="
+	   " [T.nan, T.nan, T.nan, T.nan, T.nan, T.nan, T.nan, T.nan, T.nan, ];" ==
+	   Matrix3x3f.makeNanEnum());
+	assert("T a11 = cast(T)0;T a12 = cast(T)0;T a13 = cast(T)0;"
+	   "T a21 = cast(T)0;T a22 = cast(T)0;T a23 = cast(T)0;"
+	   "T a31 = cast(T)0;T a32 = cast(T)0;T a33 = cast(T)0;" ==
+	   Matrix3x3f.elements("a"));
+}
+
+unittest
+{
 	// Testing special functions
     auto matrix = initScaleTransformation(1.4f, 3.0f, 2.0f);
     assert(matrix == Matrix4x4f(
@@ -934,7 +965,18 @@ unittest
 
 unittest
 {
-//  Testing operators
+	// Testing ptr property
+	auto p = Matrix4x4f(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16).ptr;
+	assert(is(typeof(p) == float*));
+	auto q = p;
+	q += 2;
+	assert(3f == *q);
+
+}
+
+unittest
+{
+	//  Testing operators
     Matrix3x3f m1 = Matrix3x3f(
         9,8,7,
         6,5,4,
