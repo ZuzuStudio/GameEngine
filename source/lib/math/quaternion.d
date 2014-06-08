@@ -357,3 +357,9 @@ unittest
     assert(vector.y < -1.41f + 0.01f && vector.y > -1.41f - 0.01f);
     assert(vector.z < 4.24f + 0.01f && vector.z > 4.24f - 0.01f);
 }
+
+unittest
+{
+	// Testing toString
+	assert("[1, 2, 3, 4]" == Quaternionf(1f, 2f, 3f, 4f).toString);
+}
