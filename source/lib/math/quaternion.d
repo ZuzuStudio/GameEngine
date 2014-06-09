@@ -363,3 +363,10 @@ unittest
 	// Testing toString
 	assert("[1, 2, 3, 4]" == Quaternionf(1f, 2f, 3f, 4f).toString);
 }
+
+unittest
+{
+	// Testing toMatrix4x4
+	assert(Matrix4x4f(-25f, 28f, -10f, 0f, -20f, -19f, 20f, 0f, 22, 4, -9, 0, 0, 0, 0, 1)
+	   == Quaternionf(1f, 2f, 3f, 4f).toMatrix4x4);
+}
