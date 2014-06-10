@@ -602,6 +602,9 @@ body
     return initPerspectiveTransformation(data[0], data[1], data[2], data[3], data[4]);
 }
 
+/**
+ *  Return inverse matrix. Use LU decomposition, singular or nan matrix return nan matrix
+ */
 @property T inverse(T)(T matrix)pure nothrow @safe
 if(isLibMathSquareMatrix!T)
 {
