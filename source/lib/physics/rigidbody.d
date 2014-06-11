@@ -61,7 +61,7 @@ public:
         _position = original._position;
         _orientation = original._orientation;
 
-        //TO DO
+        //TODO
         _geometry = new Sphere(original._geometry);
         _inertia = original._inertia;
         _invInertia = original._invInertia;
@@ -229,4 +229,21 @@ private:
     //Geometry _geometry;
 
     float _bounce;
+}
+
+unittest
+{
+	// Testing contract
+	import core.exception;
+	try
+	{
+		auto rb = new RigidBody(0.0f, Vector3f(), Quaternionf(), new Sphere(Vector3f(), 10.0f));
+	}
+	catch(AssertError ae)
+	{
+		assert("RigidBody(float mass, Vector3f position,"
+		   " Vector3f orientation, Geometry geometry): "
+		   "Invalid mass value. Mass of rigib body "
+		   "should by more then float.epsilon" == ae.msg);
+	}
 }
