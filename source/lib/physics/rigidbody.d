@@ -20,10 +20,14 @@ public:
      *  Constructor with default parametrs.
      *  by default Vector3f, Quaternionf have zero values
      */
+
+	//TODO documented
     this(float mass, Vector3f position, Quaternionf orientation, Sphere /*Geometry*/ geometry, float bounce = 1.0f ) pure nothrow @safe
     in
     {
-        assert(mass > float.epsilon, "RigidBody(float mass, Vector3f position, Vector3f orientation, Geometry geometry): Invalid mass value. Mass of rigib body should by more then float.epsilon");
+        assert(mass > float.epsilon, "RigidBody(float mass, Vector3f position, "
+           "Vector3f orientation, Geometry geometry): Invalid mass value. "
+           "Mass of rigib body should by more then float.epsilon");
     }
     body
     {
@@ -51,8 +55,7 @@ public:
     this(RigidBody original) pure nothrow @safe
     in
     {
-        assert(original !is null, "RigidBody(RigidBody original): originalequals to null!");
-
+        assert(original !is null, "RigidBody(RigidBody original): original equals to null!");
     }
     body
     {
@@ -233,6 +236,20 @@ private:
 
 unittest
 {
+	// Testing constructors
+	auto rb = new RigidBody(10f, Vector3f(), Quaternionf(), new Sphere(Vector3f(), 10f));
+	std.stdio.writeln(rb._mass);
+	std.stdio.writeln(rb._invMass);
+	std.stdio.writeln(rb._position);
+	std.stdio.writeln(rb._linearVelocity);
+	std.stdio.writeln(rb._linearAcceleration);
+	std.stdio.writeln(rb._forceAccumulator);
+	std.stdio.writeln(rb._inertia);
+	std.stdio.writeln(rb._invInertia);
+}
+
+unittest
+{
 	// Testing contract
 	import core.exception;
 	try
@@ -245,5 +262,16 @@ unittest
 		   " Vector3f orientation, Geometry geometry): "
 		   "Invalid mass value. Mass of rigib body "
 		   "should by more then float.epsilon" == ae.msg);
+	}
+
+	// Testing contract
+	import core.exception;
+	try
+	{
+		auto rbcopy = new RigidBody(null);
+	}
+	catch(AssertError ae)
+	{
+		assert("RigidBody(RigidBody original): original equals to null!" == ae.msg);
 	}
 }
