@@ -238,14 +238,15 @@ unittest
 {
 	// Testing constructors
 	auto rb = new RigidBody(10f, Vector3f(), Quaternionf(), new Sphere(Vector3f(), 10f));
-	std.stdio.writeln(rb._mass);
-	std.stdio.writeln(rb._invMass);
-	std.stdio.writeln(rb._position);
-	std.stdio.writeln(rb._linearVelocity);
-	std.stdio.writeln(rb._linearAcceleration);
-	std.stdio.writeln(rb._forceAccumulator);
-	std.stdio.writeln(rb._inertia);
-	std.stdio.writeln(rb._invInertia);
+	assert(10f == rb._mass);
+	assert(0.1f == rb._invMass);
+	assert(Vector3f() == rb._position);
+	assert(Vector3f() == rb._linearVelocity);
+	assert(Vector3f() == rb._linearAcceleration);
+	assert(Vector3f() == rb._forceAccumulator);
+	assert(Matrix3x3f.diagonal(400f, 400f, 400f) == rb._inertia);
+	assert(Matrix3x3f.diagonal(0.0025f, 0.0025f, 0.0025f) == rb._invInertia);
+	assert(1f == rb._bounce);
 }
 
 unittest
