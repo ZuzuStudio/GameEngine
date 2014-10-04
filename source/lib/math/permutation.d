@@ -537,7 +537,7 @@ unittest
 		auto p = Permutation(3);
 		p._cycleRepresentation ~= [0, 2];
 		p._cycleRepresentation ~= [1];
-		p.arrayRepresentation;// for invariant call
+		cast(void) p.arrayRepresentation;// for invariant call
 	}
 	catch(AssertError ae)
 	{

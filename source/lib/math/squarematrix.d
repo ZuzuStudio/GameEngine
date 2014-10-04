@@ -608,8 +608,8 @@ body
 @property T inverse(T)(T matrix)pure nothrow @safe
 if(isLibMathSquareMatrix!T)
 {
-	if(isNaN(matrix))
-		return T.nan;
+	version(none){if(isNaN(matrix))
+		return T.nan;}
 	auto lup = LUdecomposition(matrix);
 	if(abs(determinant(lup)) > sqrt((T.Type).epsilon))
 	{
