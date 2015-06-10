@@ -46,10 +46,10 @@ public:
 
         GLuint shader = glCreateShader(type);
 
-        GLchar* pointer[1];
+        GLchar*[1] pointer;
         pointer[0]=cast(char*)code.ptr;
 
-        GLint length[1];
+        GLint[1] length;
         length[0]=cast (int) code.length;
 
         glShaderSource (shader, 1, cast(const (char*)*)pointer.ptr, cast(const int*)length);
@@ -158,7 +158,7 @@ private:
     {
         GLint ok;
         glGetShaderiv(shader, GL_COMPILE_STATUS, &ok);
-        char log[2048];
+        char[2048] log;
         if (!ok)
         {
             glGetShaderInfoLog(shader, log.sizeof, null, cast(char*) log);

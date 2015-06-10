@@ -894,7 +894,7 @@ unittest
 unittest
 {
 	// Testing constructors
-    float ar[9] = [1,2,3,4,5,6,7,8,9];
+    float[9] ar = [1,2,3,4,5,6,7,8,9];
     Matrix3x3f m1 = Matrix3x3f(ar);
     Matrix3x3f m2 = Matrix3x3f(1,2,3,4,5,6,7,8,9);
     assert(m1 == m2);

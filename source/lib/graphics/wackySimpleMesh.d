@@ -171,7 +171,7 @@ private:
         INDICES = 2,
     }
 
-    uint buffers[3];
+    uint[3] buffers;
 
     /**
      *  Vertex array object
