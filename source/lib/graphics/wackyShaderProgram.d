@@ -162,7 +162,7 @@ private:
         if (!ok)
         {
             glGetShaderInfoLog(shader, log.sizeof, null, cast(char*) log);
-            return log[];
+            return log.dup;
         }
         return null;
     }
